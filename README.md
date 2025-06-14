@@ -1,26 +1,23 @@
-# カラオケ価格検索アプリ
+# 🎤 カラオケ価格検索アプリ – Karaoke Price Finder
 
-このリポジトリは、時間や場所、利用時間などの条件から最安値のカラオケ店を探せるWebアプリのソースコードです。
+現在地または住所を入力するだけで**最安値のカラオケ店**が一瞬で分かるウェブアプリです。
 
-## 主な機能
+[![Deploy – Vercel](https://img.shields.io/badge/Vercel-Live-black?logo=vercel)](https://k-price.vercel.app)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-- 現在地の取得または住所入力による検索
-- 距離・開始時間・利用時間・人数の指定
-- 学割やチェーン会員情報を加味した料金比較
-- 検索結果をリスト表示とマップ表示で切り替え
-- 店舗詳細画面で料金プランやサービス内容を確認
-
-※ 現在はモックデータで動作しており、実際の店舗データとの連携は今後の予定です。
-
-## デモ
-
-実際に動作するアプリは Vercel 上で公開しています。
+## ✨ Demo
 
 <https://vercel.com/miinakoyamas-projects/v0-ui>
 
-## セットアップ
+## 🛠️ Tech Stack
+
+- **Next.js 14 (App Router) / React 18**
+- **Tailwind CSS**
+
+## 🚀 Quick Start
 
 ```bash
+git clone https://github.com/miinakoyama/karaoke-price-finder.git
 cd frontend
 npm install
 npm run dev
@@ -28,16 +25,12 @@ npm run dev
 
 Node.js 18 以上での動作を想定しています。開発用サーバーは `http://localhost:3000` で起動します。
 
-## ディレクトリ構成
+## 🗂️ Directory Structure
 
 - `frontend/app` - アプリケーションのページやルーティング
 - `frontend/components` - 再利用可能なUIコンポーネント
 - `frontend/public` - 画像などの静的アセット
 
-## ライセンス
-
-MIT
-
-## 参考リンク
+## 🔗 Reference Links
 
 この UI は [v0.dev](https://v0.dev/chat/projects/iSVK7TA8LcM) のチャットから生成したものをベースにしています。
