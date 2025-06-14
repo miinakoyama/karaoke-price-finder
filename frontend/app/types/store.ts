@@ -15,12 +15,12 @@ export interface Store {
 }
 
 export interface MembershipSettings {
-  karaokeCan: { isMember: boolean; memberNumber: string }
-  bigEcho: { isMember: boolean; memberNumber: string }
-  tetsuJin: { isMember: boolean; memberNumber: string }
-  manekineko: { isMember: boolean; memberNumber: string }
-  jankara: { isMember: boolean; memberNumber: string }
-  utahiroba: { isMember: boolean; memberNumber: string }
+  karaokeCan: { isMember: boolean }
+  bigEcho: { isMember: boolean }
+  tetsuJin: { isMember: boolean }
+  manekineko: { isMember: boolean }
+  jankara: { isMember: boolean }
+  utahiroba: { isMember: boolean }
 }
 
 export const mockStores: Store[] = [

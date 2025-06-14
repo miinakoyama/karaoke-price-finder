@@ -11,6 +11,7 @@ export default function KaraokeSearchApp() {
   const [viewMode, setViewMode] = useState<"list" | "map">("list")
   const [selectedStore, setSelectedStore] = useState<Store | null>(null)
   const [searchLocation, setSearchLocation] = useState("")
+  const [distance, setDistance] = useState([1000])
   const [duration, setDuration] = useState([2.5])
   const [startTime, setStartTime] = useState("18:00")
   const [people, setPeople] = useState(2)
@@ -18,18 +19,18 @@ export default function KaraokeSearchApp() {
   const [drinkBar, setDrinkBar] = useState(false)
 
   const [membershipSettings, setMembershipSettings] = useState<MembershipSettings>({
-    karaokeCan: { isMember: false, memberNumber: "" },
-    bigEcho: { isMember: false, memberNumber: "" },
-    tetsuJin: { isMember: false, memberNumber: "" },
-    manekineko: { isMember: false, memberNumber: "" },
-    jankara: { isMember: false, memberNumber: "" },
-    utahiroba: { isMember: false, memberNumber: "" },
+    karaokeCan: { isMember: false },
+    bigEcho: { isMember: false },
+    tetsuJin: { isMember: false },
+    manekineko: { isMember: false },
+    jankara: { isMember: false },
+    utahiroba: { isMember: false },
   })
 
-  const updateMembership = (chainKey: string, isMember: boolean, memberNumber = "") => {
+  const updateMembership = (chainKey: string, isMember: boolean) => {
     setMembershipSettings((prev) => ({
       ...prev,
-      [chainKey]: { isMember, memberNumber },
+      [chainKey]: { isMember },
     }))
   }
 
@@ -50,6 +51,8 @@ export default function KaraokeSearchApp() {
       <SearchPage
         searchLocation={searchLocation}
         setSearchLocation={setSearchLocation}
+        distance={distance}
+        setDistance={setDistance}
         startTime={startTime}
         setStartTime={setStartTime}
         duration={duration}
