@@ -65,7 +65,7 @@ export function ResultsPage({
 
       {/* Filter Chips */}
       <div className="px-4 py-3 bg-white border-b">
-        <div className="flex gap-2 overflow-x-auto">
+        <div className="flex flex-wrap gap-2">
           <Badge variant="outline" className="whitespace-nowrap">
             {searchLocation || "場所未指定"}
           </Badge>
@@ -82,9 +82,11 @@ export function ResultsPage({
             {studentDiscount ? "学割利用" : "学割なし"}
           </Badge>
           {memberStoreLabel && (
-            <Badge variant="outline" className="whitespace-nowrap">
-              {`会員: ${memberStoreLabel}`}
-            </Badge>
+            <div className="basis-full">
+              <Badge variant="outline" className="whitespace-nowrap">
+                {`会員: ${memberStoreLabel}`}
+              </Badge>
+            </div>
           )}
         </div>
       </div>
