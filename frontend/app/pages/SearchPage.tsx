@@ -12,6 +12,8 @@ interface SearchPageProps {
   setSearchLocation: (location: string) => void
   distance: number[]
   setDistance: (distance: number[]) => void
+  startTime: string
+  setStartTime: (time: string) => void
   duration: number[]
   setDuration: (duration: number[]) => void
   people: number
@@ -31,6 +33,8 @@ export function SearchPage({
   setSearchLocation,
   distance, 
   setDistance,
+  startTime,
+  setStartTime,
   duration,
   setDuration,
   people,
@@ -114,7 +118,13 @@ export function SearchPage({
                   <Clock className="w-4 h-4" />
                   開始時間
                 </label>
-                <Input type="time" defaultValue="18:00" />
+                <Input
+                  type="time"
+                  value={startTime}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                    setStartTime(e.target.value)
+                  }
+                />
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium">利用時間</label>

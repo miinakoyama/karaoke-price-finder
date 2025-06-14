@@ -13,6 +13,7 @@ export default function KaraokeSearchApp() {
   const [searchLocation, setSearchLocation] = useState("")
   const [distance, setDistance] = useState([1000])
   const [duration, setDuration] = useState([2.5])
+  const [startTime, setStartTime] = useState("18:00")
   const [people, setPeople] = useState(2)
   const [studentDiscount, setStudentDiscount] = useState(false)
   const [drinkBar, setDrinkBar] = useState(false)
@@ -52,6 +53,8 @@ export default function KaraokeSearchApp() {
         setSearchLocation={setSearchLocation}
         distance={distance}
         setDistance={setDistance}
+        startTime={startTime}
+        setStartTime={setStartTime}
         duration={duration}
         setDuration={setDuration}
         people={people}
@@ -75,6 +78,11 @@ export default function KaraokeSearchApp() {
         viewMode={viewMode}
         setViewMode={setViewMode}
         stores={mockStores}
+        searchLocation={searchLocation}
+        startTime={startTime}
+        duration={duration}
+        people={people}
+        studentDiscount={studentDiscount}
         membershipSettings={membershipSettings}
         onStoreSelect={setSelectedStore}
       />
