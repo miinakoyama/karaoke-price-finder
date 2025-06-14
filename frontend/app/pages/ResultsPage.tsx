@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Map, List, Navigation, Star } from "lucide-react"
 import { Store, MembershipSettings } from "../types/store"
+import Image from "next/image"
 
 interface ResultsPageProps {
   onBack: () => void
@@ -46,6 +47,15 @@ export function ResultsPage({
     manekineko: 'まねきねこ',
     jankara: 'ジャンカラ',
     utahiroba: '歌広場',
+  }
+
+  const chainLogoMap: Record<string, string> = {
+    karaokeCan: '/karaokeCan.png',
+    bigEcho: '/bigEcho.jpeg',
+    tetsuJin: '/karaokeTetsujin.jpeg',
+    manekineko: '/manekiNeko.jpg',
+    jankara: '/jyanKara.jpg',
+    utahiroba: '/utahiroba.jpeg',
   }
 
   const memberStoreLabel = Object.entries(membershipSettings)
@@ -110,8 +120,14 @@ export function ResultsPage({
               <Card key={store.id} className="shadow-sm cursor-pointer hover:shadow-md transition-shadow">
                 <CardContent className="p-4" onClick={() => onStoreSelect(store)}>
                   <div className="flex items-start gap-3">
-                    <div className="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center">
-                      <span className="text-indigo-600 font-bold text-sm">{store.chain.charAt(0)}</span>
+                    <div className="w-12 h-12 rounded-full overflow-hidden flex items-center justify-center bg-white border">
+                      <Image
+                        src={chainLogoMap[store.chainKey] || '/placeholder-logo.png'}
+                        alt={store.chain}
+                        width={48}
+                        height={48}
+                        className="object-contain w-full h-full"
+                      />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
