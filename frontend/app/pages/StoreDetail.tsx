@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge"
 import { Sheet, SheetContent } from "@/components/ui/sheet"
 import { MapPin, Phone, Star } from "lucide-react"
 import { Store, MembershipSettings } from "../types/store"
+import Image from "next/image"
 
 interface StoreDetailProps {
   store: Store | null
@@ -17,14 +18,29 @@ export function StoreDetail({ store, onClose, membershipSettings }: StoreDetailP
   const memberPrice = store.memberPrice
   const regularPrice = store.price
 
+  const chainLogoMap: Record<string, string> = {
+    karaokeCan: '/karaokeCan.png',
+    bigEcho: '/bigEcho.jpeg',
+    tetsuJin: '/karaokeTetsujin.jpeg',
+    manekineko: '/manekiNeko.jpg',
+    jankara: '/jyanKara.jpg',
+    utahiroba: '/utahiroba.jpeg',
+  }
+
   return (
     <Sheet open={!!store} onOpenChange={onClose}>
       <SheetContent side="bottom" className="h-[90vh] rounded-t-xl">
         <div className="py-6 space-y-6">
           {/* Store Header */}
           <div className="text-center">
-            <div className="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center mx-auto mb-3">
-              <span className="text-indigo-600 font-bold text-xl">{store.chain.charAt(0)}</span>
+            <div className="w-16 h-16 rounded-full overflow-hidden flex items-center justify-center mx-auto mb-3 bg-white border">
+              <Image
+                src={chainLogoMap[store.chainKey] || '/placeholder-logo.png'}
+                alt={store.chain}
+                width={64}
+                height={64}
+                className="object-contain w-full h-full"
+              />
             </div>
             <h2 className="text-xl font-bold text-gray-900">{store.name}</h2>
             <p className="text-gray-500">{store.address}</p>
