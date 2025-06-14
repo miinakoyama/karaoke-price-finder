@@ -3,13 +3,15 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
 import { Slider } from "@/components/ui/slider"
 import { Badge } from "@/components/ui/badge"
-import { MapPin, Search, Clock, Users, ChevronDown } from "lucide-react"
+import { MapPin, Search, Footprints, Clock, Users } from "lucide-react"
 import { MembershipSettings } from "../types/store"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 
 interface SearchPageProps {
   searchLocation: string
   setSearchLocation: (location: string) => void
+  distance: number[]
+  setDistance: (distance: number[]) => void
   duration: number[]
   setDuration: (duration: number[]) => void
   people: number
@@ -27,6 +29,8 @@ interface SearchPageProps {
 export function SearchPage({
   searchLocation,
   setSearchLocation,
+  distance, 
+  setDistance,
   duration,
   setDuration,
   people,
@@ -40,6 +44,11 @@ export function SearchPage({
   membershipSettings,
   updateMembership,
 }: SearchPageProps) {
+  const formatDistance = (distance: number) => {
+    if (distance === 500) return `${distance}m以内`
+    return `${distance/1000}km以内`
+  }
+
   const formatDuration = (hours: number) => {
     const h = Math.floor(hours)
     const m = Math.round((hours - h) * 60)
@@ -79,6 +88,22 @@ export function SearchPage({
                   value={searchLocation}
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchLocation(e.target.value)}
                 />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium flex items-center gap-1">
+                <Footprints className="w-4 h-4" />
+                距離
+              </label>
+              <div className="px-2">
+                <Slider value={distance} onValueChange={setDistance} max={3000} min={500} step={500} className="w-full" />
+                <div className="flex justify-between text-xs text-gray-500 mt-2">
+                  <span>500m以内</span>
+                  <Badge variant="secondary" className="text-xs">
+                    {formatDistance(distance[0])}
+                  </Badge>
+                  <span>3km以内</span>
+                </div>
               </div>
             </div>
 

@@ -11,6 +11,7 @@ export default function KaraokeSearchApp() {
   const [viewMode, setViewMode] = useState<"list" | "map">("list")
   const [selectedStore, setSelectedStore] = useState<Store | null>(null)
   const [searchLocation, setSearchLocation] = useState("")
+  const [distance, setDistance] = useState([1000])
   const [duration, setDuration] = useState([2.5])
   const [people, setPeople] = useState(2)
   const [studentDiscount, setStudentDiscount] = useState(false)
@@ -49,6 +50,8 @@ export default function KaraokeSearchApp() {
       <SearchPage
         searchLocation={searchLocation}
         setSearchLocation={setSearchLocation}
+        distance={distance}
+        setDistance={setDistance}
         duration={duration}
         setDuration={setDuration}
         people={people}
