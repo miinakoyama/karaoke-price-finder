@@ -63,7 +63,6 @@ export function ResultsPage({
           {stores.map((store) => {
             const isMember = membershipSettings[store.chainKey as keyof typeof membershipSettings]?.isMember
             const displayPrice = isMember && store.memberPrice ? store.memberPrice : store.price
-            const hasMemberDiscount = isMember && store.memberPrice && store.memberPrice < store.price
 
             return (
               <Card key={store.id} className="shadow-sm cursor-pointer hover:shadow-md transition-shadow">
@@ -94,22 +93,10 @@ export function ResultsPage({
                           </div>
                         </div>
                         <div className="text-right">
-                          <div className="flex items-center gap-1">
-                            {hasMemberDiscount && (
-                              <div className="text-sm text-gray-400 line-through">¥{store.price.toLocaleString()}</div>
-                            )}
-                            <div
-                              className={`text-2xl font-bold ${hasMemberDiscount ? "text-green-600" : "text-gray-900"}`}
-                            >
-                              ¥{displayPrice.toLocaleString()}
-                            </div>
+                          <div className="text-2xl font-bold text-gray-900">
+                            ¥{displayPrice.toLocaleString()}
                           </div>
                           <div className="text-sm text-gray-500">{store.duration}</div>
-                          {hasMemberDiscount && store.memberPrice && (
-                            <div className="text-xs text-green-600 font-medium">
-                              ¥{(store.price - store.memberPrice).toLocaleString()}お得
-                            </div>
-                          )}
                         </div>
                       </div>
                       <div className="flex items-center justify-between mt-2 text-sm text-gray-500">

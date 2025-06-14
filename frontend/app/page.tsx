@@ -4,7 +4,6 @@ import { useState } from "react"
 import { SearchPage } from "./pages/SearchPage"
 import { ResultsPage } from "./pages/ResultsPage"
 import { StoreDetail } from "./pages/StoreDetail"
-import { SettingsSheet } from "./pages/SettingsSheet"
 import { Store, MembershipSettings, mockStores } from "./types/store"
 
 export default function KaraokeSearchApp() {
@@ -16,7 +15,6 @@ export default function KaraokeSearchApp() {
   const [people, setPeople] = useState(2)
   const [studentDiscount, setStudentDiscount] = useState(false)
   const [drinkBar, setDrinkBar] = useState(false)
-  const [drawerOpen, setDrawerOpen] = useState(false)
 
   const [membershipSettings, setMembershipSettings] = useState<MembershipSettings>({
     karaokeCan: { isMember: false, memberNumber: "" },
@@ -48,34 +46,22 @@ export default function KaraokeSearchApp() {
 
   if (currentView === "home") {
     return (
-      <>
-        <SearchPage
-          searchLocation={searchLocation}
-          setSearchLocation={setSearchLocation}
-          duration={duration}
-          setDuration={setDuration}
-          people={people}
-          setPeople={setPeople}
-          studentDiscount={studentDiscount}
-          setStudentDiscount={setStudentDiscount}
-          drinkBar={drinkBar}
-          setDrinkBar={setDrinkBar}
-          onSearch={handleSearch}
-          onUseCurrentLocation={handleUseCurrentLocation}
-          membershipSettings={membershipSettings}
-          updateMembership={updateMembership}
-        />
-        <SettingsSheet
-          open={drawerOpen}
-          onOpenChange={setDrawerOpen}
-          membershipSettings={membershipSettings}
-          updateMembership={updateMembership}
-          people={people}
-          setPeople={setPeople}
-          drinkBar={drinkBar}
-          setDrinkBar={setDrinkBar}
-        />
-      </>
+      <SearchPage
+        searchLocation={searchLocation}
+        setSearchLocation={setSearchLocation}
+        duration={duration}
+        setDuration={setDuration}
+        people={people}
+        setPeople={setPeople}
+        studentDiscount={studentDiscount}
+        setStudentDiscount={setStudentDiscount}
+        drinkBar={drinkBar}
+        setDrinkBar={setDrinkBar}
+        onSearch={handleSearch}
+        onUseCurrentLocation={handleUseCurrentLocation}
+        membershipSettings={membershipSettings}
+        updateMembership={updateMembership}
+      />
     )
   }
 

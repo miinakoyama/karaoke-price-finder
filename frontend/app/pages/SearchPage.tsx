@@ -3,10 +3,9 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
 import { Slider } from "@/components/ui/slider"
 import { Badge } from "@/components/ui/badge"
-import { MapPin, Search, Clock, Users, ChevronDown, Menu } from "lucide-react"
-import { SettingsSheet } from "./SettingsSheet"
+import { MapPin, Search, Clock, Users, ChevronDown } from "lucide-react"
 import { MembershipSettings } from "../types/store"
-import { useState } from "react"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 
 interface SearchPageProps {
   searchLocation: string
@@ -41,8 +40,6 @@ export function SearchPage({
   membershipSettings,
   updateMembership,
 }: SearchPageProps) {
-  const [drawerOpen, setDrawerOpen] = useState(false)
-
   const formatDuration = (hours: number) => {
     const h = Math.floor(hours)
     const m = Math.round((hours - h) * 60)
@@ -61,16 +58,6 @@ export function SearchPage({
           </div>
           <span className="font-semibold text-gray-900">カラオケ最安検索</span>
         </div>
-        <SettingsSheet
-          open={drawerOpen}
-          onOpenChange={setDrawerOpen}
-          membershipSettings={membershipSettings}
-          updateMembership={updateMembership}
-          people={people}
-          setPeople={setPeople}
-          drinkBar={drinkBar}
-          setDrinkBar={setDrinkBar}
-        />
       </header>
 
       {/* Search Card */}
@@ -154,6 +141,88 @@ export function SearchPage({
                 ドリンクバー希望
               </Button>
             </div>
+
+            {/* Membership Settings */}
+            <Accordion type="single" collapsible className="w-full">
+              <AccordionItem value="membership">
+                <AccordionTrigger className="text-sm font-medium">会員設定</AccordionTrigger>
+                <AccordionContent>
+                  <div className="space-y-3">
+                    {/* カラオケ館 */}
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">カラオケ館</span>
+                      <Button
+                        variant={membershipSettings.karaokeCan.isMember ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => updateMembership("karaokeCan", !membershipSettings.karaokeCan.isMember)}
+                      >
+                        {membershipSettings.karaokeCan.isMember ? "会員" : "非会員"}
+                      </Button>
+                    </div>
+
+                    {/* ビッグエコー */}
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">ビッグエコー</span>
+                      <Button
+                        variant={membershipSettings.bigEcho.isMember ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => updateMembership("bigEcho", !membershipSettings.bigEcho.isMember)}
+                      >
+                        {membershipSettings.bigEcho.isMember ? "会員" : "非会員"}
+                      </Button>
+                    </div>
+
+                    {/* カラオケの鉄人 */}
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">カラオケの鉄人</span>
+                      <Button
+                        variant={membershipSettings.tetsuJin.isMember ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => updateMembership("tetsuJin", !membershipSettings.tetsuJin.isMember)}
+                      >
+                        {membershipSettings.tetsuJin.isMember ? "会員" : "非会員"}
+                      </Button>
+                    </div>
+
+                    {/* まねきねこ */}
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">まねきねこ</span>
+                      <Button
+                        variant={membershipSettings.manekineko.isMember ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => updateMembership("manekineko", !membershipSettings.manekineko.isMember)}
+                      >
+                        {membershipSettings.manekineko.isMember ? "会員" : "非会員"}
+                      </Button>
+                    </div>
+
+                    {/* ジャンカラ */}
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">ジャンカラ</span>
+                      <Button
+                        variant={membershipSettings.jankara.isMember ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => updateMembership("jankara", !membershipSettings.jankara.isMember)}
+                      >
+                        {membershipSettings.jankara.isMember ? "会員" : "非会員"}
+                      </Button>
+                    </div>
+
+                    {/* 歌広場 */}
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">歌広場</span>
+                      <Button
+                        variant={membershipSettings.utahiroba.isMember ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => updateMembership("utahiroba", !membershipSettings.utahiroba.isMember)}
+                      >
+                        {membershipSettings.utahiroba.isMember ? "会員" : "非会員"}
+                      </Button>
+                    </div>
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
 
             {/* Search Button */}
             <Button className="w-full bg-orange-500 hover:bg-orange-600" onClick={onSearch}>
