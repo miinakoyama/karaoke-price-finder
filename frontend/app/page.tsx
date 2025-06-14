@@ -79,6 +79,7 @@ export default function KaraokeSearchApp() {
         setViewMode={setViewMode}
         stores={mockStores}
         searchLocation={searchLocation}
+        distance={distance}
         startTime={startTime}
         duration={duration}
         people={people}

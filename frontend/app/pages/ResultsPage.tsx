@@ -11,6 +11,7 @@ interface ResultsPageProps {
   setViewMode: (mode: "list" | "map") => void
   stores: Store[]
   searchLocation: string
+  distance: number[]
   startTime: string
   duration: number[]
   people: number
@@ -25,6 +26,7 @@ export function ResultsPage({
   setViewMode,
   stores,
   searchLocation,
+  distance,
   startTime,
   duration,
   people,
@@ -38,6 +40,11 @@ export function ResultsPage({
     if (h === 0) return `${m}分`
     if (m === 0) return `${h}時間`
     return `${h}時間${m}分`
+  }
+
+  const formatDistance = (d: number) => {
+    if (d === 500) return `${d}m以内`
+    return `${d / 1000}km以内`
   }
 
   const chainNameMap: Record<string, string> = {
@@ -78,6 +85,9 @@ export function ResultsPage({
         <div className="flex flex-wrap gap-2">
           <Badge variant="outline" className="whitespace-nowrap">
             {searchLocation || "場所未指定"}
+          </Badge>
+          <Badge variant="outline" className="whitespace-nowrap">
+            {`距離 ${formatDistance(distance[0])}`}
           </Badge>
           <Badge variant="outline" className="whitespace-nowrap">
             {`開始 ${startTime}`}
