@@ -1,6 +1,6 @@
 # カラオケ価格検索アプリ
 
-このリポジトリは、時間や場所、利用時間などの条件から最安値のカラオケ店を探せるWebアプリのソースコードです。Next.js と Tailwind CSS を利用しており、スマートフォンからの利用を想定したUIを提供します。
+このリポジトリは、時間や場所、利用時間などの条件から最安値のカラオケ店を探せるWebアプリのソースコードです。
 
 ## 主な機能
 
@@ -22,8 +22,8 @@
 
 ```bash
 cd frontend
-pnpm install    # または npm install
-pnpm dev        # または npm run dev
+npm install
+npm run dev
 ```
 
 Node.js 18 以上での動作を想定しています。開発用サーバーは `http://localhost:3000` で起動します。
