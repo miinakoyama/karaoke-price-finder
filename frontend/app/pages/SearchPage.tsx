@@ -44,6 +44,7 @@ export function SearchPage({
     const h = Math.floor(hours)
     const m = Math.round((hours - h) * 60)
     if (h === 0) return `${m}分`
+    if (h === 4) return  `${h}時間以上`
     if (m === 0) return `${h}時間`
     return `${h}時間${m}分`
   }
