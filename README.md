@@ -1,30 +1,36 @@
-# カラオケアプリUI
+# 🎤 カラオケ価格検索アプリ – Karaoke Price Finder
 
-*Automatically synced with your [v0.dev](https://v0.dev) deployments*
+現在地または住所を入力するだけで**最安値のカラオケ店**が一瞬で分かるウェブアプリです。
 
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/miinakoyamas-projects/v0-ui)
-[![Built with v0](https://img.shields.io/badge/Built%20with-v0.dev-black?style=for-the-badge)](https://v0.dev/chat/projects/iSVK7TA8LcM)
+[![Deploy – Vercel](https://img.shields.io/badge/Vercel-Live-black?logo=vercel)](https://k-price.vercel.app)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-## Overview
+## ✨ Demo
 
-This repository will stay in sync with your deployed chats on [v0.dev](https://v0.dev).
-Any changes you make to your deployed app will be automatically pushed to this repository from [v0.dev](https://v0.dev).
+<https://vercel.com/miinakoyamas-projects/v0-ui>
 
-## Deployment
+## 🛠️ Tech Stack
 
-Your project is live at:
+- **Next.js 14 (App Router) / React 18**
+- **Tailwind CSS**
 
-**[https://vercel.com/miinakoyamas-projects/v0-ui](https://vercel.com/miinakoyamas-projects/v0-ui)**
+## 🚀 Quick Start
 
-## Build your app
+```bash
+git clone https://github.com/miinakoyama/karaoke-price-finder.git
+cd frontend
+npm install
+npm run dev
+```
 
-Continue building your app on:
+Node.js 18 以上での動作を想定しています。開発用サーバーは `http://localhost:3000` で起動します。
 
-**[https://v0.dev/chat/projects/iSVK7TA8LcM](https://v0.dev/chat/projects/iSVK7TA8LcM)**
+## 🗂️ Directory Structure
 
-## How It Works
+- `frontend/app` - アプリケーションのページやルーティング
+- `frontend/components` - 再利用可能なUIコンポーネント
+- `frontend/public` - 画像などの静的アセット
 
-1. Create and modify your project using [v0.dev](https://v0.dev)
-2. Deploy your chats from the v0 interface
-3. Changes are automatically pushed to this repository
-4. Vercel deploys the latest version from this repository
+## 🔗 Reference Links
+
+この UI は [v0.dev](https://v0.dev/chat/projects/iSVK7TA8LcM) のチャットから生成したものをベースにしています。
