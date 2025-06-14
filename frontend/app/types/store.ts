@@ -36,7 +36,7 @@ export const mockStores: Store[] = [
     rating: 4.2,
     address: "東京都渋谷区道玄坂2-10-7",
     phone: "03-1234-5678",
-    features: ["ドリンクバー付", "学割あり", "24時間営業"],
+    features: ["ドリンクバー付"],
     chainKey: "karaokeCan",
   },
   {
@@ -51,7 +51,7 @@ export const mockStores: Store[] = [
     rating: 4.0,
     address: "東京都新宿区新宿3-15-8",
     phone: "03-2345-6789",
-    features: ["学割あり", "フリータイム"],
+    features: [],
     chainKey: "bigEcho",
   },
   {
@@ -66,7 +66,7 @@ export const mockStores: Store[] = [
     rating: 4.5,
     address: "東京都豊島区南池袋1-20-1",
     phone: "03-3456-7890",
-    features: ["ドリンクバー付", "深夜パック"],
+    features: ["ドリンクバー付"],
     chainKey: "tetsuJin",
   },
-] 
+]
