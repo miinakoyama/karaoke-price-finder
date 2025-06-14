@@ -9,6 +9,11 @@ interface ResultsPageProps {
   viewMode: "list" | "map"
   setViewMode: (mode: "list" | "map") => void
   stores: Store[]
+  searchLocation: string
+  startTime: string
+  duration: number[]
+  people: number
+  studentDiscount: boolean
   membershipSettings: MembershipSettings
   onStoreSelect: (store: Store) => void
 }
@@ -18,9 +23,36 @@ export function ResultsPage({
   viewMode,
   setViewMode,
   stores,
+  searchLocation,
+  startTime,
+  duration,
+  people,
+  studentDiscount,
   membershipSettings,
   onStoreSelect,
 }: ResultsPageProps) {
+  const formatDuration = (hours: number) => {
+    const h = Math.floor(hours)
+    const m = Math.round((hours - h) * 60)
+    if (h === 0) return `${m}分`
+    if (m === 0) return `${h}時間`
+    return `${h}時間${m}分`
+  }
+
+  const chainNameMap: Record<string, string> = {
+    karaokeCan: 'カラオケ館',
+    bigEcho: 'ビッグエコー',
+    tetsuJin: 'カラオケの鉄人',
+    manekineko: 'まねきねこ',
+    jankara: 'ジャンカラ',
+    utahiroba: '歌広場',
+  }
+
+  const memberStoreLabel = Object.entries(membershipSettings)
+    .filter(([, v]) => v.isMember)
+    .map(([k]) => chainNameMap[k] || k)
+    .join('、')
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -35,17 +67,25 @@ export function ResultsPage({
       <div className="px-4 py-3 bg-white border-b">
         <div className="flex gap-2 overflow-x-auto">
           <Badge variant="outline" className="whitespace-nowrap">
-            半径1km以内
+            {searchLocation || "場所未指定"}
           </Badge>
           <Badge variant="outline" className="whitespace-nowrap">
-            24時間営業
+            {`開始 ${startTime}`}
           </Badge>
           <Badge variant="outline" className="whitespace-nowrap">
-            フリータイム
+            {`利用 ${formatDuration(duration[0])}`}
           </Badge>
           <Badge variant="outline" className="whitespace-nowrap">
-            学割対応
+            {`${people}人`}
           </Badge>
+          <Badge variant="outline" className="whitespace-nowrap">
+            {studentDiscount ? "学割利用" : "学割なし"}
+          </Badge>
+          {memberStoreLabel && (
+            <Badge variant="outline" className="whitespace-nowrap">
+              {`会員: ${memberStoreLabel}`}
+            </Badge>
+          )}
         </div>
       </div>
 
