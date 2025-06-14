@@ -93,13 +93,13 @@ export function SearchPage({
               <div className="space-y-2">
                 <label className="text-sm font-medium">利用時間</label>
                 <div className="px-2">
-                  <Slider value={duration} onValueChange={setDuration} max={8} min={0.5} step={0.5} className="w-full" />
+                  <Slider value={duration} onValueChange={setDuration} max={4} min={0.5} step={0.5} className="w-full" />
                   <div className="flex justify-between text-xs text-gray-500 mt-1">
                     <span>30分</span>
                     <Badge variant="secondary" className="text-xs">
                       {formatDuration(duration[0])}
                     </Badge>
-                    <span>8時間</span>
+                    <span>4時間以上</span>
                   </div>
                 </div>
               </div>
@@ -123,7 +123,7 @@ export function SearchPage({
             </div>
 
             {/* Options */}
-            <div className="flex gap-2 flex-wrap">
+            <div>
               <Button
                 variant={studentDiscount ? "default" : "outline"}
                 size="sm"
@@ -131,14 +131,6 @@ export function SearchPage({
                 className={studentDiscount ? "bg-orange-500 hover:bg-orange-600" : ""}
               >
                 学割
-              </Button>
-              <Button
-                variant={drinkBar ? "default" : "outline"}
-                size="sm"
-                onClick={() => setDrinkBar(!drinkBar)}
-                className={drinkBar ? "bg-orange-500 hover:bg-orange-600" : ""}
-              >
-                ドリンクバー希望
               </Button>
             </div>
 
@@ -231,11 +223,6 @@ export function SearchPage({
           </CardContent>
         </Card>
 
-        {/* Help Hint */}
-        <div className="flex items-center justify-center gap-1 mt-4 text-sm text-gray-500">
-          <ChevronDown className="w-4 h-4" />
-          使い方を見る
-        </div>
       </div>
     </div>
   )
