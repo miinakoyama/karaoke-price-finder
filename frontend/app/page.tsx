@@ -1,12 +1,12 @@
 "use client"
 
 import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Card, CardContent } from "@/components/ui/card"
-import { Slider } from "@/components/ui/slider"
-import { Badge } from "@/components/ui/badge"
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { Button } from "@/frontend/components/ui/button"
+import { Input } from "@/frontend/components/ui/input"
+import { Card, CardContent } from "@/frontend/components/ui/card"
+import { Slider } from "@/frontend/components/ui/slider"
+import { Badge } from "@/frontend/components/ui/badge"
+import { Sheet, SheetContent, SheetTrigger } from "@/frontend/components/ui/sheet"
 import { MapPin, Search, Clock, Users, Menu, ChevronDown, Phone, Star, Navigation, Map, List } from "lucide-react"
 
 // Storeインターフェースを更新（既存のStoreインターフェースを以下に置き換え）
