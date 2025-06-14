@@ -1,30 +1,43 @@
-# カラオケアプリUI
+# カラオケ価格検索アプリ
 
-*Automatically synced with your [v0.dev](https://v0.dev) deployments*
+このリポジトリは、時間や場所、利用時間などの条件から最安値のカラオケ店を探せるWebアプリのソースコードです。Next.js と Tailwind CSS を利用しており、スマートフォンからの利用を想定したUIを提供します。
 
-[![Deployed on Vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black?style=for-the-badge&logo=vercel)](https://vercel.com/miinakoyamas-projects/v0-ui)
-[![Built with v0](https://img.shields.io/badge/Built%20with-v0.dev-black?style=for-the-badge)](https://v0.dev/chat/projects/iSVK7TA8LcM)
+## 主な機能
 
-## Overview
+- 現在地の取得または住所入力による検索
+- 距離・開始時間・利用時間・人数の指定
+- 学割やチェーン会員情報を加味した料金比較
+- 検索結果をリスト表示とマップ表示で切り替え
+- 店舗詳細画面で料金プランやサービス内容を確認
 
-This repository will stay in sync with your deployed chats on [v0.dev](https://v0.dev).
-Any changes you make to your deployed app will be automatically pushed to this repository from [v0.dev](https://v0.dev).
+※ 現在はモックデータで動作しており、実際の店舗データとの連携は今後の予定です。
 
-## Deployment
+## デモ
 
-Your project is live at:
+実際に動作するアプリは Vercel 上で公開しています。
 
-**[https://vercel.com/miinakoyamas-projects/v0-ui](https://vercel.com/miinakoyamas-projects/v0-ui)**
+<https://vercel.com/miinakoyamas-projects/v0-ui>
 
-## Build your app
+## セットアップ
 
-Continue building your app on:
+```bash
+cd frontend
+pnpm install    # または npm install
+pnpm dev        # または npm run dev
+```
 
-**[https://v0.dev/chat/projects/iSVK7TA8LcM](https://v0.dev/chat/projects/iSVK7TA8LcM)**
+Node.js 18 以上での動作を想定しています。開発用サーバーは `http://localhost:3000` で起動します。
 
-## How It Works
+## ディレクトリ構成
 
-1. Create and modify your project using [v0.dev](https://v0.dev)
-2. Deploy your chats from the v0 interface
-3. Changes are automatically pushed to this repository
-4. Vercel deploys the latest version from this repository
+- `frontend/app` - アプリケーションのページやルーティング
+- `frontend/components` - 再利用可能なUIコンポーネント
+- `frontend/public` - 画像などの静的アセット
+
+## ライセンス
+
+MIT
+
+## 参考リンク
+
+この UI は [v0.dev](https://v0.dev/chat/projects/iSVK7TA8LcM) のチャットから生成したものをベースにしています。
