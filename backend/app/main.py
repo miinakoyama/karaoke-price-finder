@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel
 from typing import List, Optional
 from app.dummy_karaoke_stores import dummy_stores
-from app.utils import find_cheapest_plan_for_store, list_available_plans_for_store, is_within_time_range, get_weekday_str
+from app.utils import find_cheapest_plan_for_store, list_available_plans_for_store, is_within_time_range, get_weekday_str,is_store_open
 from datetime import datetime
 
 app = FastAPI()
@@ -162,6 +162,26 @@ async def search_shops(request: SearchRequest):
         )
         results.append(shop_detail)
     return SearchResponse(results=results)
+
+# is_store_open関数のテスト用
+@app.get("/store/{store_id}/is_open")
+def check_store_open_status(
+    store_id: int,
+    dt: datetime = Query(..., description="チェックしたい日時（例: 2025-06-20T01:00:00）")
+):
+    # 対象店舗を探す
+    store = next((s for s in dummy_stores if s.id == store_id), None)
+    if not store:
+        raise HTTPException(status_code=404, detail="Store not found")
+
+    is_open = is_store_open(store, dt)
+
+    return {
+        "store_id": store.id,
+        "store_name": store.store_name,
+        "datetime": dt.isoformat(),
+        "is_open": is_open
+    }
 
 @app.get("/hello")
 async def hello():

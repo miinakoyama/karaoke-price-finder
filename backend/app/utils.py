@@ -1,8 +1,31 @@
-from datetime import datetime, time
+from datetime import datetime, time,timedelta
 import math
 from app.models import KaraokeStore
 from math import radians, cos, sin, asin, sqrt
 
+def is_store_open(store: KaraokeStore, dt: datetime) -> bool:
+    '''
+    営業中かどうかを判定する関数
+    '''
+    current_day = get_weekday_str(dt)
+    prev_day = get_weekday_str(dt - timedelta(days=1))
+    time_str = dt.strftime("%H:%M")
+
+    for bh in store.business_hours:
+        # 1. 通常営業（終了が翌日にまたがらない）
+        if bh.day_type == current_day and bh.start_time <= bh.end_time:
+            if bh.start_time <= time_str < bh.end_time:
+                return True
+        # 2. 深夜営業（終了が翌日）
+        elif bh.day_type == current_day and bh.start_time > bh.end_time:
+            if time_str >= bh.start_time or time_str < bh.end_time:
+                return True
+        # 3. 翌日早朝のカバー（前日の深夜営業）
+        elif bh.day_type == prev_day and bh.start_time > bh.end_time:
+            if time_str < bh.end_time:
+                return True
+
+    return False
 
 def get_weekday_str(dt: datetime) -> str:
     """
@@ -67,6 +90,8 @@ def find_cheapest_plan_for_store(store: KaraokeStore, dt: datetime, stay_minutes
             'total_price': int
         }を返す。該当プランがなければNone。
     """
+    if not is_store_open(store, dt):
+        return None
     day = get_weekday_str(dt)
     best_price = float('inf')
     best_plan = None
@@ -129,6 +154,8 @@ def list_available_plans_for_store(store: KaraokeStore, dt: datetime, stay_minut
         list: 条件に合致するプラン情報のリスト
     """
     plans = []
+    if not is_store_open(store, dt):
+        return plans
     day = get_weekday_str(dt)
     for plan in store.pricing_plans:
         if not is_within_time_range(plan.start_time, plan.end_time, dt):
