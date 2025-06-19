@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Sheet, SheetContent } from "@/components/ui/sheet"
-import { MapPin, Phone, Star } from "lucide-react"
+import { MapPin, Phone, Star, Navigation } from "lucide-react"
 import { Store, MembershipSettings } from "../types/store"
 import Image from "next/image"
 
@@ -45,9 +45,10 @@ export function StoreDetail({ store, onClose, membershipSettings }: StoreDetailP
             <h2 className="text-xl font-bold text-gray-900">{store.name}</h2>
             <p className="text-gray-500">{store.address}</p>
             <div className="flex items-center justify-center gap-1 mt-2">
-              <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-              <span className="font-medium">{store.rating}</span>
-              <span className="text-gray-500">({store.distance})</span>
+              <span className="flex items-center gap-1 text-sm text-gray-500">
+                <Navigation className="w-4 h-4" />
+                {store.distance}
+              </span>
             </div>
             {isMember && (
               <Badge variant="default" className="bg-green-500 mt-2">
