@@ -1,8 +1,9 @@
-import pytest
 from fastapi.testclient import TestClient
+
 from app.main import app
 
 client = TestClient(app)
+
 
 def test_search_shops_basic():
     """
@@ -19,7 +20,7 @@ def test_search_shops_basic():
         "start_time": "12:00",
         "group_size": 2,
         "is_student": False,
-        "radius": 1000
+        "radius": 1000,
     }
     response = client.post("/search", json=payload)
     assert response.status_code == 200
@@ -37,6 +38,7 @@ def test_search_shops_basic():
         assert "longitude" in shop
         assert "phone" in shop
         # drink_typeは除外
+
 
 def test_search_shops_student():
     """
@@ -53,7 +55,7 @@ def test_search_shops_student():
         "start_time": "15:00",
         "group_size": 3,
         "is_student": True,
-        "radius": 1000
+        "radius": 1000,
     }
     response = client.post("/search", json=payload)
     assert response.status_code == 200
@@ -72,6 +74,7 @@ def test_search_shops_student():
         assert "phone" in shop
         # drink_typeは除外
 
+
 def test_search_shops_no_result():
     """
     検索条件に該当する店舗が存在しないケース。
@@ -86,7 +89,7 @@ def test_search_shops_no_result():
         "start_time": "12:00",
         "group_size": 2,
         "is_student": False,
-        "radius": 1000
+        "radius": 1000,
     }
     response = client.post("/search", json=payload)
     assert response.status_code == 200
@@ -95,6 +98,7 @@ def test_search_shops_no_result():
     assert isinstance(data["results"], list)
     # ダミーデータなので0件になることも許容
 
+
 def test_get_shop_detail_basic():
     """
     店舗詳細取得APIの基本動作テスト。
@@ -102,12 +106,7 @@ def test_get_shop_detail_basic():
     - プランリストが1件以上返ること
     - 各プランにunit, price, start, end, customer_typeが含まれる
     """
-    payload = {
-        "shop_id": "1",
-        "start_time": "12:00",
-        "stay_minutes": 60,
-        "is_student": False
-    }
+    payload = {"shop_id": "1", "start_time": "12:00", "stay_minutes": 60, "is_student": False}
     response = client.post("/get_detail", json=payload)
     assert response.status_code == 200
     data = response.json()

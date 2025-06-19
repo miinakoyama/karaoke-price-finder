@@ -12,4 +12,16 @@ dependencies = [
 dev = [
     "mypy>=1.16.1",
     "pytest>=8.4.1",
+    "ruff>=0.12.0",
+]
+
+[tool.ruff]
+line-length = 119
+exclude = [".venv"]
+lint.select = [
+    "E",  # pycodestyle errors      # flake8
+    "W",  # pycodestyle warnings    # flake8
+    "F",  # pyflakes                # flake8
+    "I",  # isort
+    "FAST",
 ]

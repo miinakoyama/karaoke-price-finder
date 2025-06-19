@@ -27,3 +27,12 @@ pytestもuv経由で実行できます。
 ```bash
 uv run pytest
 ```
+
+## コードチェック・フォーマット（ruff）
+
+ruffによる静的解析・自動修正・フォーマットもuv経由で実行できます。
+
+```bash
+uv run ruff check --fix
+uv run ruff format
+```

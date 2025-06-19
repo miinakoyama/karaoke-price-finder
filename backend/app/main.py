@@ -1,11 +1,18 @@
+from datetime import datetime
+from typing import List, Optional
+
 from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel
-from typing import List, Optional
+
 from app.dummy_karaoke_stores import dummy_stores
-from app.utils import find_cheapest_plan_for_store, list_available_plans_for_store, is_within_time_range, get_weekday_str,is_store_open
-from datetime import datetime
+from app.utils import (
+    find_cheapest_plan_for_store,
+    is_store_open,
+    list_available_plans_for_store,
+)
 
 app = FastAPI()
+
 
 # --- Request/Response Schemas ---
 class SearchRequest(BaseModel):
@@ -14,6 +21,7 @@ class SearchRequest(BaseModel):
     - 緯度・経度または地名で検索起点を指定
     - 利用開始時刻、利用時間、人数、学割・会員情報、検索半径など
     """
+
     latitude: Optional[float] = None
     longitude: Optional[float] = None
     place_name: Optional[str] = None  # 地名での検索も可能に
@@ -22,14 +30,16 @@ class SearchRequest(BaseModel):
     start_time: str  # 開始時刻（例: "18:00"）
     group_size: int
     is_student: bool
-    member_shop_ids: Optional[List[str]] = None #会員情報
+    member_shop_ids: Optional[List[str]] = None  # 会員情報
     radius: int  # 追加: 検索半径（メートル単位など）
+
 
 class ShopDetail(BaseModel):
     """
     検索結果・店舗詳細レスポンスの1店舗分の情報。
     - 店舗ID、店舗名、最安値、チェーン名、電話番号、位置情報、最安値プラン名など
     """
+
     shop_id: str
     name: str
     price_per_person: int
@@ -40,18 +50,22 @@ class ShopDetail(BaseModel):
     latitude: Optional[float]
     longitude: Optional[float]
 
+
 class SearchResponse(BaseModel):
     """
     検索結果のレスポンス。
     - 店舗ごとの詳細情報リスト
     """
+
     results: List[ShopDetail]
+
 
 class PlanDetail(BaseModel):
     """
     プラン詳細情報。
     - 単位種別、金額、30分単価、時間帯、顧客種別
     """
+
     unit: str
     price: int
     price_per_30_min: Optional[int] = None
@@ -59,25 +73,30 @@ class PlanDetail(BaseModel):
     end: str
     customer_type: List[str]
 
+
 class GetDetailRequest(BaseModel):
     """
     店舗詳細取得リクエスト。
     - 店舗ID、利用開始時刻、利用時間、学割・会員情報
     """
+
     shop_id: str
     start_time: str  # "HH:MM" format
     stay_minutes: Optional[int] = 60
     is_student: bool = False
     member_shop_ids: Optional[List[str]] = None
 
+
 class GetDetailResponse(BaseModel):
     """
     店舗詳細取得レスポンス。
     - 店舗ID、店舗名、該当条件下での全プラン詳細リスト
     """
+
     shop_id: str
     name: str
     plans: List[PlanDetail]
+
 
 @app.post("/get_detail", response_model=GetDetailResponse)
 async def get_shop_detail(request: GetDetailRequest):
@@ -105,19 +124,17 @@ async def get_shop_detail(request: GetDetailRequest):
                 price_per_30_min=plan["price_per_30_min"],
                 start=plan["start"],
                 end=plan["end"],
-                customer_type=plan["customer_type"]
-            ) for plan in plans_data
+                customer_type=plan["customer_type"],
+            )
+            for plan in plans_data
         ]
-        return GetDetailResponse(
-            shop_id=str(store.id),
-            name=store.store_name,
-            plans=plans
-        )
+        return GetDetailResponse(shop_id=str(store.id), name=store.store_name, plans=plans)
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid shop_id format")
     except Exception as e:
         print(f"Error in get_shop_detail: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
+
 
 @app.post("/search", response_model=SearchResponse)
 async def search_shops(request: SearchRequest):
@@ -134,15 +151,15 @@ async def search_shops(request: SearchRequest):
     stay_minutes = request.stay_minutes or 60
     is_student = request.is_student
     member_shop_ids = request.member_shop_ids or []
-    latitude = getattr(request, 'latitude', None)
-    longitude = getattr(request, 'longitude', None)
-    radius = getattr(request, 'radius', None)
+    latitude = getattr(request, "latitude", None)
+    longitude = getattr(request, "longitude", None)
+    radius = getattr(request, "radius", None)
     filtered_stores = dummy_stores
     if latitude is not None and longitude is not None and radius is not None:
         from app.utils import haversine
+
         filtered_stores = [
-            s for s in dummy_stores
-            if haversine(latitude, longitude, s.latitude, s.longitude) <= radius
+            s for s in dummy_stores if haversine(latitude, longitude, s.latitude, s.longitude) <= radius
         ]
     for store in filtered_stores:
         is_member = store.chain_name in member_shop_ids
@@ -158,16 +175,16 @@ async def search_shops(request: SearchRequest):
             phone=store.phone_number,
             all_plans=[result["plan_name"]],
             latitude=store.latitude,
-            longitude=store.longitude
+            longitude=store.longitude,
         )
         results.append(shop_detail)
     return SearchResponse(results=results)
 
+
 # is_store_open関数のテスト用
 @app.get("/store/{store_id}/is_open")
 def check_store_open_status(
-    store_id: int,
-    dt: datetime = Query(..., description="チェックしたい日時（例: 2025-06-20T01:00:00）")
+    store_id: int, dt: datetime = Query(..., description="チェックしたい日時（例: 2025-06-20T01:00:00）")
 ):
     # 対象店舗を探す
     store = next((s for s in dummy_stores if s.id == store_id), None)
@@ -176,12 +193,8 @@ def check_store_open_status(
 
     is_open = is_store_open(store, dt)
 
-    return {
-        "store_id": store.id,
-        "store_name": store.store_name,
-        "datetime": dt.isoformat(),
-        "is_open": is_open
-    }
+    return {"store_id": store.id, "store_name": store.store_name, "datetime": dt.isoformat(), "is_open": is_open}
+
 
 @app.get("/hello")
 async def hello():
