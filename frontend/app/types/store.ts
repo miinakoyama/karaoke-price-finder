@@ -4,7 +4,7 @@ export interface Store {
   chain: string
   price: number
   memberPrice?: number
-  duration: string
+  drinkInfo: string
   badges: string[]
   distance: string
   rating: number
@@ -32,7 +32,7 @@ export const mockStores: Store[] = [
     chain: "カラオケ館",
     price: 1280,
     memberPrice: 1080,
-    duration: "2時間・1ドリンク付",
+    drinkInfo: "1ドリンク付",
     badges: ["最安", "学割OK"],
     distance: "0.3km",
     rating: 4.2,
@@ -49,7 +49,7 @@ export const mockStores: Store[] = [
     chain: "ビッグエコー",
     price: 1480,
     memberPrice: 1280,
-    duration: "2時間・ワンドリンク必須",
+    drinkInfo: "ワンドリンク必須",
     badges: ["学割OK"],
     distance: "0.5km",
     rating: 4.0,
@@ -66,7 +66,7 @@ export const mockStores: Store[] = [
     chain: "カラオケの鉄人",
     price: 1680,
     memberPrice: 1480,
-    duration: "2時間・ドリンクバー付",
+    drinkInfo: "ドリンクバー付",
     badges: ["ドリンクバー付"],
     distance: "0.8km",
     rating: 4.5,
