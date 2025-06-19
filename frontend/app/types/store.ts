@@ -12,6 +12,8 @@ export interface Store {
   phone: string
   features: string[]
   chainKey: string
+  latitude: number
+  longitude: number
 }
 
 export interface MembershipSettings {
@@ -38,6 +40,8 @@ export const mockStores: Store[] = [
     phone: "03-1234-5678",
     features: ["ドリンクバー付"],
     chainKey: "karaokeCan",
+    latitude: 35.6595,
+    longitude: 139.7005,
   },
   {
     id: "2",
@@ -53,6 +57,8 @@ export const mockStores: Store[] = [
     phone: "03-2345-6789",
     features: [],
     chainKey: "bigEcho",
+    latitude: 35.6745,
+    longitude: 139.7366,
   },
   {
     id: "3",
@@ -68,5 +74,7 @@ export const mockStores: Store[] = [
     phone: "03-3456-7890",
     features: ["ドリンクバー付"],
     chainKey: "tetsuJin",
+    latitude: 35.6618,
+    longitude: 139.7353,
   },
 ]

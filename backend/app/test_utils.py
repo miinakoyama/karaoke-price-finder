@@ -61,7 +61,7 @@ def test_cheapest_plan_special_pack():
     - 2025-06-14(土) 10:00開始、60分利用。
     - ビッグエコー赤坂駅前店のスペシャル学割パックが該当。
     """
-    dt = datetime(2025, 6, 13, 10, 0)  # 金曜（holiday_eve→friに変更したため）
+    dt = datetime(2025, 6, 13, 15, 0)  # 金曜、店舗営業時間内に変更
     result = find_cheapest_plan_for_store(dummy_stores[1], dt, 60, is_member=False, is_student=True)
     assert result is not None
     assert result["plan_name"] == "スペシャル学割パック"

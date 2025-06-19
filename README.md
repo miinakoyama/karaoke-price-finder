@@ -34,3 +34,13 @@ Node.js 18 以上での動作を想定しています。開発用サーバーは
 ## 🔗 Reference Links
 
 この UI は [v0.dev](https://v0.dev/chat/projects/iSVK7TA8LcM) のチャットから生成したものをベースにしています。
+
+## 🗝️ Google Maps APIキーの設定
+
+Googleマップ機能を利用するには、`frontend`ディレクトリ直下に`.env.local`ファイルを作成し、以下のようにAPIキーを記載してください。
+
+```
+NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=<取得したAPIキー>
+```
+
+APIキーは[Google Cloud Platform](https://console.cloud.google.com/)で取得できます。
