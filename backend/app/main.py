@@ -16,7 +16,7 @@ class SearchRequest(BaseModel):
     start_time: str  # 開始時刻（例: "18:00"）
     group_size: int
     is_student: bool
-    member_shop_ids: Optional[List[str]] = None
+    member_shop_ids: Optional[List[str]] = None #会員情報
     radius: int  # 追加: 検索半径（メートル単位など）
 
     @classmethod
@@ -75,7 +75,10 @@ async def search_shops(request: SearchRequest):
     is_student = request.is_student
 
     for idx, store in enumerate(stores):
-        is_member = store.name in (request.member_shop_ids or [])
+        is_member = store.attribute in (request.member_shop_ids or [])
+        # print("store.attribute")
+        print(store.attribute,"is=member = ",is_member)
+        # print(is_member)
         plan_type, price, ok = find_cheapest_plan(store.rules, start_dt, is_member, is_student, stay_minutes)
         if not ok:
             continue

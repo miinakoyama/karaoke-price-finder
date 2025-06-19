@@ -93,6 +93,11 @@ rules_a = [
         TimeRange("07:00", "18:00", "per_30_min", price_per_hour=373),
         TimeRange("11:00", "20:00", "free_time", price_total=2300),
     ]),
+    PricingRule(["member"],["mon", "tue", "wed", "thu", "fri"],  [
+        TimeRange("07:00", "18:00", "per_30_min", price_per_hour=373),
+        TimeRange("18:00", "23:00", "per_30_min", price_per_hour=226),
+        TimeRange("11:00", "20:00", "free_time", price_total=2300),
+    ]),
 ]
 
 rules_b = [
@@ -126,7 +131,7 @@ stores = [
         phone="03-1234-5678",
         open_hour ="00:00-24:00",
         rules=rules_a,
-        attribute="カラオケまねきねこ"
+        attribute="まねきねこ"
     ),
     Store(
         name="カラオケパセラ六本木店",
@@ -135,7 +140,7 @@ stores = [
         phone="03-8765-4321",
         open_hour ="00:00-24:00",
         rules=rules_b,
-        attribute="カラオケパセラ"
+        attribute="パセラ"
     ),
     Store(
         name="カラオケ館 六本木本店",
