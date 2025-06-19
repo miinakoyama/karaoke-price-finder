@@ -3,7 +3,7 @@ from typing import List, Literal
 
 CustomerType = Literal["student", "member", "general"]
 DayType = Literal[
-    "mon", "tue", "wed", "thu", "fri", "sat", "sun", "holiday", "holiday_eve"
+    "mon", "tue", "wed", "thu", "fri", "sat", "sun"
 ]
 TaxType = Literal["tax_included", "tax_excluded"]
 UnitType = Literal["per_30min", "per_hour", "free_time", "pack", "special"]

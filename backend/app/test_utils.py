@@ -1,61 +1,65 @@
 import pytest
 from datetime import datetime
-from utils import find_cheapest_plan, stores
+from app.utils import find_cheapest_plan_for_store
+from app.dummy_karaoke_stores import dummy_stores
 
-def test_find_cheapest_plan_general():
+
+def test_cheapest_plan_general():
     """
     一般ユーザーで該当プランが見つかるケース。
-    - 2025-06-17 10:00開始、180分利用。
-    - プランが見つかり、種別が正しく、価格が0より大きいこと。
+    - 2025-06-16(月) 12:00開始、90分利用。
+    - まねきねこ六本木店の平日昼フリータイム or 30分料金が該当。
     """
-    dt = datetime.fromisoformat("2025-06-17T10:00:00+16:30")
-    plan_type, price, ok = find_cheapest_plan(stores[0].rules, dt, "general", 180)
-    assert ok
-    assert plan_type in ["free_time", "per_30_min"]
-    assert price is not None and price > 0
+    dt = datetime(2025, 6, 16, 12, 0)  # 月曜
+    result = find_cheapest_plan_for_store(dummy_stores[0], dt, 90, is_member=False, is_student=False)
+    assert result is not None
+    assert result['total_price'] > 0
+    assert result['plan_name'] in ["昼フリータイム", "30分料金"]
 
-def test_find_cheapest_plan_member():
+def test_cheapest_plan_student_weekend():
     """
-    会員ユーザーで該当プランが見つかるケース。
-    - 2025-06-14 12:00開始、60分利用。
-    - プランが見つかり、種別が正しく、価格が0より大きいこと。
+    学生ユーザーで土日の学割プランが適用されるケース。
+    - 2025-06-15(日) 13:00開始、60分利用。
+    - まねきねこ六本木店の学生フリータイムが該当。
     """
-    dt = datetime.fromisoformat("2025-06-14T12:00:00+09:00")
-    plan_type, price, ok = find_cheapest_plan(stores[0].rules, dt, "member", 60)
-    assert ok
-    assert plan_type in ["free_time", "per_30_min"]
-    assert price is not None and price > 0
+    dt = datetime(2025, 6, 15, 13, 0)  # 日曜
+    result = find_cheapest_plan_for_store(dummy_stores[0], dt, 60, is_member=False, is_student=True)
+    assert result is not None
+    assert result['option'].customer_type == "student"
+    assert result['total_price'] == 1200
 
-def test_find_cheapest_plan_student_fallback():
+def test_cheapest_plan_member_weekend():
     """
-    学生ユーザーで、一般プランもfallbackで検索されるケース。
-    - 2025-06-16 15:00開始、120分利用。
-    - プランが見つかり、種別が正しく、価格が0より大きいこと。
+    会員ユーザーで土日の30分料金が適用されるケース。
+    - 2025-06-15(日) 10:00開始、60分利用。
+    - まねきねこ六本木店の会員30分料金が該当。
     """
-    dt = datetime.fromisoformat("2025-06-16T15:00:00+09:00")
-    plan_type, price, ok = find_cheapest_plan(stores[0].rules, dt, "student", 120)
-    assert ok
-    assert plan_type in ["free_time", "per_30_min"]
-    assert price is not None and price > 0
+    dt = datetime(2025, 6, 15, 10, 0)  # 日曜
+    result = find_cheapest_plan_for_store(dummy_stores[0], dt, 60, is_member=True, is_student=False)
+    assert result is not None
+    assert result['option'].customer_type == "member"
+    assert result['plan_name'] == "30分料金"
+    assert result['total_price'] == 273 * 2
 
-def test_find_cheapest_plan_no_plan():
+def test_cheapest_plan_no_match():
     """
-    存在しないユーザー種別で該当プランが見つからないケース。
-    - 2025-06-18 03:00開始、unknownユーザー、60分利用。
-    - プランが見つからないこと。
+    条件に合致するプランが存在しない場合。
+    - 2025-06-18(水) 03:00開始、60分利用。
+    - どのプランにも該当しない。
     """
-    dt = datetime.fromisoformat("2025-06-18T03:00:00+09:00")
-    plan_type, price, ok = find_cheapest_plan(stores[0].rules, dt, "unknown", 60)
-    assert not ok
+    dt = datetime(2025, 6, 18, 3, 0)  # 水曜深夜
+    result = find_cheapest_plan_for_store(dummy_stores[0], dt, 60, is_member=False, is_student=False)
+    assert result is None
 
-def test_find_cheapest_plan_cross_day():
+def test_cheapest_plan_special_pack():
     """
-    日付をまたいで利用するケース。
-    - 2025-06-14 23:30開始、90分利用（翌日をまたぐ）。
-    - プランが見つかり、種別が正しく、価格が0より大きいこと。
+    スペシャル学割パック（0円）が適用されるケース。
+    - 2025-06-14(土) 10:00開始、60分利用。
+    - ビッグエコー赤坂駅前店のスペシャル学割パックが該当。
     """
-    dt = datetime.fromisoformat("2025-06-14T23:30:00+09:00")
-    plan_type, price, ok = find_cheapest_plan(stores[0].rules, dt, "general", 90)
-    assert ok
-    assert plan_type in ["free_time", "per_30_min"]
-    assert price is not None and price > 0
+    dt = datetime(2025, 6, 13, 10, 0)  # 金曜（holiday_eve→friに変更したため）
+    result = find_cheapest_plan_for_store(dummy_stores[1], dt, 60, is_member=False, is_student=True)
+    assert result is not None
+    assert result['plan_name'] == "スペシャル学割パック"
+    assert result['option'].unit_type == "special"
+    assert result['total_price'] == 0

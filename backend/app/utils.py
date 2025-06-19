@@ -1,37 +1,44 @@
 from datetime import datetime, time
 import math
+from app.models import KaraokeStore
+from math import radians, cos, sin, asin, sqrt
 
-class TimeRange:
-    def __init__(self, start, end, unit, price_per_hour=None, price_total=None):
-        self.start = start
-        self.end = end
-        self.unit = unit
-        self.price_per_hour = price_per_hour
-        self.price_total = price_total
 
-class PricingRule:
-    def __init__(self, customer_types, days, time_ranges):
-        self.customer_types = customer_types
-        self.days = days
-        self.time_ranges = time_ranges
+def get_weekday_str(dt: datetime) -> str:
+    """
+    指定したdatetimeから曜日を英小文字3文字（例: 'mon', 'tue'）で返す。
 
-class Store:
-    def __init__(self, name, lat, lon, phone, open_hour,rules,attribute):
-        self.name = name
-        self.lat = lat
-        self.lon = lon
-        self.phone = phone
-        self.open_hour = open_hour
-        self.rules = rules
-        self.attribute = attribute
-
-def get_weekday_str(dt):
+    Args:
+        dt (datetime): 日時
+    Returns:
+        str: 曜日（'mon'〜'sun'）
+    """
     return dt.strftime("%a").lower()  # e.g., 'mon', 'tue', etc.
 
-def parse_time_str(s):
+
+def parse_time_str(s: str) -> time:
+    """
+    'HH:MM'形式の文字列をtime型に変換する。
+
+    Args:
+        s (str): 'HH:MM'形式の文字列
+    Returns:
+        time: 対応するtimeオブジェクト
+    """
     return datetime.strptime(s, "%H:%M").time()
 
-def is_within_time_range(start_str, end_str, dt):
+
+def is_within_time_range(start_str: str, end_str: str, dt: datetime) -> bool:
+    """
+    指定時刻dtがstart_str〜end_strの範囲内か判定する（24時跨ぎ対応）。
+
+    Args:
+        start_str (str): 開始時刻（'HH:MM'）
+        end_str (str): 終了時刻（'HH:MM'）
+        dt (datetime): 判定対象の日時
+    Returns:
+        bool: 範囲内ならTrue
+    """
     start = parse_time_str(start_str)
     end = parse_time_str(end_str)
     target_time = dt.time()
@@ -41,174 +48,143 @@ def is_within_time_range(start_str, end_str, dt):
     else:
         return target_time >= start or target_time < end
 
-def contains(lst, target):
-    return target in lst
-def find_plans(rules, dt, isMember, isStudent, stay_minutes):
-    day = get_weekday_str(dt)
-    matching_plans = []
 
-    types_to_check = []
-    if isMember:
-        types_to_check.append("member")
-    if isStudent:
-        types_to_check.append("student")
-    if not types_to_check:
-        types_to_check.append("general")
+def find_cheapest_plan_for_store(store: KaraokeStore, dt: datetime, stay_minutes: int, is_member: bool, is_student: bool):
+    """
+    指定したカラオケ店舗・日時・利用時間・会員/学生区分で最安値プランを計算する。
 
-    for rule in rules:
-        if not any(ct in rule.customer_types for ct in types_to_check):
-            continue
-        if day not in rule.days:
-            continue
+    Args:
+        store (KaraokeStore): 対象のカラオケ店舗インスタンス
+        dt (datetime): 利用開始日時
+        stay_minutes (int): 利用時間（分）
+        is_member (bool): 会員かどうか
+        is_student (bool): 学生かどうか
 
-        for tr in rule.time_ranges:
-            if not is_within_time_range(tr.start, tr.end, dt):
-                continue
-
-            # プラン情報の構築
-            if tr.unit == "free_time":
-                plan = {
-                    "unit": "free_time",
-                    "price": tr.price_total,
-                    "price_per_30_min": None,  # 該当しない
-                    "start": tr.start,
-                    "end": tr.end,
-                    "customer_type": rule.customer_types
-                }
-            elif tr.unit == "per_30_min":
-                units = math.ceil(stay_minutes / 30)
-                total_price = tr.price_per_hour * units
-                plan = {
-                    "unit": "per_30_min",
-                    "price": total_price,
-                    "price_per_30_min": tr.price_per_hour,  # ← これを追加
-                    "start": tr.start,
-                    "end": tr.end,
-                    "customer_type": rule.customer_types
-                }
-            else:
-                continue
-
-            matching_plans.append(plan)
-
-    return matching_plans
-
-def find_cheapest_plan(rules, dt, isMember, isStudent, stay_minutes):
+    Returns:
+        dict or None: 最安値プランが見つかった場合は{
+            'plan_name': str,
+            'option': PlanOption,
+            'total_price': int
+        }を返す。該当プランがなければNone。
+    """
     day = get_weekday_str(dt)
     best_price = float('inf')
-    best_type = ""
-    found = False
+    best_plan = None
+    best_option = None
 
     types_to_check = []
-    if isMember:
+    if is_member:
         types_to_check.append("member")
-    if isStudent:
+    if is_student:
         types_to_check.append("student")
     if not types_to_check:
         types_to_check.append("general")
 
-    for rule in rules:
-        if not any(ct in rule.customer_types for ct in types_to_check):
+    for plan in store.pricing_plans:
+        # 時間帯が合うか
+        if not is_within_time_range(plan.start_time, plan.end_time, dt):
             continue
-        if day not in rule.days:
-            continue
-
-        for tr in rule.time_ranges:
-            if not is_within_time_range(tr.start, tr.end, dt):
+        for option in plan.options:
+            # 曜日・顧客種別が合うか
+            if day not in option.days:
                 continue
-
-            if tr.unit == "free_time":
-                price = tr.price_total
-            elif tr.unit == "per_30_min":
+            if option.customer_type not in types_to_check:
+                continue
+            # 金額計算
+            if option.unit_type == "per_30min":
                 units = math.ceil(stay_minutes / 30)
-                price = tr.price_per_hour * units
+                total = option.amount * units
+            elif option.unit_type == "per_hour":
+                units = math.ceil(stay_minutes / 60)
+                total = option.amount * units
+            elif option.unit_type in ("free_time", "pack", "special"):
+                total = option.amount
             else:
                 continue
+            if total < best_price:
+                best_price = total
+                best_plan = plan
+                best_option = option
+    if best_plan and best_option:
+        return {
+            "plan_name": best_plan.plan_name,
+            "option": best_option,
+            "total_price": best_price
+        }
+    else:
+        return None
 
-            if price < best_price:
-                best_price = price
-                best_type = tr.unit
-                found = True
 
-    return best_type, best_price, found
+def list_available_plans_for_store(store: KaraokeStore, dt: datetime, stay_minutes: int, is_member: bool, is_student: bool):
+    """
+    指定したカラオケ店舗・日時・利用時間・会員/学生区分で該当する全プラン（PlanDetail相当の情報）をリストで返す。
 
-# ==== 各ストアごとのルール定義 ====
-rules_a = [
-    PricingRule(["general"], ["mon", "tue", "wed", "thu", "fri"], [
-        TimeRange("11:00", "20:00", "free_time", price_total=1500),
-        TimeRange("07:00", "18:00", "per_30_min", price_per_hour=319),
-    ]),
-    PricingRule(["student", "member"], ["sat", "sun"], [
-        TimeRange("07:00", "18:00", "per_30_min", price_per_hour=373),
-        TimeRange("11:00", "20:00", "free_time", price_total=2300),
-    ]),
-    PricingRule(["member"],["mon", "tue", "wed", "thu", "fri"],  [
-        TimeRange("07:00", "18:00", "per_30_min", price_per_hour=373),
-        TimeRange("18:00", "23:00", "per_30_min", price_per_hour=226),
-        TimeRange("11:00", "20:00", "free_time", price_total=2300),
-    ]),
-]
+    Args:
+        store (KaraokeStore): 対象のカラオケ店舗インスタンス
+        dt (datetime): 利用開始日時
+        stay_minutes (int): 利用時間（分）
+        is_member (bool): 会員かどうか
+        is_student (bool): 学生かどうか
+    Returns:
+        list: 条件に合致するプラン情報のリスト
+    """
+    plans = []
+    day = get_weekday_str(dt)
+    for plan in store.pricing_plans:
+        if not is_within_time_range(plan.start_time, plan.end_time, dt):
+            continue
+        for option in plan.options:
+            if day not in option.days:
+                continue
+            # customer_type判定
+            if is_member and option.customer_type == "member":
+                pass
+            elif is_student and option.customer_type == "student":
+                pass
+            elif option.customer_type == "general":
+                pass
+            else:
+                continue
+            # 金額計算
+            if option.unit_type == "per_30min":
+                units = math.ceil(stay_minutes / 30)
+                total = option.amount * units
+            elif option.unit_type == "per_hour":
+                units = math.ceil(stay_minutes / 60)
+                total = option.amount * units
+            else:
+                total = option.amount
+            plans.append({
+                "unit": option.unit_type,
+                "price": int(total),
+                "price_per_30_min": option.amount if option.unit_type == "per_30min" else None,
+                "start": plan.start_time,
+                "end": plan.end_time,
+                "customer_type": [option.customer_type]
+            })
+    return plans
 
-rules_b = [
-    PricingRule(["general"], ["mon", "tue", "wed", "thu", "fri"], [
-        TimeRange("11:00", "20:00", "free_time", price_total=1200),
-        TimeRange("07:00", "18:00", "per_30_min", price_per_hour=250),
-    ]),
-    PricingRule(["general"], ["sat", "sun"], [
-        TimeRange("07:00", "18:00", "per_30_min", price_per_hour=300),
-        TimeRange("11:00", "20:00", "free_time", price_total=2000),
-    ]),
-]
 
-rules_c = [
-    PricingRule(["general"], ["mon", "tue", "wed", "thu", "fri"], [
-        TimeRange("11:00", "20:00", "free_time", price_total=1800),
-        TimeRange("07:00", "18:00", "per_30_min", price_per_hour=350),
-    ]),
-    PricingRule(["general"], ["sat", "sun"], [
-        TimeRange("07:00", "18:00", "per_30_min", price_per_hour=400),
-        TimeRange("11:00", "20:00", "free_time", price_total=2500),
-    ]),
-]
-# ==== Storeのダミーデータ ====
-stores = [
-    Store(
-        name="カラオケまねきねこ 六本木店",
-        lat=35.6595,
-        lon=139.7005,
-        phone="03-1234-5678",
-        open_hour ="00:00-24:00",
-        rules=rules_a,
-        attribute="まねきねこ"
-    ),
-    Store(
-        name="カラオケパセラ六本木店",
-        lat=35.6618,
-        lon=139.7353,
-        phone="03-8765-4321",
-        open_hour ="00:00-24:00",
-        rules=rules_b,
-        attribute="パセラ"
-    ),
-    Store(
-        name="カラオケ館 六本木本店",
-        lat=35.7289,
-        lon=139.7101,
-        phone="03-1111-2222",
-        open_hour ="00:00-24:00",
-        rules=rules_c,
-        attribute="カラオケ館"
-    ),
-]
+def haversine(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    """
+    2点間の緯度経度から距離（メートル）を返す。
 
-# # ==== 実行例 ====
-# start_time = datetime.fromisoformat("2025-06-17T10:00:00+16:30")
-# stay_minutes = 180
-# customer_type = "general"
-
-# plan_type, price, ok = find_cheapest_plan(rules, start_time, customer_type, stay_minutes)
-
-# if ok:
-#     print(f"最適プラン: {plan_type}（料金: ¥{round(price)}）")
-# else:
-#     print("該当するプランが見つかりません")
+    Args:
+        lat1 (float): 1点目の緯度
+        lon1 (float): 1点目の経度
+        lat2 (float): 2点目の緯度
+        lon2 (float): 2点目の経度
+    Returns:
+        float: 2点間の距離（メートル）
+    Raises:
+        ValueError: 緯度経度がfloatでない場合
+    """
+    if not all(isinstance(x, (float, int)) for x in [lat1, lon1, lat2, lon2]):
+        raise ValueError("All coordinates must be float or int.")
+    R = 6371000  # 地球半径[m]
+    lat1, lon1, lat2, lon2 = map(radians, [lat1, lon1, lat2, lon2])
+    dlat = lat2 - lat1
+    dlon = lon2 - lon1
+    a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
+    c = 2 * asin(sqrt(a))
+    return R * c

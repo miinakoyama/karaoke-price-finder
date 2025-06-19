@@ -1,6 +1,6 @@
 import pytest
 from fastapi.testclient import TestClient
-from main import app
+from app.main import app
 
 client = TestClient(app)
 
@@ -26,11 +26,17 @@ def test_search_shops_basic():
     data = response.json()
     assert "results" in data
     assert isinstance(data["results"], list)
-    assert len(data["results"]) > 0  # 1件以上ヒットすること
+    assert len(data["results"]) > 0
     for shop in data["results"]:
         assert "name" in shop
         assert "price_per_person" in shop
         assert shop["price_per_person"] > 0
+        assert "icon_url" in shop
+        assert "all_plans" in shop
+        assert "latitude" in shop
+        assert "longitude" in shop
+        assert "phone" in shop
+        # drink_typeは除外
 
 def test_search_shops_student():
     """
@@ -54,11 +60,17 @@ def test_search_shops_student():
     data = response.json()
     assert "results" in data
     assert isinstance(data["results"], list)
-    assert len(data["results"]) > 0  # 1件以上ヒットすること
+    assert len(data["results"]) > 0
     for shop in data["results"]:
         assert "name" in shop
         assert "price_per_person" in shop
         assert shop["price_per_person"] > 0
+        assert "icon_url" in shop
+        assert "all_plans" in shop
+        assert "latitude" in shop
+        assert "longitude" in shop
+        assert "phone" in shop
+        # drink_typeは除外
 
 def test_search_shops_no_result():
     """
@@ -82,3 +94,31 @@ def test_search_shops_no_result():
     assert "results" in data
     assert isinstance(data["results"], list)
     # ダミーデータなので0件になることも許容
+
+def test_get_shop_detail_basic():
+    """
+    店舗詳細取得APIの基本動作テスト。
+    - 店舗ID=1, 開始時刻12:00, 60分, 一般ユーザー
+    - プランリストが1件以上返ること
+    - 各プランにunit, price, start, end, customer_typeが含まれる
+    """
+    payload = {
+        "shop_id": "1",
+        "start_time": "12:00",
+        "stay_minutes": 60,
+        "is_student": False
+    }
+    response = client.post("/get_detail", json=payload)
+    assert response.status_code == 200
+    data = response.json()
+    assert "shop_id" in data
+    assert "name" in data
+    assert "plans" in data
+    assert isinstance(data["plans"], list)
+    assert len(data["plans"]) > 0
+    for plan in data["plans"]:
+        assert "unit" in plan
+        assert "price" in plan
+        assert "start" in plan
+        assert "end" in plan
+        assert "customer_type" in plan
