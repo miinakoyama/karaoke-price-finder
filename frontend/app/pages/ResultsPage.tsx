@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Map, List, Navigation, Star } from "lucide-react"
+import { ResultsMap } from "@/components/ResultsMap"
 import { Store, MembershipSettings } from "../types/store"
 import Image from "next/image"
 
@@ -185,14 +186,10 @@ export function ResultsPage({
           })}
         </div>
       ) : (
-        <div className="h-[calc(100vh-120px)] bg-gray-200 flex items-center justify-center">
-          <div className="text-center">
-            <Map className="w-12 h-12 mx-auto text-gray-400 mb-2" />
-            <p className="text-gray-500">マップビュー</p>
-            <p className="text-sm text-gray-400">Google Maps統合</p>
-          </div>
+        <div className="h-[calc(100vh-120px)]">
+          <ResultsMap stores={stores} membershipSettings={membershipSettings} />
         </div>
       )}
     </div>
   )
-} 
+}

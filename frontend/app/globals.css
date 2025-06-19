@@ -81,3 +81,12 @@
   width: 0px;
   background: transparent;
 }
+
+.marker-label {
+  background: #4F46E5;
+  color: #fff;
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+}
