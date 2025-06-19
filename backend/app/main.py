@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List, Optional
+from typing import Annotated, List, Optional
 
 from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel
@@ -184,7 +184,7 @@ async def search_shops(request: SearchRequest):
 # is_store_open関数のテスト用
 @app.get("/store/{store_id}/is_open")
 def check_store_open_status(
-    store_id: int, dt: datetime = Query(..., description="チェックしたい日時（例: 2025-06-20T01:00:00）")
+    store_id: int, dt: Annotated[datetime, Query(description="チェックしたい日時（例: 2025-06-20T01:00:00）")] = ...
 ):
     # 対象店舗を探す
     store = next((s for s in dummy_stores if s.id == store_id), None)
