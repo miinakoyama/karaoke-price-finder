@@ -123,7 +123,9 @@ export function ResultsPage({
       {viewMode === "list" ? (
         <div className="p-4 space-y-3 pb-20">
           {stores.map((store) => {
-            const isMember = membershipSettings[store.chainKey as keyof typeof membershipSettings]?.isMember
+            const isMember = store.chainKey
+              ? membershipSettings[store.chainKey as keyof typeof membershipSettings]?.isMember
+              : false
             const displayPrice = isMember && store.memberPrice ? store.memberPrice : store.price
 
             return (
@@ -132,8 +134,8 @@ export function ResultsPage({
                   <div className="flex items-start gap-3">
                     <div className="w-12 h-12 rounded-full overflow-hidden flex items-center justify-center bg-white border">
                       <Image
-                        src={chainLogoMap[store.chainKey] || '/placeholder-logo.png'}
-                        alt={store.chain}
+                        src={store.chainKey ? chainLogoMap[store.chainKey] || '/placeholder-logo.png' : '/placeholder-logo.png'}
+                        alt={store.chain || ''}
                         width={48}
                         height={48}
                         className="object-contain w-full h-full"
@@ -144,7 +146,7 @@ export function ResultsPage({
                         <div>
                           <h3 className="font-medium text-gray-900 truncate">{store.name}</h3>
                           <div className="flex items-center gap-1 mt-1 flex-wrap">
-                            {store.badges.map((badge) => (
+                            {(store.badges || []).map((badge) => (
                               <Badge
                                 key={badge}
                                 variant={badge === "最安" ? "default" : "secondary"}
@@ -164,17 +166,17 @@ export function ResultsPage({
                           <div className="text-2xl font-bold text-gray-900">
                             ¥{displayPrice.toLocaleString()}
                           </div>
-                          <div className="text-sm text-gray-500">{store.duration}</div>
+                          <div className="text-sm text-gray-500">{store.duration || ''}</div>
                         </div>
                       </div>
                       <div className="flex items-center justify-between mt-2 text-sm text-gray-500">
                         <div className="flex items-center gap-1">
                           <Navigation className="w-3 h-3" />
-                          {store.distance}
+                          {store.distance || ''}
                         </div>
                         <div className="flex items-center gap-1">
                           <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                          {store.rating}
+                          {store.rating ?? ''}
                         </div>
                       </div>
                     </div>

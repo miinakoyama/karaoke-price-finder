@@ -1,17 +1,27 @@
+export interface PlanDetail {
+  unit: string
+  price: number
+  price_per_30_min?: number | null
+  start: string
+  end: string
+  customer_type: string[]
+}
+
 export interface Store {
   id: string
   name: string
-  chain: string
+  chain?: string
   price: number
   memberPrice?: number
-  duration: string
-  badges: string[]
-  distance: string
-  rating: number
-  address: string
-  phone: string
-  features: string[]
-  chainKey: string
+  duration?: string
+  badges?: string[]
+  distance?: string
+  rating?: number
+  address?: string
+  phone?: string
+  features?: string[]
+  chainKey?: string
+  plans?: PlanDetail[]
 }
 
 export interface MembershipSettings {

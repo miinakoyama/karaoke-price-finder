@@ -60,38 +60,56 @@ export function StoreDetail({ store, onClose, membershipSettings }: StoreDetailP
           <div className="space-y-3">
             <h3 className="font-semibold text-gray-900">料金プラン</h3>
             <div className="space-y-2">
-              <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                <span>30分</span>
-                <div className="text-right">
-                  {isMember && <div className="text-sm text-gray-400 line-through">¥580</div>}
-                  <span className="font-medium">¥{isMember ? "480" : "580"}</span>
-                </div>
-              </div>
-              <div className="flex justify-between items-center p-3 bg-orange-50 rounded-lg border border-orange-200">
-                <span>2時間パック</span>
-                <div className="text-right">
-                  {isMember && memberPrice && memberPrice < regularPrice && (
-                    <div className="text-sm text-gray-400 line-through">¥{regularPrice.toLocaleString()}</div>
-                  )}
-                  <span className={`font-bold ${isMember && memberPrice ? "text-green-600" : "text-orange-600"}`}>
-                    ¥{(isMember && memberPrice ? memberPrice : regularPrice).toLocaleString()}
-                  </span>
-                </div>
-              </div>
-              <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                <span>フリータイム</span>
-                <div className="text-right">
-                  {isMember && <div className="text-sm text-gray-400 line-through">¥2,980</div>}
-                  <span className="font-medium">¥{isMember ? "2,480" : "2,980"}</span>
-                </div>
-              </div>
-              <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                <span>深夜パック</span>
-                <div className="text-right">
-                  {isMember && <div className="text-sm text-gray-400 line-through">¥1,980</div>}
-                  <span className="font-medium">¥{isMember ? "1,680" : "1,980"}</span>
-                </div>
-              </div>
+              {store.plans && store.plans.length > 0 ? (
+                store.plans.map((plan, idx) => (
+                  <div
+                    key={idx}
+                    className="flex justify-between items-center p-3 bg-gray-50 rounded-lg"
+                  >
+                    <span>
+                      {plan.unit} ({plan.start} - {plan.end})
+                    </span>
+                    <span className="font-medium">¥{plan.price.toLocaleString()}</span>
+                  </div>
+                ))
+              ) : (
+                <>
+                  <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                    <span>30分</span>
+                    <div className="text-right">
+                      {isMember && <div className="text-sm text-gray-400 line-through">¥580</div>}
+                      <span className="font-medium">¥{isMember ? "480" : "580"}</span>
+                    </div>
+                  </div>
+                  <div className="flex justify-between items-center p-3 bg-orange-50 rounded-lg border border-orange-200">
+                    <span>2時間パック</span>
+                    <div className="text-right">
+                      {isMember && memberPrice && memberPrice < regularPrice && (
+                        <div className="text-sm text-gray-400 line-through">¥{regularPrice.toLocaleString()}</div>
+                      )}
+                      <span
+                        className={`font-bold ${isMember && memberPrice ? "text-green-600" : "text-orange-600"}`}
+                      >
+                        ¥{(isMember && memberPrice ? memberPrice : regularPrice).toLocaleString()}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                    <span>フリータイム</span>
+                    <div className="text-right">
+                      {isMember && <div className="text-sm text-gray-400 line-through">¥2,980</div>}
+                      <span className="font-medium">¥{isMember ? "2,480" : "2,980"}</span>
+                    </div>
+                  </div>
+                  <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                    <span>深夜パック</span>
+                    <div className="text-right">
+                      {isMember && <div className="text-sm text-gray-400 line-through">¥1,980</div>}
+                      <span className="font-medium">¥{isMember ? "1,680" : "1,980"}</span>
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
           </div>
 
@@ -99,7 +117,7 @@ export function StoreDetail({ store, onClose, membershipSettings }: StoreDetailP
           <div className="space-y-3">
             <h3 className="font-semibold text-gray-900">サービス</h3>
             <div className="flex flex-wrap gap-2">
-              {store.features.map((feature) => (
+              {(store.features || []).map((feature) => (
                 <Badge key={feature} variant="secondary">
                   {feature}
                 </Badge>
