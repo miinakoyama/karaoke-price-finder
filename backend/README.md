@@ -1,19 +1,19 @@
 # 起動
-以下backend/ディレクトリで作業するものとする。
+以下`backend/`ディレクトリで作業するものとする。
 
 ## dockerイメージのビルド
 ```bash
-docker build -t backend .
+docker build -t <任意のイメージ名> .
 ```
 
 ## dockerコンテナを動かす
 ```bash
-docker run -p 8000:80 fastapi-app
+docker run -p 8000:80 <任意のイメージ名>
 ```
 http://127.0.0.1:8000/docs でAPIのドキュメントを確認できる。
 
-# 開発環境セットアップ（uv推奨）
 
+# 開発環境セットアップ（uv推奨）
 依存関係のインストールと仮想環境の作成はuvで行うことを推奨します。
 
 ```bash
