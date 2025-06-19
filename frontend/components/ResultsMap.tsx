@@ -7,9 +7,10 @@ import { useMemo } from 'react'
 interface ResultsMapProps {
   stores: Store[]
   membershipSettings: MembershipSettings
+  onMarkerClick?: (store: Store) => void
 }
 
-export function ResultsMap({ stores, membershipSettings }: ResultsMapProps) {
+export function ResultsMap({ stores, membershipSettings, onMarkerClick }: ResultsMapProps) {
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '',
   })
@@ -43,8 +44,10 @@ export function ResultsMap({ stores, membershipSettings }: ResultsMapProps) {
                 clusterer={clusterer}
                 label={{
                   text: `¥${getPrice(store).toLocaleString()}`,
+                  color: '#fff',
                   className: 'marker-label',
                 }}
+                onClick={() => onMarkerClick?.(store)}
               />
             ))}
           </>

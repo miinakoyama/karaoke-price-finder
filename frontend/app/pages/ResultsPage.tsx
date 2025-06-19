@@ -5,6 +5,8 @@ import { Map, List, Navigation, Star } from "lucide-react"
 import { ResultsMap } from "@/components/ResultsMap"
 import { Store, MembershipSettings } from "../types/store"
 import Image from "next/image"
+import { useState } from "react"
+import { StoreDetail } from "./StoreDetail"
 
 interface ResultsPageProps {
   onBack: () => void
@@ -35,6 +37,8 @@ export function ResultsPage({
   membershipSettings,
   onStoreSelect,
 }: ResultsPageProps) {
+  const [selectedStore, setSelectedStore] = useState<Store | null>(null)
+
   const formatDuration = (hours: number) => {
     const h = Math.floor(hours)
     const m = Math.round((hours - h) * 60)
@@ -170,9 +174,16 @@ export function ResultsPage({
         </div>
       ) : (
         <div className="h-[calc(100vh-120px)]">
-          <ResultsMap stores={stores} membershipSettings={membershipSettings} />
+          <ResultsMap
+            stores={stores}
+            membershipSettings={membershipSettings}
+            onMarkerClick={setSelectedStore}
+          />
         </div>
       )}
+
+      {/* StoreDetail モーダル */}
+      <StoreDetail store={selectedStore} onClose={() => setSelectedStore(null)} membershipSettings={membershipSettings} />
     </div>
   )
 }

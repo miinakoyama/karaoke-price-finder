@@ -84,9 +84,11 @@
 
 .marker-label {
   background: #4F46E5;
-  color: #fff;
-  padding: 2px 4px;
-  border-radius: 4px;
-  font-size: 12px;
+  color: #ffffff;
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-size: 13px;
   font-weight: bold;
+  border: 1.5px solid #4F46E5;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
 }
