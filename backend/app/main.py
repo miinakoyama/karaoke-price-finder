@@ -1,7 +1,7 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import List, Optional
-from utils import stores, find_cheapest_plan
+from utils import stores, find_cheapest_plan,find_plans
 from datetime import datetime
 
 app = FastAPI()
@@ -62,6 +62,77 @@ class ShopDetail(BaseModel):
 class SearchResponse(BaseModel):
     results: List[ShopDetail]  # 店舗詳細情報をまとめて返す
 
+class PlanDetail(BaseModel):
+    unit: str
+    price: int
+    price_per_30_min: Optional[int] = None
+    start: str
+    end: str
+    customer_type: List[str]
+
+class GetDetailRequest(BaseModel):
+    shop_id: str
+    start_time: str  # "HH:MM" format
+    stay_minutes: Optional[int] = 60
+    is_student: bool = False
+    member_shop_ids: Optional[List[str]] = None
+
+class GetDetailResponse(BaseModel):
+    shop_id: str
+    name: str
+    plans: List[PlanDetail]
+@app.post("/get_detail", response_model=GetDetailResponse)
+async def get_shop_detail(request: GetDetailRequest):
+    try:
+        # shop_idからstoreを取得
+        shop_idx = int(request.shop_id)
+        if shop_idx < 0 or shop_idx >= len(stores):
+            raise HTTPException(status_code=404, detail="Shop not found")
+        
+        store = stores[shop_idx]
+        
+        # 開始時刻をdatetimeに変換
+        today = datetime.now().date()
+        start_time_str = request.start_time
+        start_dt = datetime.strptime(f"{today} {start_time_str}", "%Y-%m-%d %H:%M")
+        stay_minutes = request.stay_minutes or 60
+        is_student = request.is_student
+        
+        # メンバーかどうかの判定
+        is_member = store.attribute in (request.member_shop_ids or [])
+        
+        print(f"Getting details for store: {store.name}, is_member: {is_member}")
+        
+        # find_plansを呼び出してプラン一覧を取得
+        plans_data = find_plans(store.rules, start_dt, is_member, is_student, stay_minutes)
+        
+        # レスポンス用のプランリストを作成
+        plans = []
+        for plan_data in plans_data:
+            plan = PlanDetail(
+                unit=plan_data["unit"],
+                price=int(plan_data["price"]),
+                price_per_30_min=plan_data["price_per_30_min"],
+                start=plan_data["start"],
+                end=plan_data["end"],
+                customer_type=plan_data["customer_type"]
+            )
+            plans.append(plan)
+        
+        return GetDetailResponse(
+            shop_id=request.shop_id,
+            name=store.name,
+            plans=plans
+        )
+        
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid shop_id format")
+    except IndexError:
+        raise HTTPException(status_code=404, detail="Shop not found")
+    except Exception as e:
+        print(f"Error in get_shop_detail: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+    
 # --- Endpoints ---
 @app.post("/search", response_model=SearchResponse)
 async def search_shops(request: SearchRequest):
@@ -95,7 +166,6 @@ async def search_shops(request: SearchRequest):
         )
         results.append(shop_detail)
     return SearchResponse(results=results)
-
 
 @app.get("/hello")
 async def hello():

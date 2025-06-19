@@ -43,6 +43,55 @@ def is_within_time_range(start_str, end_str, dt):
 
 def contains(lst, target):
     return target in lst
+def find_plans(rules, dt, isMember, isStudent, stay_minutes):
+    day = get_weekday_str(dt)
+    matching_plans = []
+
+    types_to_check = []
+    if isMember:
+        types_to_check.append("member")
+    if isStudent:
+        types_to_check.append("student")
+    if not types_to_check:
+        types_to_check.append("general")
+
+    for rule in rules:
+        if not any(ct in rule.customer_types for ct in types_to_check):
+            continue
+        if day not in rule.days:
+            continue
+
+        for tr in rule.time_ranges:
+            if not is_within_time_range(tr.start, tr.end, dt):
+                continue
+
+            # プラン情報の構築
+            if tr.unit == "free_time":
+                plan = {
+                    "unit": "free_time",
+                    "price": tr.price_total,
+                    "price_per_30_min": None,  # 該当しない
+                    "start": tr.start,
+                    "end": tr.end,
+                    "customer_type": rule.customer_types
+                }
+            elif tr.unit == "per_30_min":
+                units = math.ceil(stay_minutes / 30)
+                total_price = tr.price_per_hour * units
+                plan = {
+                    "unit": "per_30_min",
+                    "price": total_price,
+                    "price_per_30_min": tr.price_per_hour,  # ← これを追加
+                    "start": tr.start,
+                    "end": tr.end,
+                    "customer_type": rule.customer_types
+                }
+            else:
+                continue
+
+            matching_plans.append(plan)
+
+    return matching_plans
 
 def find_cheapest_plan(rules, dt, isMember, isStudent, stay_minutes):
     day = get_weekday_str(dt)
