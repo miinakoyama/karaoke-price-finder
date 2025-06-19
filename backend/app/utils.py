@@ -1,12 +1,14 @@
-from datetime import datetime, time,timedelta
 import math
+from datetime import datetime, time, timedelta
+from math import asin, cos, radians, sin, sqrt
+
 from app.models import KaraokeStore
-from math import radians, cos, sin, asin, sqrt
+
 
 def is_store_open(store: KaraokeStore, dt: datetime) -> bool:
-    '''
+    """
     営業中かどうかを判定する関数
-    '''
+    """
     current_day = get_weekday_str(dt)
     prev_day = get_weekday_str(dt - timedelta(days=1))
     time_str = dt.strftime("%H:%M")
@@ -26,6 +28,7 @@ def is_store_open(store: KaraokeStore, dt: datetime) -> bool:
                 return True
 
     return False
+
 
 def get_weekday_str(dt: datetime) -> str:
     """
@@ -72,7 +75,9 @@ def is_within_time_range(start_str: str, end_str: str, dt: datetime) -> bool:
         return target_time >= start or target_time < end
 
 
-def find_cheapest_plan_for_store(store: KaraokeStore, dt: datetime, stay_minutes: int, is_member: bool, is_student: bool):
+def find_cheapest_plan_for_store(
+    store: KaraokeStore, dt: datetime, stay_minutes: int, is_member: bool, is_student: bool
+):
     """
     指定したカラオケ店舗・日時・利用時間・会員/学生区分で最安値プランを計算する。
 
@@ -93,7 +98,7 @@ def find_cheapest_plan_for_store(store: KaraokeStore, dt: datetime, stay_minutes
     if not is_store_open(store, dt):
         return None
     day = get_weekday_str(dt)
-    best_price = float('inf')
+    best_price = float("inf")
     best_plan = None
     best_option = None
 
@@ -131,16 +136,14 @@ def find_cheapest_plan_for_store(store: KaraokeStore, dt: datetime, stay_minutes
                 best_plan = plan
                 best_option = option
     if best_plan and best_option:
-        return {
-            "plan_name": best_plan.plan_name,
-            "option": best_option,
-            "total_price": best_price
-        }
+        return {"plan_name": best_plan.plan_name, "option": best_option, "total_price": best_price}
     else:
         return None
 
 
-def list_available_plans_for_store(store: KaraokeStore, dt: datetime, stay_minutes: int, is_member: bool, is_student: bool):
+def list_available_plans_for_store(
+    store: KaraokeStore, dt: datetime, stay_minutes: int, is_member: bool, is_student: bool
+):
     """
     指定したカラオケ店舗・日時・利用時間・会員/学生区分で該当する全プラン（PlanDetail相当の情報）をリストで返す。
 
@@ -181,14 +184,16 @@ def list_available_plans_for_store(store: KaraokeStore, dt: datetime, stay_minut
                 total = option.amount * units
             else:
                 total = option.amount
-            plans.append({
-                "unit": option.unit_type,
-                "price": int(total),
-                "price_per_30_min": option.amount if option.unit_type == "per_30min" else None,
-                "start": plan.start_time,
-                "end": plan.end_time,
-                "customer_type": [option.customer_type]
-            })
+            plans.append(
+                {
+                    "unit": option.unit_type,
+                    "price": int(total),
+                    "price_per_30_min": option.amount if option.unit_type == "per_30min" else None,
+                    "start": plan.start_time,
+                    "end": plan.end_time,
+                    "customer_type": [option.customer_type],
+                }
+            )
     return plans
 
 
@@ -212,6 +217,6 @@ def haversine(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     lat1, lon1, lat2, lon2 = map(radians, [lat1, lon1, lat2, lon2])
     dlat = lat2 - lat1
     dlon = lon2 - lon1
-    a = sin(dlat/2)**2 + cos(lat1) * cos(lat2) * sin(dlon/2)**2
+    a = sin(dlat / 2) ** 2 + cos(lat1) * cos(lat2) * sin(dlon / 2) ** 2
     c = 2 * asin(sqrt(a))
     return R * c

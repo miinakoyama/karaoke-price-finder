@@ -1,7 +1,7 @@
-import pytest
 from datetime import datetime
-from app.utils import find_cheapest_plan_for_store
+
 from app.dummy_karaoke_stores import dummy_stores
+from app.utils import find_cheapest_plan_for_store
 
 
 def test_cheapest_plan_general():
@@ -13,8 +13,9 @@ def test_cheapest_plan_general():
     dt = datetime(2025, 6, 16, 12, 0)  # 月曜
     result = find_cheapest_plan_for_store(dummy_stores[0], dt, 90, is_member=False, is_student=False)
     assert result is not None
-    assert result['total_price'] > 0
-    assert result['plan_name'] in ["昼フリータイム", "30分料金"]
+    assert result["total_price"] > 0
+    assert result["plan_name"] in ["昼フリータイム", "30分料金"]
+
 
 def test_cheapest_plan_student_weekend():
     """
@@ -25,8 +26,9 @@ def test_cheapest_plan_student_weekend():
     dt = datetime(2025, 6, 15, 13, 0)  # 日曜
     result = find_cheapest_plan_for_store(dummy_stores[0], dt, 60, is_member=False, is_student=True)
     assert result is not None
-    assert result['option'].customer_type == "student"
-    assert result['total_price'] == 1200
+    assert result["option"].customer_type == "student"
+    assert result["total_price"] == 1200
+
 
 def test_cheapest_plan_member_weekend():
     """
@@ -37,9 +39,10 @@ def test_cheapest_plan_member_weekend():
     dt = datetime(2025, 6, 15, 10, 0)  # 日曜
     result = find_cheapest_plan_for_store(dummy_stores[0], dt, 60, is_member=True, is_student=False)
     assert result is not None
-    assert result['option'].customer_type == "member"
-    assert result['plan_name'] == "30分料金"
-    assert result['total_price'] == 273 * 2
+    assert result["option"].customer_type == "member"
+    assert result["plan_name"] == "30分料金"
+    assert result["total_price"] == 273 * 2
+
 
 def test_cheapest_plan_no_match():
     """
@@ -51,6 +54,7 @@ def test_cheapest_plan_no_match():
     result = find_cheapest_plan_for_store(dummy_stores[0], dt, 60, is_member=False, is_student=False)
     assert result is None
 
+
 def test_cheapest_plan_special_pack():
     """
     スペシャル学割パック（0円）が適用されるケース。
@@ -60,6 +64,6 @@ def test_cheapest_plan_special_pack():
     dt = datetime(2025, 6, 13, 10, 0)  # 金曜（holiday_eve→friに変更したため）
     result = find_cheapest_plan_for_store(dummy_stores[1], dt, 60, is_member=False, is_student=True)
     assert result is not None
-    assert result['plan_name'] == "スペシャル学割パック"
-    assert result['option'].unit_type == "special"
-    assert result['total_price'] == 0
+    assert result["plan_name"] == "スペシャル学割パック"
+    assert result["option"].unit_type == "special"
+    assert result["total_price"] == 0

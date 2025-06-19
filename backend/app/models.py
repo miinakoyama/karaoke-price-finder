@@ -2,11 +2,10 @@ from dataclasses import dataclass, field
 from typing import List, Literal
 
 CustomerType = Literal["student", "member", "general"]
-DayType = Literal[
-    "mon", "tue", "wed", "thu", "fri", "sat", "sun"
-]
+DayType = Literal["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
 TaxType = Literal["tax_included", "tax_excluded"]
 UnitType = Literal["per_30min", "per_hour", "free_time", "pack", "special"]
+
 
 @dataclass
 class PlanOption:
@@ -16,6 +15,7 @@ class PlanOption:
     unit_type: UnitType
     notes: str = ""
 
+
 @dataclass
 class PricingPlan:
     plan_name: str
@@ -23,11 +23,13 @@ class PricingPlan:
     end_time: str
     options: List[PlanOption] = field(default_factory=list)
 
+
 @dataclass
 class BusinessHour:
     day_type: DayType
     start_time: str
     end_time: str
+
 
 @dataclass
 class KaraokeStore:

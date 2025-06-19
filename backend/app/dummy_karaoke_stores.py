@@ -1,4 +1,4 @@
-from app.models import KaraokeStore, PricingPlan, PlanOption, BusinessHour
+from app.models import BusinessHour, KaraokeStore, PlanOption, PricingPlan
 
 dummy_stores = [
     KaraokeStore(
@@ -8,9 +8,8 @@ dummy_stores = [
         longitude=139.7005,
         phone_number="03-1234-5678",
         business_hours=[
-            BusinessHour(day_type=day, start_time="00:00", end_time="24:00") for day in [
-                "mon", "tue", "wed", "thu", "fri", "sat", "sun"
-            ]
+            BusinessHour(day_type=day, start_time="00:00", end_time="24:00")
+            for day in ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
         ],
         tax_type="tax_included",
         chain_name="まねきねこ",
@@ -20,21 +19,36 @@ dummy_stores = [
                 start_time="11:00",
                 end_time="20:00",
                 options=[
-                    PlanOption(days=["mon", "tue", "wed", "thu", "fri"], customer_type="general", amount=1500, unit_type="free_time"),
+                    PlanOption(
+                        days=["mon", "tue", "wed", "thu", "fri"],
+                        customer_type="general",
+                        amount=1500,
+                        unit_type="free_time",
+                    ),
                     PlanOption(days=["sat", "sun"], customer_type="student", amount=1200, unit_type="free_time"),
-                    PlanOption(days=["mon", "tue", "wed", "thu", "fri"], customer_type="student", amount=1300, unit_type="free_time"),  # 平日学生用を追加
-                ]
+                    PlanOption(
+                        days=["mon", "tue", "wed", "thu", "fri"],
+                        customer_type="student",
+                        amount=1300,
+                        unit_type="free_time",
+                    ),  # 平日学生用を追加
+                ],
             ),
             PricingPlan(
                 plan_name="30分料金",
                 start_time="07:00",
                 end_time="18:00",
                 options=[
-                    PlanOption(days=["mon", "tue", "wed", "thu", "fri"], customer_type="general", amount=319, unit_type="per_30min"),
+                    PlanOption(
+                        days=["mon", "tue", "wed", "thu", "fri"],
+                        customer_type="general",
+                        amount=319,
+                        unit_type="per_30min",
+                    ),
                     PlanOption(days=["sat", "sun"], customer_type="member", amount=273, unit_type="per_30min"),
-                ]
+                ],
             ),
-        ]
+        ],
     ),
     KaraokeStore(
         id=2,
@@ -57,16 +71,20 @@ dummy_stores = [
                 options=[
                     PlanOption(days=["fri", "sat"], customer_type="general", amount=2000, unit_type="pack"),
                     PlanOption(days=["fri", "sat"], customer_type="student", amount=1500, unit_type="pack"),
-                ]
+                ],
             ),
             PricingPlan(
                 plan_name="30分料金",
                 start_time="14:00",
                 end_time="18:00",
                 options=[
-                    PlanOption(days=["mon", "tue", "wed", "thu"], customer_type="general", amount=360, unit_type="per_30min"),
-                    PlanOption(days=["mon", "tue", "wed", "thu"], customer_type="student", amount=180, unit_type="per_30min"),
-                ]
+                    PlanOption(
+                        days=["mon", "tue", "wed", "thu"], customer_type="general", amount=360, unit_type="per_30min"
+                    ),
+                    PlanOption(
+                        days=["mon", "tue", "wed", "thu"], customer_type="student", amount=180, unit_type="per_30min"
+                    ),
+                ],
             ),
             PricingPlan(
                 plan_name="スペシャル学割パック",
@@ -74,10 +92,16 @@ dummy_stores = [
                 end_time="17:00",
                 options=[
                     # holiday_eve→fri
-                    PlanOption(days=["fri"], customer_type="student", amount=0, unit_type="special", notes="学生証提示必須・中高生限定")
-                ]
+                    PlanOption(
+                        days=["fri"],
+                        customer_type="student",
+                        amount=0,
+                        unit_type="special",
+                        notes="学生証提示必須・中高生限定",
+                    )
+                ],
             ),
-        ]
+        ],
     ),
     KaraokeStore(
         id=3,
@@ -100,16 +124,21 @@ dummy_stores = [
                 options=[
                     PlanOption(days=["fri", "sat"], customer_type="general", amount=4000, unit_type="free_time"),
                     PlanOption(days=["fri", "sat"], customer_type="member", amount=3500, unit_type="free_time"),
-                ]
+                ],
             ),
             PricingPlan(
                 plan_name="1時間パック",
                 start_time="11:00",
                 end_time="17:00",
                 options=[
-                    PlanOption(days=["mon", "tue", "wed", "thu", "fri"], customer_type="general", amount=1000, unit_type="per_hour"),
-                ]
+                    PlanOption(
+                        days=["mon", "tue", "wed", "thu", "fri"],
+                        customer_type="general",
+                        amount=1000,
+                        unit_type="per_hour",
+                    ),
+                ],
             ),
-        ]
+        ],
     ),
 ]
