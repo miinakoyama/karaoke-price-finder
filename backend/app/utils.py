@@ -16,7 +16,7 @@ class PricingRule:
         self.time_ranges = time_ranges
 
 class Store:
-    def __init__(self, name, lat, lon, phone,open_hour,rules,attribute):
+    def __init__(self, name, lat, lon, phone, open_hour,rules,attribute):
         self.name = name
         self.lat = lat
         self.lon = lon
@@ -170,7 +170,6 @@ rules_c = [
         TimeRange("11:00", "20:00", "free_time", price_total=2500),
     ]),
 ]
-
 # ==== Storeのダミーデータ ====
 stores = [
     Store(

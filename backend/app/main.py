@@ -153,11 +153,17 @@ async def search_shops(request: SearchRequest):
         plan_type, price, ok = find_cheapest_plan(store.rules, start_dt, is_member, is_student, stay_minutes)
         if not ok:
             continue
+
+        attribute_img_mapping = {
+            "まねきねこ": "manekiNeko.jpg",
+            "パセラ": "pasera.jpg", 
+            "カラオケ館": "karaokeCan.png",
+        }
         shop_detail = ShopDetail(
             shop_id=str(idx),
             name=store.name,
             price_per_person=int(price),
-            icon_url=None,
+            icon_url=attribute_img_mapping.get(store.attribute),
             drink_type="ソフトドリンクバー",
             phone=store.phone,
             all_plans=[plan_type],
