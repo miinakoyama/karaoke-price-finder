@@ -84,7 +84,7 @@ export function StoreDetail({ store, detailData, loading, onClose, membershipSet
                       {plan.price_per_30_min && (
                         <div className="text-xs text-gray-400">30分単価: ¥{plan.price_per_30_min}</div>
                       )}
-                      <div className="text-xs text-gray-500">{plan.customer_type.map(customerTypeToJa).join(', ')}</div>
+                      <div className="text-xs text-gray-500">{(plan.customer_type ?? []).map(customerTypeToJa).join(', ')}</div>
                     </div>
                   </div>
                 ))}
@@ -131,7 +131,7 @@ export function StoreDetail({ store, detailData, loading, onClose, membershipSet
           <div className="space-y-3">
             <h3 className="font-semibold text-gray-900">サービス</h3>
             <div className="flex flex-wrap gap-2">
-              {store.features.map((feature) => (
+              {(store.features ?? []).map((feature) => (
                 <Badge key={feature} variant="secondary">
                   {feature}
                 </Badge>

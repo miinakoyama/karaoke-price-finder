@@ -44,23 +44,36 @@ export default function KaraokeSearchApp() {
   
   function getChainKey(chainName: string): string {
     switch (chainName) {
-      case "カラオケ館": return "karaokeCan";
-      case "ビッグエコー": return "bigEcho";
-      case "カラオケの鉄人": return "tetsuJin";
-      case "まねきねこ": return "manekineko";
-      case "ジャンカラ": return "jankara";
-      case "歌広場": return "utahiroba";
-      default: return "karaokeCan";
+      case "カラオケ館":
+      case "karaokeCan":
+        return "karaokeCan";
+      case "ビッグエコー":
+      case "bigEcho":
+        return "bigEcho";
+      case "カラオケの鉄人":
+      case "tetsuJin":
+        return "tetsuJin";
+      case "まねきねこ":
+      case "manekineko":
+        return "manekineko";
+      case "ジャンカラ":
+      case "jankara":
+        return "jankara";
+      case "歌広場":
+      case "utahiroba":
+        return "utahiroba";
+      default:
+        return "karaokeCan";
     }
   }
 
   function mapApiShopToStore(apiShop: any): Store {
     const chainKey = getChainKey(apiShop.icon_url || apiShop.chain_name || "");
     return {
-      id: apiShop.shop_id,
+      shop_id: apiShop.shop_id,
       name: apiShop.name,
-      chain: apiShop.icon_url || "",
-      price: apiShop.price_per_person,
+      icon_url: apiShop.icon_url || "",
+      price_per_person: apiShop.price_per_person,
       memberPrice: undefined,
       drinkInfo: "ドリンクバー付",
       badges: [],
@@ -69,6 +82,7 @@ export default function KaraokeSearchApp() {
       address: "住所未設定",
       phone: apiShop.phone || "",
       features: [],
+      all_plans: apiShop.all_plans || [],
       chainKey,
       latitude: apiShop.latitude || 0,
       longitude: apiShop.longitude || 0,

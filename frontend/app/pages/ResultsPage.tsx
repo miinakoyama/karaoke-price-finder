@@ -89,7 +89,7 @@ export function ResultsPage({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          shop_id: store.id,
+          shop_id: store.shop_id,
           start_time: startTime,
           stay_minutes: Math.round(duration[0] * 60),
           is_student: studentDiscount,
