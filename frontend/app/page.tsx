@@ -17,7 +17,7 @@ export default function KaraokeSearchApp() {
   const [people, setPeople] = useState(2)
   const [studentDiscount, setStudentDiscount] = useState(false)
   const [drinkBar, setDrinkBar] = useState(false)
-
+  const [stores, setStores] = useState<Store[]>([])
   const [membershipSettings, setMembershipSettings] = useState<MembershipSettings>({
     karaokeCan: { isMember: false },
     bigEcho: { isMember: false },
@@ -33,11 +33,7 @@ export default function KaraokeSearchApp() {
       [chainKey]: { isMember },
     }))
   }
-
-  const handleSearch = () => {
-    setCurrentView("results")
-  }
-
+  
   const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
 
   const handleUseCurrentLocation = () => {
@@ -70,6 +66,41 @@ export default function KaraokeSearchApp() {
         setSearchLocation("位置情報の取得に失敗しました")
       }
     )
+  }
+
+  const handleSearch = async () => {  
+    const member_shop_ids = Object.entries(membershipSettings)
+      .filter(([, value]) => value.isMember)
+      .map(([key]) => key)
+    const payload = {
+      latitude: 35.6895,
+      longitude: 139.6917,
+      place_name: "渋谷区",
+      stay_minutes: duration[0] * 60, 
+      is_free_time: false,
+      start_time: startTime,
+      group_size: people,
+      is_student: studentDiscount,
+      member_shop_ids: member_shop_ids,
+      radius: distance[0],
+    }
+
+    try {
+      const response = await fetch("http://localhost:8000/search", {
+        method: "POST",
+        headers: {
+          Accept: "application/json",
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      })
+  
+      const data = await response.json()
+      setStores(data.results || [])
+      setCurrentView("results")
+    } catch (error) {
+      console.error("検索APIエラー:", error)
+    }
   }
 
   if (currentView === "home") {
