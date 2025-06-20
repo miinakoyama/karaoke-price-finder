@@ -3,6 +3,7 @@ from typing import Annotated, List, Optional
 
 from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.dummy_karaoke_stores import dummy_stores
 from app.utils import (
@@ -12,6 +13,14 @@ from app.utils import (
 )
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 # --- Request/Response Schemas ---
@@ -66,6 +75,7 @@ class PlanDetail(BaseModel):
     - 単位種別、金額、30分単価、時間帯、顧客種別
     """
 
+    plan_name: str
     unit: str
     price: int
     price_per_30_min: Optional[int] = None
@@ -119,6 +129,7 @@ async def get_shop_detail(request: GetDetailRequest):
         plans_data = list_available_plans_for_store(store, start_dt, stay_minutes, is_member, is_student)
         plans = [
             PlanDetail(
+                plan_name=plan["plan_name"],
                 unit=plan["unit"],
                 price=plan["price"],
                 price_per_30_min=plan["price_per_30_min"],

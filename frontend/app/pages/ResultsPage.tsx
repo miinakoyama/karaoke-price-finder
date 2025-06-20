@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge"
 import { Map, List, Navigation, Star } from "lucide-react"
 import { ResultsMap } from "@/components/ResultsMap"
 import { Store, MembershipSettings } from "../types/store"
+import { PlanDetail, GetDetailResponse } from "../types/api"
 import Image from "next/image"
 import { useState } from "react"
 import { StoreDetail } from "./StoreDetail"
@@ -38,6 +39,9 @@ export function ResultsPage({
   onStoreSelect,
 }: ResultsPageProps) {
   const [selectedStore, setSelectedStore] = useState<Store | null>(null)
+  // 追加: 詳細データ状態
+  const [detailData, setDetailData] = useState<GetDetailResponse | null>(null)
+  const [loadingDetail, setLoadingDetail] = useState(false)
 
   const formatDuration = (hours: number) => {
     const h = Math.floor(hours)
@@ -74,6 +78,35 @@ export function ResultsPage({
     .filter(([, v]) => v.isMember)
     .map(([k]) => chainNameMap[k] || k)
     .join('、')
+
+  // 店舗選択時に詳細APIを呼ぶ
+  const handleStoreSelect = async (store: Store) => {
+    setSelectedStore(store)
+    setLoadingDetail(true)
+    setDetailData(null)
+    try {
+      const res = await fetch("http://localhost:8000/get_detail", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          shop_id: store.id,
+          start_time: startTime,
+          stay_minutes: Math.round(duration[0] * 60),
+          is_student: studentDiscount,
+          member_shop_ids: Object.entries(membershipSettings)
+            .filter(([, v]) => v.isMember)
+            .map(([k]) => k),
+        }),
+      })
+      if (!res.ok) throw new Error("詳細APIエラー")
+      const data = await res.json()
+      setDetailData(data)
+    } catch (e) {
+      alert("詳細取得に失敗しました")
+    } finally {
+      setLoadingDetail(false)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -131,7 +164,7 @@ export function ResultsPage({
 
             return (
               <Card key={store.id} className="shadow-sm cursor-pointer hover:shadow-md transition-shadow">
-                <CardContent className="p-3" onClick={() => onStoreSelect(store)}>
+                <CardContent className="p-3" onClick={() => handleStoreSelect(store)}>
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 rounded-full flex items-center justify-center bg-white border relative">
                       <div className="w-12 h-12 rounded-full overflow-hidden">
@@ -177,13 +210,22 @@ export function ResultsPage({
           <ResultsMap
             stores={stores}
             membershipSettings={membershipSettings}
-            onMarkerClick={setSelectedStore}
+            onMarkerClick={handleStoreSelect}
           />
         </div>
       )}
 
       {/* StoreDetail モーダル */}
-      <StoreDetail store={selectedStore} onClose={() => setSelectedStore(null)} membershipSettings={membershipSettings} />
+      <StoreDetail
+        store={selectedStore}
+        detailData={detailData}
+        loading={loadingDetail}
+        onClose={() => {
+          setSelectedStore(null)
+          setDetailData(null)
+        }}
+        membershipSettings={membershipSettings}
+      />
     </div>
   )
 }
