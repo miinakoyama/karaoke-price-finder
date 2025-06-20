@@ -49,6 +49,7 @@ dummy_stores = [
                 ],
             ),
         ],
+        drink_type=["ソフトドリンクバー", "ワンドリンク制"]
     ),
     KaraokeStore(
         id=2,
@@ -102,6 +103,7 @@ dummy_stores = [
                 ],
             ),
         ],
+        drink_type=["1ドリンクオーダー制"]
     ),
     KaraokeStore(
         id=3,
@@ -140,5 +142,6 @@ dummy_stores = [
                 ],
             ),
         ],
+        drink_type=["1ドリンク付き（アルコール含む）"]
     ),
 ]

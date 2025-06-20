@@ -136,7 +136,7 @@ def find_cheapest_plan_for_store(
                 best_plan = plan
                 best_option = option
     if best_plan and best_option:
-        return {"plan_name": best_plan.plan_name, "option": best_option, "total_price": best_price}
+        return {"plan_name": best_plan.plan_name, "option": best_option, "total_price": best_price,"drink_type": store.drink_type}
     else:
         return None
 
