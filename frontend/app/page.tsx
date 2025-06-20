@@ -57,52 +57,58 @@ export default function KaraokeSearchApp() {
             setSearchLocation(address)
           } else {
             toast.error("住所の取得に失敗しました。再度「現在地を使う」を押すか、住所を手入力してください。")
+            setSearchLocation("")
           }
         } catch (error) {
           console.error("Geocodingエラー:", error)
           toast.error("エラーが発生しました。再度「現在地を使う」を押すか、住所を手入力してください。")
+          setSearchLocation("")
         }
       },
       (error) => {
         console.error("位置情報エラー:", error)
         toast.error("位置情報の取得に失敗しました。住所を手入力してください。")
+        setSearchLocation("")
       }
     )
   }
 
   const handleSearch = async () => {  
-    const member_shop_ids = Object.entries(membershipSettings)
-      .filter(([, value]) => value.isMember)
-      .map(([key]) => key)
-    const payload = {
-      latitude: latitude ?? 35.6895, // fallback to 渋谷区,
-      longitude: longitude ?? 139.6917,
-      // TODO: 住所は必ず入力させるようにして、fallback削除
-      place_name: searchLocation || "渋谷区",
-      stay_minutes: duration[0] * 60, 
-      is_free_time: false,
-      start_time: startTime,
-      group_size: people,
-      is_student: studentDiscount,
-      member_shop_ids: member_shop_ids,
-      radius: distance[0],
-    }
+    if (!searchLocation) {
+      toast.error("住所が未入力です。「現在地を使う」を押すか、住所を手入力してください。")
+    } else {
+      const member_shop_ids = Object.entries(membershipSettings)
+        .filter(([, value]) => value.isMember)
+        .map(([key]) => key)
+      const payload = {
+        latitude: latitude ?? 35.6895, // fallback to 渋谷区,
+        longitude: longitude ?? 139.6917,
+        place_name: searchLocation,
+        stay_minutes: duration[0] * 60, 
+        is_free_time: false,
+        start_time: startTime,
+        group_size: people,
+        is_student: studentDiscount,
+        member_shop_ids: member_shop_ids,
+        radius: distance[0],
+      }
 
-    try {
-      const response = await fetch("http://localhost:8000/search", {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      })
-  
-      const data = await response.json()
-      setStores(data.results || [])
-      setCurrentView("results")
-    } catch (error) {
-      console.error("検索APIエラー:", error)
+      try {
+        const response = await fetch("http://localhost:8000/search", {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
+        })
+    
+        const data = await response.json()
+        setStores(data.results || [])
+        setCurrentView("results")
+      } catch (error) {
+        console.error("検索APIエラー:", error)
+      }
     }
   }
 
