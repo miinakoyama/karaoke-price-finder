@@ -25,7 +25,7 @@ export function ResultsMap({ stores, membershipSettings, onMarkerClick }: Result
   const getPrice = (store: Store) => {
     const isMember =
       membershipSettings[store.chainKey as keyof MembershipSettings]?.isMember
-    return isMember && store.memberPrice ? store.memberPrice : store.price
+    return isMember && store.memberPrice ? store.memberPrice : store.price_per_person
   }
 
   if (!isLoaded) {
@@ -39,7 +39,7 @@ export function ResultsMap({ stores, membershipSettings, onMarkerClick }: Result
           <>
             {stores.map((store) => (
               <MarkerF
-                key={store.id}
+                key={store.shop_id}
                 position={{ lat: store.latitude, lng: store.longitude }}
                 clusterer={clusterer}
                 label={{

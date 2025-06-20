@@ -19,7 +19,7 @@ export function StoreDetail({ store, detailData, loading, onClose, membershipSet
 
   const isMember = membershipSettings[store.chainKey as keyof typeof membershipSettings]?.isMember
   const memberPrice = store.memberPrice
-  const regularPrice = store.price
+  const regularPrice = store.price_per_person
 
   const chainLogoMap: Record<string, string> = {
     karaokeCan: '/karaokeCan.png',
@@ -48,7 +48,7 @@ export function StoreDetail({ store, detailData, loading, onClose, membershipSet
             <div className="w-16 h-16 rounded-full overflow-hidden flex items-center justify-center mx-auto mb-3 bg-white border">
               <Image
                 src={chainLogoMap[store.chainKey] || '/placeholder-logo.png'}
-                alt={store.chain}
+                alt={store.icon_url}
                 width={64}
                 height={64}
                 className="object-contain w-full h-full"
