@@ -1,3 +1,4 @@
+import { Toaster } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
@@ -24,6 +25,8 @@ interface SearchPageProps {
   setDrinkBar: (drinkBar: boolean) => void
   onSearch: () => void
   onUseCurrentLocation: () => void
+  inputAddress: string,
+  setInputAddress: (address: string) => void,
   membershipSettings: MembershipSettings
   updateMembership: (chainKey: string, isMember: boolean, memberNumber?: string) => void
 }
@@ -45,6 +48,8 @@ export function SearchPage({
   setDrinkBar,
   onSearch,
   onUseCurrentLocation,
+  inputAddress,
+  setInputAddress,
   membershipSettings,
   updateMembership,
 }: SearchPageProps) {
@@ -90,7 +95,10 @@ export function SearchPage({
                   placeholder="住所を入力"
                   className="pl-10"
                   value={searchLocation}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearchLocation(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    setInputAddress(e.target.value);
+                    setSearchLocation(e.target.value)
+                  }}
                 />
               </div>
             </div>
@@ -260,6 +268,7 @@ export function SearchPage({
         </Card>
 
       </div>
+      <Toaster position="bottom-center" />
     </div>
   )
 } 

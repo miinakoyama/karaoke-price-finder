@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import Annotated, List, Optional
 
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel
 
@@ -13,6 +14,14 @@ from app.utils import (
 
 app = FastAPI()
 
+# CORS設定
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],  # React側のURL
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # --- Request/Response Schemas ---
 class SearchRequest(BaseModel):

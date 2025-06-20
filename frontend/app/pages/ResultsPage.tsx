@@ -127,17 +127,17 @@ export function ResultsPage({
         <div className="p-4 space-y-2 pb-20">
           {stores.map((store) => {
             const isMember = membershipSettings[store.chainKey as keyof typeof membershipSettings]?.isMember
-            const displayPrice = isMember && store.memberPrice ? store.memberPrice : store.price
+            const displayPrice = isMember && store.memberPrice ? store.memberPrice : store.price_per_person
 
             return (
-              <Card key={store.id} className="shadow-sm cursor-pointer hover:shadow-md transition-shadow">
+              <Card key={store.shop_id} className="shadow-sm cursor-pointer hover:shadow-md transition-shadow">
                 <CardContent className="p-3" onClick={() => onStoreSelect(store)}>
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 rounded-full flex items-center justify-center bg-white border relative">
                       <div className="w-12 h-12 rounded-full overflow-hidden">
                         <Image
                           src={chainLogoMap[store.chainKey] || '/placeholder-logo.png'}
-                          alt={store.chain}
+                          alt={store.icon_url}
                           width={48}
                           height={48}
                           className="object-contain w-full h-full"
