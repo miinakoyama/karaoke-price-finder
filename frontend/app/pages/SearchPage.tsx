@@ -1,3 +1,4 @@
+import { Toaster } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
@@ -260,6 +261,7 @@ export function SearchPage({
         </Card>
 
       </div>
+      <Toaster position="bottom-center" />
     </div>
   )
 } 

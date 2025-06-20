@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { toast } from "sonner"
 import { SearchPage } from "./pages/SearchPage"
 import { ResultsPage } from "./pages/ResultsPage"
 import { StoreDetail } from "./pages/StoreDetail"
@@ -18,6 +19,8 @@ export default function KaraokeSearchApp() {
   const [studentDiscount, setStudentDiscount] = useState(false)
   const [drinkBar, setDrinkBar] = useState(false)
   const [stores, setStores] = useState<Store[]>([])
+  const [latitude, setLatitude] = useState<number | null>(null)
+  const [longitude, setLongitude] = useState<number | null>(null)
   const [membershipSettings, setMembershipSettings] = useState<MembershipSettings>({
     karaokeCan: { isMember: false },
     bigEcho: { isMember: false },
@@ -38,32 +41,31 @@ export default function KaraokeSearchApp() {
 
   const handleUseCurrentLocation = () => {
     setSearchLocation("現在地を取得中...")
-
     navigator.geolocation.getCurrentPosition(
       async (position) => {
         const { latitude, longitude } = position.coords
-        console.log("位置情報:", { latitude, longitude })
+        setLatitude(latitude)
+        setLongitude(longitude)
 
         try {
           const response = await fetch(
             `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${GOOGLE_MAPS_API_KEY}`
           )
           const data = await response.json()
-
           if (data.status === "OK") {
             const address = data.results[0].formatted_address
             setSearchLocation(address)
           } else {
-            setSearchLocation("住所の取得に失敗しました")
+            toast.error("住所の取得に失敗しました。再度「現在地を使う」を押すか、住所を手入力してください。")
           }
         } catch (error) {
           console.error("Geocodingエラー:", error)
-          setSearchLocation("エラーが発生しました")
+          toast.error("エラーが発生しました。再度「現在地を使う」を押すか、住所を手入力してください。")
         }
       },
       (error) => {
         console.error("位置情報エラー:", error)
-        setSearchLocation("位置情報の取得に失敗しました")
+        toast.error("位置情報の取得に失敗しました。住所を手入力してください。")
       }
     )
   }
@@ -73,9 +75,10 @@ export default function KaraokeSearchApp() {
       .filter(([, value]) => value.isMember)
       .map(([key]) => key)
     const payload = {
-      latitude: 35.6895,
-      longitude: 139.6917,
-      place_name: "渋谷区",
+      latitude: latitude ?? 35.6895, // fallback to 渋谷区,
+      longitude: longitude ?? 139.6917,
+      // TODO: 住所は必ず入力させるようにして、fallback削除
+      place_name: searchLocation || "渋谷区",
       stay_minutes: duration[0] * 60, 
       is_free_time: false,
       start_time: startTime,
