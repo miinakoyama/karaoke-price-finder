@@ -59,6 +59,7 @@ export default function KaraokeSearchApp() {
           if (data.status === "OK") {
             const address = data.results[0].formatted_address
             setSearchLocation(address)
+            setValidAddress(true)
           } else {
             toast.error("住所の取得に失敗しました。再度「現在地を使う」を押すか、住所を手入力してください。")
             setSearchLocation("")
