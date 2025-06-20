@@ -1,7 +1,8 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { toast } from "sonner"
+import { useDebounce } from "use-debounce"
 import { SearchPage } from "./pages/SearchPage"
 import { ResultsPage } from "./pages/ResultsPage"
 import { StoreDetail } from "./pages/StoreDetail"
@@ -21,6 +22,9 @@ export default function KaraokeSearchApp() {
   const [stores, setStores] = useState<Store[]>([])
   const [latitude, setLatitude] = useState<number | null>(null)
   const [longitude, setLongitude] = useState<number | null>(null)
+  const [inputAddress, setInputAddress] = useState("")
+  const [validAddress, setValidAddress] = useState(false)
+  const [debouncedAddress] = useDebounce(inputAddress, 1000) // 1秒間入力が止まったら反応
   const [membershipSettings, setMembershipSettings] = useState<MembershipSettings>({
     karaokeCan: { isMember: false },
     bigEcho: { isMember: false },
@@ -73,9 +77,41 @@ export default function KaraokeSearchApp() {
     )
   }
 
+  useEffect(() => {
+    const fetchLatLng = async () => {
+      if (!debouncedAddress) return
+  
+      try {
+        const response = await fetch(
+          `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(debouncedAddress)}&key=${GOOGLE_MAPS_API_KEY}`
+        )
+        const data = await response.json()
+  
+        if (data.status === "OK") {
+          const location = data.results[0].geometry.location
+          const formattedAddress = data.results[0].formatted_address
+          setLatitude(location.lat)
+          setLongitude(location.lng)
+          setSearchLocation(formattedAddress)
+        } else {
+          console.log("位置情報の取得に失敗")
+          toast.error("無効な住所です。「現在地を使う」を押すか、住所を再度手入力してください。")
+          setValidAddress(false)
+        }
+      } catch (error) {
+        console.error("Geocodingエラー:", error)
+      }
+    }
+  
+    fetchLatLng()
+  }, [debouncedAddress])
+
   const handleSearch = async () => {  
+    console.log(searchLocation, longitude, latitude )
     if (!searchLocation) {
       toast.error("住所が未入力です。「現在地を使う」を押すか、住所を手入力してください。")
+    } else if (!validAddress) {
+      toast.error("無効な住所です。「現在地を使う」を押すか、住所を再度手入力してください。")
     } else {
       const member_shop_ids = Object.entries(membershipSettings)
         .filter(([, value]) => value.isMember)
@@ -131,6 +167,8 @@ export default function KaraokeSearchApp() {
         setDrinkBar={setDrinkBar}
         onSearch={handleSearch}
         onUseCurrentLocation={handleUseCurrentLocation}
+        inputAddress={inputAddress}
+        setInputAddress={setInputAddress}
         membershipSettings={membershipSettings}
         updateMembership={updateMembership}
       />
