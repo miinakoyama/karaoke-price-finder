@@ -211,20 +211,17 @@ export function ResultsPage({
           <ResultsMap
             stores={stores}
             membershipSettings={membershipSettings}
-            onMarkerClick={handleStoreSelect}
+            onMarkerClick={onStoreSelect}
           />
         </div>
       )}
 
       {/* StoreDetail モーダル */}
       <StoreDetail
-        store={selectedStore}
-        detailData={detailData}
-        loading={loadingDetail}
-        onClose={() => {
-          setSelectedStore(null)
-          setDetailData(null)
-        }}
+        store={null}
+        detailData={null}
+        loading={false}
+        onClose={() => {}}
         membershipSettings={membershipSettings}
       />
     </div>
