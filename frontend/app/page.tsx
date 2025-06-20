@@ -94,6 +94,7 @@ export default function KaraokeSearchApp() {
           setLatitude(location.lat)
           setLongitude(location.lng)
           setSearchLocation(formattedAddress)
+          setValidAddress(true)
         } else {
           console.log("位置情報の取得に失敗")
           toast.error("無効な住所です。「現在地を使う」を押すか、住所を再度手入力してください。")
