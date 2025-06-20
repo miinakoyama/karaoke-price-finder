@@ -38,12 +38,38 @@ export default function KaraokeSearchApp() {
     setCurrentView("results")
   }
 
+  const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
+
   const handleUseCurrentLocation = () => {
     setSearchLocation("現在地を取得中...")
-    // Simulate GPS location fetch
-    setTimeout(() => {
-      setSearchLocation("東京都渋谷区")
-    }, 1000)
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords
+        console.log("位置情報:", { latitude, longitude })
+
+        try {
+          const response = await fetch(
+            `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${GOOGLE_MAPS_API_KEY}`
+          )
+          const data = await response.json()
+
+          if (data.status === "OK") {
+            const address = data.results[0].formatted_address
+            setSearchLocation(address)
+          } else {
+            setSearchLocation("住所の取得に失敗しました")
+          }
+        } catch (error) {
+          console.error("Geocodingエラー:", error)
+          setSearchLocation("エラーが発生しました")
+        }
+      },
+      (error) => {
+        console.error("位置情報エラー:", error)
+        setSearchLocation("位置情報の取得に失敗しました")
+      }
+    )
   }
 
   if (currentView === "home") {
