@@ -163,13 +163,31 @@ export function StoreDetail({ store, detailData, loading, onClose, membershipSet
 
           {/* Action Buttons */}
           <div className="space-y-3 pt-4">
-            <Button className="w-full bg-orange-500 hover:bg-orange-600">
+            <Button 
+              className="w-full bg-orange-500 hover:bg-orange-600"
+              onClick={() => {
+                // Google Mapsで店舗の位置を開く
+                const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(store.name + ' ' + store.address)}`
+                window.open(url, '_blank')
+              }}
+            >
               <MapPin className="w-4 h-4 mr-2" />
               地図で開く
             </Button>
-            <Button variant="outline" className="w-full">
+            <Button 
+              variant="outline" 
+              className="w-full"
+              onClick={() => {
+                // 電話番号に電話をかける
+                if (store.phone) {
+                  window.location.href = `tel:${store.phone}`
+                } else {
+                  alert('電話番号が登録されていません')
+                }
+              }}
+            >
               <Phone className="w-4 h-4 mr-2" />
-              電話する
+              電話する {store.phone && `(${store.phone})`}
             </Button>
           </div>
         </div>
