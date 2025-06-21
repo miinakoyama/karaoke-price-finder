@@ -239,10 +239,10 @@ export function ResultsPage({
 
       {/* StoreDetail モーダル */}
       <StoreDetail
-        store={null}
-        detailData={null}
-        loading={false}
-        onClose={() => {}}
+        store={selectedStore}
+        detailData={detailData}
+        loading={loadingDetail}
+        onClose={() => setSelectedStore(null)}
         membershipSettings={membershipSettings}
       />
     </div>
