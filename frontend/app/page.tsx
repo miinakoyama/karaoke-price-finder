@@ -101,6 +101,7 @@ export default function KaraokeSearchApp() {
         const { latitude, longitude } = position.coords
         setLatitude(latitude)
         setLongitude(longitude)
+        console.log("緯度経度: ", latitude, longitude)
 
         try {
           const response = await fetch(
@@ -170,11 +171,10 @@ export default function KaraokeSearchApp() {
         .filter(([, value]) => value.isMember)
         .map(([key]) => key)
       const payload = {
-        latitude: latitude ?? 35.6895, // fallback to 渋谷区,
-        longitude: longitude ?? 139.6917,
+        latitude: latitude ?? 35.66474183645943, // fallback to 日本、〒106-0032 東京都港区六本木３丁目２−１ 住友不動産六本木グランドタワー,
+        longitude: longitude ?? 139.73765270560222,
         place_name: searchLocation,
         stay_minutes: duration[0] * 60, 
-        is_free_time: false,
         start_time: startTime,
         group_size: people,
         is_student: studentDiscount,
