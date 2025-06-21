@@ -1,8 +1,7 @@
 from datetime import datetime
-from typing import Annotated, List, Optional
-
+from typing import Annotated, List, Optional, Literal
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi import FastAPI, HTTPException, Query
+from fastapi import Depends,FastAPI, HTTPException, Query
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -12,6 +11,111 @@ from app.utils import (
     is_store_open,
     list_available_plans_for_store,
 )
+
+from sqlmodel import Field, Session, SQLModel, create_engine, select, Column
+from sqlalchemy import Column, Text
+
+from enum import Enum
+from sqlalchemy.types import Enum as SQLEnum
+
+class CustomerType(Enum):
+    student = "student"
+    member = "member"
+    general = "general"
+
+class DayType(Enum):
+    mon = "mon"
+    tue = "tue"
+    wed = "wed"
+    thu = "thu"
+    fri = "fri"
+    sat = "sat"
+    sun = "sun"
+
+class TaxType(Enum):
+    tax_included = "tax_included"
+    tax_excluded = "tax_excluded"
+
+class UnitType(Enum):
+    per_30min = "per_30min"
+    per_hour = "per_hour"
+    free_time = "free_time"
+    pack = "pack"
+    special = "special"
+
+
+class HeroBase(SQLModel):
+    name: str = Field(index=True)
+    age: int | None = Field(default=None, index=True)
+
+
+class Hero(HeroBase, table=True):
+    id: int | None = Field(default=None, primary_key=True)
+    secret_name: str
+
+
+class HeroPublic(HeroBase):
+    id: int
+
+class HeroCreate(HeroBase):
+    secret_name: str
+
+class PlanOptionDB(SQLModel, table=True):
+    id: int = Field(default=None, primary_key=True)  # ← 主キーを追加
+    # days: List[DayType]
+    customer_type: CustomerType = Field(sa_column=Column(SQLEnum(CustomerType)))
+    amount: int
+    unit_type: UnitType = Field(sa_column=Column(SQLEnum(UnitType)))
+    notes: str = ""
+
+class PlanOptionCreate(SQLModel):
+    customer_type: CustomerType
+    amount: int
+    unit_type: UnitType
+    notes: str = ""
+
+class PricingPlanDB(SQLModel, table=True):
+    id: int = Field(default=None, primary_key=True)  # ← 主キーを追加
+    plan_name: str
+    start_time: str
+    end_time: str
+    # options: List[PlanOption] = field(default_factory=list)
+
+class BusinessHourDB(SQLModel, table=True):
+    id: int = Field(default=None, primary_key=True)  # ← 主キーを追加
+    day_type: DayType = Field(sa_column=Column(SQLEnum(DayType)))
+    start_time: str
+    end_time: str
+
+class KaraokeStoreDB(SQLModel, table=True):
+    id: int = Field(default=None, primary_key=True)  # ← 主キーを追加
+    store_name: str
+    latitude: float
+    longitude: float
+    phone_number: str
+    # business_hours: List[BusinessHour]
+    tax_type: TaxType = Field(sa_column=Column(SQLEnum(TaxType)))
+    chain_name: str
+    # pricing_plans: List[PricingPlan] = field(default_factory=list)
+    # drink_type: List[str] = field(default_factory=list)
+
+sqlite_file_name = "database.db"
+sqlite_url = f"sqlite:///{sqlite_file_name}"
+
+connect_args = {"check_same_thread": False}
+engine = create_engine(sqlite_url, connect_args=connect_args)
+
+# テーブルの作成
+def create_db_and_tables():
+    SQLModel.metadata.create_all(engine)
+
+# セッションの作成
+def get_session():
+    with Session(engine) as session:
+        yield session
+
+
+SessionDep = Annotated[Session, Depends(get_session)]
 
 app = FastAPI()
 
@@ -23,6 +127,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
 
 # --- Request/Response Schemas ---
 class SearchRequest(BaseModel):
@@ -48,7 +154,6 @@ class ShopDetail(BaseModel):
     検索結果・店舗詳細レスポンスの1店舗分の情報。
     - 店舗ID、店舗名、最安値、チェーン名、電話番号、位置情報、最安値プラン名など
     """
-
     shop_id: str
     name: str
     price_per_person: int
@@ -107,6 +212,130 @@ class GetDetailResponse(BaseModel):
     shop_id: str
     name: str
     plans: List[PlanDetail]
+# PlanDetailTest モデルのpriceはprimary_key=Trueを外す
+
+def seed_plan_option_data():
+    seed_data = [
+        PlanOptionDB(
+            id=1,
+            customer_type=CustomerType.member,
+            amount=100,
+            unit_type=UnitType.per_30min,
+            notes="初期データ1"
+        ),
+        PlanOptionDB(
+            id=2,
+            customer_type=CustomerType.member,
+            amount=200,
+            unit_type=UnitType.per_30min,
+            notes="初期データ2"
+        )
+    ]
+    plan_data = [
+        PricingPlanDB(
+            id = 1,
+            plan_name="フリータイム",
+            start_time="11:00",
+            end_time="20:00"
+        ),
+        PricingPlanDB(
+            id = 2,
+            plan_name="30分制",
+            start_time="11:00",
+            end_time="20:00"
+        )
+    ]
+    business_data = BusinessHourDB(
+        id=1,
+        day_type=DayType.mon,
+        start_time="11:00",
+        end_time="20:00"
+    )
+
+
+    with Session(engine) as session:
+        for item in seed_data:
+            existing = session.get(PlanOptionDB, item.id)
+            if not existing:
+                session.add(item)
+        for item in plan_data:
+            existing = session.get(PricingPlanDB, item.id)
+            if not existing:
+                session.add(item)
+        existing = session.get(BusinessHourDB,1 )
+        if not existing:
+            session.add(business_data)
+        session.commit()
+
+
+@app.on_event("startup")
+def on_startup():
+    create_db_and_tables()
+    seed_plan_option_data()
+
+
+@app.get("/heroes/", response_model=list[HeroPublic])
+def read_heroes(
+    session: SessionDep,
+    offset: int = 0,
+    limit: Annotated[int, Query(le=100)] = 100,
+):
+    heroes = session.exec(select(Hero).offset(offset).limit(limit)).all()
+    return heroes
+
+@app.post("/heroes/", response_model=HeroPublic)
+def create_hero(hero: HeroCreate, session: SessionDep):
+    db_hero = Hero.model_validate(hero)
+    session.add(db_hero)
+    session.commit()
+    session.refresh(db_hero)
+    return db_hero
+
+@app.get("/plan_option/", response_model=list[PlanOptionDB])
+def read_plan(
+    session: SessionDep,
+    offset: int = 0,
+    limit: Annotated[int, Query(le=100)] = 100,
+):
+    plans = session.exec(select(PlanOptionDB).offset(offset).limit(limit)).all()
+    return plans
+
+@app.get("/pricing_plan/", response_model=list[PricingPlanDB])
+def read_plan(
+    session: SessionDep,
+    offset: int = 0,
+    limit: Annotated[int, Query(le=100)] = 100,
+):
+    plans = session.exec(select(PricingPlanDB).offset(offset).limit(limit)).all()
+    return plans
+
+@app.get("/business_hour/", response_model=list[BusinessHourDB])
+def read_plan(
+    session: SessionDep,
+    offset: int = 0,
+    limit: Annotated[int, Query(le=100)] = 100,
+):
+    plans = session.exec(select(BusinessHourDB).offset(offset).limit(limit)).all()
+    return plans
+
+
+@app.get("/karaoke/", response_model=list[KaraokeStoreDB])
+def read_plan(
+    session: SessionDep,
+    offset: int = 0,
+    limit: Annotated[int, Query(le=100)] = 100,
+):
+    test = session.exec(select(KaraokeStoreDB).offset(offset).limit(limit)).all()
+    return test
+
+
+@app.get("/heroes/{hero_id}", response_model=HeroPublic)
+def read_hero(hero_id: int, session: SessionDep):
+    hero = session.get(Hero, hero_id)
+    if not hero:
+        raise HTTPException(status_code=404, detail="Hero not found")
+    return hero
+
 
 
 @app.post("/get_detail", response_model=GetDetailResponse)
