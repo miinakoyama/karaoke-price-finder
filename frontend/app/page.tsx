@@ -157,7 +157,7 @@ export default function KaraokeSearchApp() {
           const countryComponent = data.results[0].address_components.find((component: any) =>
             component.types.includes("country")
           )
-          if (!countryComponent || countryComponent.long_name !== "Japan") {
+          if (!(countryComponent && (countryComponent.long_name === "Japan" || countryComponent.long_name === "日本" ))) {
             toast.error("日本国内の住所を入力してください。「現在地を使う」を押すか、住所を再度手入力してください。")
             setValidAddress(false)
             return
