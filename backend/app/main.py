@@ -83,6 +83,7 @@ class PlanDetail(BaseModel):
     start: str
     end: str
     customer_type: List[str]
+    drink_option: Optional[str] = None  # ドリンク情報を追加
 
 
 class GetDetailRequest(BaseModel):
@@ -137,6 +138,7 @@ async def get_shop_detail(request: GetDetailRequest):
                 start=plan["start"],
                 end=plan["end"],
                 customer_type=plan["customer_type"],
+                drink_option=plan["drink_option"] if "drink_option" in plan else None,
             )
             for plan in plans_data
         ]
