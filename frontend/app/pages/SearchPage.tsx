@@ -8,7 +8,7 @@ import { MapPin, Search, Footprints, Clock, Users, X } from "lucide-react"
 import { MembershipSettings } from "../types/store"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Dropdown } from 'primereact/dropdown';
-import 'primereact/resources/themes/lara-light-cyan/theme.css';
+import { classNames } from "primereact/utils"
 
 interface SearchPageProps {
   searchLocation: string
@@ -159,7 +159,14 @@ export function SearchPage({
                   options={timeOptions} 
                   optionLabel="name" 
                   placeholder="--:--" 
+                  className="w-full md:w-14rem border border-gray-200 rounded-md text-sm"
                 />
+                <style jsx>{`
+                  :global(.p-dropdown.p-focus) {
+                    border-color: #4F46E5 !important;
+                    box-shadow: 0 0 0 1px #4F46E5 !important;
+                  }
+                `}</style>
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium">利用時間</label>
