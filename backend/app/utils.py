@@ -12,18 +12,17 @@ def is_store_open(store: KaraokeStoreDB, dt: datetime) -> bool:
     current_day = get_weekday_str(dt)
     prev_day = get_weekday_str(dt - timedelta(days=1))
     time_str = dt.strftime("%H:%M")
-
     for bh in store.business_hours:
-        # 1. 通常営業（終了が翌日にまたがらない）
-        if bh.day_type == current_day and bh.start_time <= bh.end_time:
+        # 1. 
+        if bh.day_type.value == current_day and bh.start_time <= bh.end_time:
             if bh.start_time <= time_str < bh.end_time:
                 return True
         # 2. 深夜営業（終了が翌日）
-        elif bh.day_type == current_day and bh.start_time > bh.end_time:
+        elif bh.day_type.value == current_day and bh.start_time > bh.end_time:
             if time_str >= bh.start_time or time_str < bh.end_time:
                 return True
         # 3. 翌日早朝のカバー（前日の深夜営業）
-        elif bh.day_type == prev_day and bh.start_time > bh.end_time:
+        elif bh.day_type.value == prev_day and bh.start_time > bh.end_time:
             if time_str < bh.end_time:
                 return True
 
@@ -162,6 +161,7 @@ def find_cheapest_plan_for_store(
     """
     if not is_store_open(store, dt):
         return None
+    print("is_store_open")
     day = get_weekday_str(dt)
     best_price = float("inf")
     best_plan = None

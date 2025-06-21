@@ -32,18 +32,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-def get_store_from_db_with_relations(session: Session, shop_id: int) -> Optional[KaraokeStoreDB]:
-    """
-    店舗データを関連データと一緒に取得する関数
-    """
-    return session.query(KaraokeStoreDB)\
-        .options(
-            selectinload(KaraokeStoreDB.business_hours),
-            selectinload(KaraokeStoreDB.pricing_plans).selectinload(PricingPlanDB.options)
-        )\
-        .filter(KaraokeStoreDB.id == shop_id)\
-        .first()
-
 @app.on_event("startup")
 def on_startup():
     create_db_and_tables()
@@ -59,7 +47,7 @@ async def get_shop_detail(request: GetDetailRequest, session: SessionDep):
         shop_id = int(request.shop_id)
         
         # Dependency Injectionで受け取ったセッションを使用
-        store = get_store_from_db_with_relations(session, shop_id)
+        store = session.get(KaraokeStoreDB, shop_id)
         if store is None:
             raise HTTPException(status_code=404, detail="Shop not found")
             
