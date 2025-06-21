@@ -13,6 +13,10 @@ interface SearchPageProps {
   setSearchLocation: (location: string) => void
   distance: number[]
   setDistance: (distance: number[]) => void
+  startHour: string
+  setStartHour: (hour: string) => void
+  startMinute: string
+  setStartMinute: (minute: string) => void
   startTime: string
   setStartTime: (time: string) => void
   duration: number[]
@@ -36,6 +40,10 @@ export function SearchPage({
   setSearchLocation,
   distance, 
   setDistance,
+  startHour,
+  setStartHour,
+  startMinute,
+  setStartMinute,
   startTime,
   setStartTime,
   duration,
@@ -137,13 +145,32 @@ export function SearchPage({
                   <Clock className="w-4 h-4" />
                   開始時間
                 </label>
-                <Input
-                  type="time"
-                  value={startTime}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setStartTime(e.target.value)
-                  }
-                />
+                <div className="flex gap-2">
+                  {/* 時間 select */}
+                  <select
+                    value={startHour}
+                    onChange={(e) => setStartHour(e.target.value)}
+                    className="border rounded p-2"
+                  >
+                    {Array.from({ length: 24 }, (_, i) => (
+                      <option key={i} value={String(i).padStart(2, "0")}>
+                        {String(i).padStart(2, "0")}時
+                      </option>
+                    ))}
+                  </select>
+                  {/* 分 select（15分刻み） */}
+                  <select
+                    value={startMinute}
+                    onChange={(e) => setStartMinute(e.target.value)}
+                    className="border rounded p-2"
+                  >
+                    {["00", "15", "30", "45"].map((minute) => (
+                      <option key={minute} value={minute}>
+                        {minute}分
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium">利用時間</label>

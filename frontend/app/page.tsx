@@ -16,7 +16,9 @@ export default function KaraokeSearchApp() {
   const [searchLocation, setSearchLocation] = useState("")
   const [distance, setDistance] = useState([1000])
   const [duration, setDuration] = useState([2.5])
-  const [startTime, setStartTime] = useState("")
+  const [startHour, setStartHour] = useState("");
+  const [startMinute, setStartMinute] = useState("");
+  const [startTime, setStartTime] = useState("00:00")
   const [people, setPeople] = useState(2)
   const [studentDiscount, setStudentDiscount] = useState(false)
   const [drinkBar, setDrinkBar] = useState(false)
@@ -98,7 +100,11 @@ export default function KaraokeSearchApp() {
     const minutes = now.getMinutes()
     const roundedMinutes = Math.ceil(minutes / 15) * 15
     const adjustedHours = roundedMinutes === 60 ? hours + 1 : hours
+    const formattedHours = String(adjustedHours).padStart(2, "0")
+    setStartHour(formattedHours)
     const adjustedMinutes = roundedMinutes === 60 ? 0 : roundedMinutes
+    const formattedMinutes = String(adjustedMinutes).padStart(2, "0")
+    setStartMinute(formattedMinutes)
     const formattedTime = `${String(adjustedHours).padStart(2, "0")}:${String(adjustedMinutes).padStart(2, "0")}`
     setStartTime(formattedTime)
   }, [])
@@ -180,6 +186,16 @@ export default function KaraokeSearchApp() {
     fetchLatLng()
   }, [debouncedAddress])
 
+  const handleHourChange = (inputHour: string) => {
+    setStartHour(inputHour)
+    setStartTime(`${inputHour}:${startMinute}`)
+  }
+  
+  const handleMinuteChange = (inputMinute: string) => {
+    setStartMinute(inputMinute)
+    setStartTime(`${startHour}:${inputMinute}`)
+  }  
+
   const handleSearch = async () => {  
     console.log(searchLocation, longitude, latitude )
     if (!searchLocation) {
@@ -254,6 +270,10 @@ export default function KaraokeSearchApp() {
         setSearchLocation={setSearchLocation}
         distance={distance}
         setDistance={setDistance}
+        startHour={startHour}
+        setStartHour={handleHourChange}
+        startMinute={startMinute}
+        setStartMinute={handleMinuteChange}
         startTime={startTime}
         setStartTime={setStartTime}
         duration={duration}
