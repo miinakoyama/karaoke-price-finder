@@ -174,7 +174,6 @@ export default function KaraokeSearchApp() {
         longitude: longitude ?? 139.6917,
         place_name: searchLocation,
         stay_minutes: duration[0] * 60, 
-        is_free_time: false,
         start_time: startTime,
         group_size: people,
         is_student: studentDiscount,
