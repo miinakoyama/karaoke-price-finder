@@ -2287,4 +2287,63 @@ dummy_stores = [
         ],
         drink_type=["1ドリンク制", "ドリンクバー付"]
     ),
+    KaraokeStore(
+        id=19,
+        store_name="カラオケ館 渋谷文化村通り店",
+        latitude=35.66024,
+        longitude=139.697256,
+        phone_number="03-5428-8700",
+        business_hours=[
+            # 日〜木・祝 11:00〜翌5:00
+            BusinessHour(day_type=day, start_time="11:00", end_time="05:00")
+            for day in ["sun","mon","tue","wed","thu","holiday"]
+        ] + [
+            # 金・土・祝前日 11:00〜翌6:00
+            BusinessHour(day_type=day, start_time="11:00", end_time="06:00")
+            for day in ["fri","sat","holiday_eve"]
+        ],
+        tax_type="tax_included",
+        chain_name="カラオケ館",
+        pricing_plans=[
+            # 30分料金（11:00〜18:00）
+            PricingPlan(
+                plan_name="30分料金",
+                start_time="11:00",
+                end_time="18:00",
+                options=[
+                    PlanOption(days=["mon","tue","wed","thu","fri"], customer_type="student", amount=190, unit_type="per_30min", drink_option="ドリンクバー付"),
+                    PlanOption(days=["mon","tue","wed","thu","fri"], customer_type="member",  amount=190, unit_type="per_30min", drink_option="ドリンクバー付"),
+                    PlanOption(days=["mon","tue","wed","thu","fri"], customer_type="general", amount=253, unit_type="per_30min", drink_option="1ドリンク制"),
+                    PlanOption(days=["sat","sun","holiday"],             customer_type="student", amount=280, unit_type="per_30min", drink_option="ドリンクバー付"),
+                    PlanOption(days=["sat","sun","holiday"],             customer_type="member",  amount=330, unit_type="per_30min", drink_option="ドリンクバー付"),
+                    PlanOption(days=["sat","sun","holiday"],             customer_type="general", amount=440, unit_type="per_30min", drink_option="1ドリンク制"),
+                ],
+            ),
+            # 30分料金（18:00〜05:00）
+            PricingPlan(
+                plan_name="30分料金",
+                start_time="18:00",
+                end_time="05:00",
+                options=[
+                    PlanOption(days=["sun","mon","tue","wed","thu","holiday"], customer_type="student", amount=350, unit_type="per_30min", drink_option="ドリンクバー付"),
+                    PlanOption(days=["sun","mon","tue","wed","thu","holiday"], customer_type="member",  amount=460, unit_type="per_30min", drink_option="ドリンクバー付"),
+                    PlanOption(days=["sun","mon","tue","wed","thu","holiday"], customer_type="general", amount=613, unit_type="per_30min", drink_option="1ドリンク制"),
+                    PlanOption(days=["fri","sat","holiday_eve"],      customer_type="student", amount=450, unit_type="per_30min", drink_option="ドリンクバー付"),
+                    PlanOption(days=["fri","sat","holiday_eve"],      customer_type="member",  amount=570, unit_type="per_30min", drink_option="ドリンクバー付"),
+                    PlanOption(days=["fri","sat","holiday_eve"],      customer_type="general", amount=760, unit_type="per_30min", drink_option="1ドリンク制"),
+                ],
+            ),
+            # 学生限定ロングフリータイム（18:00〜05:00）
+            PricingPlan(
+                plan_name="ロングフリータイム（学生限定）",
+                start_time="18:00",
+                end_time="05:00",
+                options=[
+                    PlanOption(days=["sun","mon","tue","wed","thu","holiday"], customer_type="student", amount=1100, unit_type="free_time", drink_option="ドリンクバー付"),
+                    PlanOption(days=["fri","sat","holiday_eve"],      customer_type="student", amount=1980, unit_type="free_time", drink_option="ドリンクバー付"),
+                ],
+            ),
+        ],
+        drink_type=["ドリンクバー付", "1ドリンク制"]
+    ),
 ]
