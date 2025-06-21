@@ -15,6 +15,8 @@ interface ResultsPageProps {
   setViewMode: (mode: "list" | "map") => void
   stores: Store[]
   searchLocation: string
+  searchLatitude: number | null
+  searchLongitude: number | null
   distance: number[]
   startTime: string
   duration: number[]
@@ -30,6 +32,8 @@ export function ResultsPage({
   setViewMode,
   stores,
   searchLocation,
+  searchLatitude,
+  searchLongitude,
   distance,
   startTime,
   duration,
@@ -226,6 +230,9 @@ export function ResultsPage({
             stores={stores}
             membershipSettings={membershipSettings}
             onMarkerClick={onStoreSelect}
+            searchLatitude={searchLatitude}
+            searchLongitude={searchLongitude}
+            searchLocation={searchLocation}
           />
         </div>
       )}

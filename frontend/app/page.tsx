@@ -262,6 +262,8 @@ export default function KaraokeSearchApp() {
         setViewMode={setViewMode}
         stores={stores}
         searchLocation={searchLocation}
+        searchLatitude={latitude}
+        searchLongitude={longitude}
         distance={distance}
         startTime={startTime}
         duration={duration}
