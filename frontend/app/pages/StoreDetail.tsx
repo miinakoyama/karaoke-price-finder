@@ -128,7 +128,7 @@ export function StoreDetail({ store, detailData, loading, onClose, membershipSet
                       <div className="flex items-center gap-2">
                         <span>{plan.plan_name}（{plan.start}〜{plan.end}）</span>
                         {isCheapest && (
-                          <Badge variant="default" className="bg-orange-500 text-white text-xs">
+                          <Badge variant="default" className="bg-orange-500 text-white text-xs whitespace-nowrap">
                             最安値
                           </Badge>
                         )}
