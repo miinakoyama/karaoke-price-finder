@@ -3,6 +3,9 @@ from datetime import datetime
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from sqlmodel import select
+from fastapi import Query
+from typing import List
+from .db import SessionDep
 
 # from app.dummy_karaoke_stores import dummy_stores
 from app.utils import (
@@ -92,7 +95,64 @@ async def get_shop_detail(request: GetDetailRequest, session: SessionDep):
         print(f"Error in get_shop_detail: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
+@app.get("/stores/{store_id}", response_model=GetDetailResponse)
+async def get_store_detail(
+    store_id: int,
+    session: SessionDep,
+    start_time: str = Query(..., description="利用開始時刻（例: '18:00'）"),
+    stay_minutes: int = Query(60, description="利用時間（分）"),
+    is_student: bool = Query(False, description="学生区分"),
+    member_shop_ids: List[str] = Query([], description="会員店舗IDのリスト")
+):
+    """
+    指定した店舗ID・利用開始時刻・利用時間・会員/学生区分で、
+    条件に合致する全プラン詳細を返すエンドポイント。
+    """
+    try:
+        shop_id = store_id
 
+        # Dependency Injectionで受け取ったセッションを使用
+        store = session.get(KaraokeStoreDB, shop_id)
+        if store is None:
+            raise HTTPException(status_code=404, detail="Shop not found")
+
+        today = datetime.now().date()
+        start_time_str = start_time
+        start_dt = datetime.strptime(f"{today} {start_time_str}", "%Y-%m-%d %H:%M")
+        is_member = store.chain_name in member_shop_ids
+
+        # 最安プランを検索
+        cheapest_plan = find_cheapest_plan_for_store(store, start_dt, stay_minutes, is_member, is_student)
+
+        if cheapest_plan is None:
+            plans = []
+        else:
+            # 単一の最安プランから PlanDetail を作成
+            option = cheapest_plan["option"]
+            pricing_plan = cheapest_plan["plan_name"]
+
+            list = []
+            list.append(option.customer_type.value)
+            plans = [
+                PlanDetail(
+                    plan_name=pricing_plan,
+                    unit=option.unit_type.value,
+                    price=cheapest_plan["total_price"],
+                    price_per_30_min=calculate_price_per_30min(option, cheapest_plan["total_price"], stay_minutes),
+                    start=option.pricing_plan.start_time if option.pricing_plan else "",
+                    end=option.pricing_plan.end_time if option.pricing_plan else "",
+                    customer_type=list,
+                )
+            ]
+
+        return GetDetailResponse(shop_id=str(store.id), name=store.store_name, plans=plans)
+
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid shop_id format")
+    except Exception as e:
+        print(f"Error in get_store_detail: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+    
 # TODO: store_detail更新
 # @app.get("/stores/{store_id}", response_model=StoreDetailResponse)
 # async def get_store_detail(
