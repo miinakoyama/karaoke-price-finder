@@ -16,7 +16,7 @@ export default function KaraokeSearchApp() {
   const [searchLocation, setSearchLocation] = useState("")
   const [distance, setDistance] = useState([1000])
   const [duration, setDuration] = useState([2.5])
-  const [startTime, setStartTime] = useState("18:00")
+  const [startTime, setStartTime] = useState("00:00")
   const [people, setPeople] = useState(2)
   const [studentDiscount, setStudentDiscount] = useState(false)
   const [drinkBar, setDrinkBar] = useState(false)
@@ -91,6 +91,17 @@ export default function KaraokeSearchApp() {
       longitude: apiShop.longitude || 0,
     }
   }
+
+  useEffect(() => {
+    const now = new Date()
+    const hours = now.getHours()
+    const minutes = now.getMinutes()
+    const roundedMinutes = Math.ceil(minutes / 15) * 15
+    const adjustedHours = roundedMinutes === 60 ? hours + 1 : hours
+    const adjustedMinutes = roundedMinutes === 60 ? 0 : roundedMinutes
+    const formattedTime = `${String(adjustedHours).padStart(2, "0")}:${String(adjustedMinutes).padStart(2, "0")}`
+    setStartTime(formattedTime)
+  }, [])
   
   const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
 
@@ -101,7 +112,6 @@ export default function KaraokeSearchApp() {
         const { latitude, longitude } = position.coords
         setLatitude(latitude)
         setLongitude(longitude)
-        console.log("緯度経度: ", latitude, longitude)
 
         try {
           const response = await fetch(
@@ -141,11 +151,21 @@ export default function KaraokeSearchApp() {
         const data = await response.json()
   
         if (data.status === "OK") {
-          const location = data.results[0].geometry.location
           const formattedAddress = data.results[0].formatted_address
+          setSearchLocation(formattedAddress)
+
+          const countryComponent = data.results[0].address_components.find((component: any) =>
+            component.types.includes("country")
+          )
+          if (!(countryComponent && (countryComponent.long_name === "Japan" || countryComponent.long_name === "日本" ))) {
+            toast.error("日本国内の住所を入力してください。「現在地を使う」を押すか、住所を再度手入力してください。")
+            setValidAddress(false)
+            return
+          }
+
+          const location = data.results[0].geometry.location
           setLatitude(location.lat)
           setLongitude(location.lng)
-          setSearchLocation(formattedAddress)
           setValidAddress(true)
         } else {
           console.log("位置情報の取得に失敗")
@@ -171,8 +191,8 @@ export default function KaraokeSearchApp() {
         .filter(([, value]) => value.isMember)
         .map(([key]) => key)
       const payload = {
-        latitude: latitude ?? 35.66474183645943, // fallback to 日本、〒106-0032 東京都港区六本木３丁目２−１ 住友不動産六本木グランドタワー,
-        longitude: longitude ?? 139.73765270560222,
+        latitude: latitude ?? 35.6646782, // fallback to 日本、〒106-0032 東京都港区六本木３丁目２−１ 住友不動産六本木グランドタワー,
+        longitude: longitude ?? 139.7378198,
         place_name: searchLocation,
         stay_minutes: duration[0] * 60, 
         start_time: startTime,
