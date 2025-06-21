@@ -16,7 +16,7 @@ export default function KaraokeSearchApp() {
   const [searchLocation, setSearchLocation] = useState("")
   const [distance, setDistance] = useState([1000])
   const [duration, setDuration] = useState([2.5])
-  const [startTime, setStartTime] = useState("18:00")
+  const [startTime, setStartTime] = useState("")
   const [people, setPeople] = useState(2)
   const [studentDiscount, setStudentDiscount] = useState(false)
   const [drinkBar, setDrinkBar] = useState(false)
@@ -91,6 +91,17 @@ export default function KaraokeSearchApp() {
       longitude: apiShop.longitude || 0,
     }
   }
+
+  useEffect(() => {
+    const now = new Date()
+    const hours = now.getHours()
+    const minutes = now.getMinutes()
+    const roundedMinutes = Math.ceil(minutes / 15) * 15
+    const adjustedHours = roundedMinutes === 60 ? hours + 1 : hours
+    const adjustedMinutes = roundedMinutes === 60 ? 0 : roundedMinutes
+    const formattedTime = `${String(adjustedHours).padStart(2, "0")}:${String(adjustedMinutes).padStart(2, "0")}`
+    setStartTime(formattedTime)
+  }, [])
   
   const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
 
