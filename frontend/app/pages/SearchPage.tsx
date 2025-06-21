@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
 import { Slider } from "@/components/ui/slider"
 import { Badge } from "@/components/ui/badge"
-import { MapPin, Search, Footprints, Clock, Users } from "lucide-react"
+import { MapPin, Search, Footprints, Clock, Users, X } from "lucide-react"
 import { MembershipSettings } from "../types/store"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 
@@ -100,6 +100,17 @@ export function SearchPage({
                     setSearchLocation(e.target.value)
                   }}
                 />
+                {searchLocation && (
+                  <button
+                    onClick={() => {
+                      setInputAddress("")
+                      setSearchLocation("")
+                    }}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-black"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
               </div>
             </div>
             <div className="space-y-2">
