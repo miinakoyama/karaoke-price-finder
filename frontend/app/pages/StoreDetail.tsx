@@ -5,6 +5,7 @@ import { MapPin, Phone, Star, Navigation } from "lucide-react"
 import { Store, MembershipSettings } from "../types/store"
 import { PlanDetail, GetDetailResponse } from "../types/api"
 import Image from "next/image"
+import { useState, useEffect } from "react"
 
 interface StoreDetailProps {
   store: Store | null
@@ -15,6 +16,40 @@ interface StoreDetailProps {
 }
 
 export function StoreDetail({ store, detailData, loading, onClose, membershipSettings }: StoreDetailProps) {
+  const [address, setAddress] = useState<string>("")
+  const [loadingAddress, setLoadingAddress] = useState(false)
+
+  // 緯度・経度から住所を逆引き
+  useEffect(() => {
+    if (!store || !store.latitude || !store.longitude) {
+      setAddress("住所未設定")
+      return
+    }
+
+    const fetchAddress = async () => {
+      setLoadingAddress(true)
+      try {
+        const response = await fetch(
+          `https://maps.googleapis.com/maps/api/geocode/json?latlng=${store.latitude},${store.longitude}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`
+        )
+        const data = await response.json()
+        
+        if (data.status === "OK" && data.results.length > 0) {
+          setAddress(data.results[0].formatted_address)
+        } else {
+          setAddress("住所未設定")
+        }
+      } catch (error) {
+        console.error("住所取得エラー:", error)
+        setAddress("住所未設定")
+      } finally {
+        setLoadingAddress(false)
+      }
+    }
+
+    fetchAddress()
+  }, [store])
+
   if (!store) return null
 
   const isMember = membershipSettings[store.chainKey as keyof typeof membershipSettings]?.isMember
@@ -55,7 +90,9 @@ export function StoreDetail({ store, detailData, loading, onClose, membershipSet
               />
             </div>
             <h2 className="text-xl font-bold text-gray-900">{store.name}</h2>
-            <p className="text-gray-500">{store.address}</p>
+            <p className="text-gray-500">
+              {loadingAddress ? "住所を取得中..." : address}
+            </p>
             <div className="flex items-center justify-center gap-1 mt-2">
               <span className="flex items-center gap-1 text-sm text-gray-500">
                 <Navigation className="w-4 h-4" />
@@ -163,13 +200,34 @@ export function StoreDetail({ store, detailData, loading, onClose, membershipSet
 
           {/* Action Buttons */}
           <div className="space-y-3 pt-4">
-            <Button className="w-full bg-orange-500 hover:bg-orange-600">
+            <Button 
+              className="w-full bg-orange-500 hover:bg-orange-600"
+              onClick={() => {
+                // Google Mapsで店舗の位置を開く
+                const query = address && address !== "住所未設定" 
+                  ? `${store.name} ${address}`
+                  : `${store.name} ${store.latitude},${store.longitude}`
+                const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`
+                window.open(url, '_blank')
+              }}
+            >
               <MapPin className="w-4 h-4 mr-2" />
               地図で開く
             </Button>
-            <Button variant="outline" className="w-full">
+            <Button 
+              variant="outline" 
+              className="w-full"
+              onClick={() => {
+                // 電話番号に電話をかける
+                if (store.phone) {
+                  window.location.href = `tel:${store.phone}`
+                } else {
+                  alert('電話番号が登録されていません')
+                }
+              }}
+            >
               <Phone className="w-4 h-4 mr-2" />
-              電話する
+              電話する {store.phone && `(${store.phone})`}
             </Button>
           </div>
         </div>
