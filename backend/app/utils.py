@@ -193,6 +193,7 @@ def list_available_plans_for_store(
                     "start": plan.start_time,
                     "end": plan.end_time,
                     "customer_type": [option.customer_type],
+                    "drink_option": option.drink_option,
                 }
             )
     return plans
