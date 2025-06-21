@@ -42,3 +42,4 @@ class KaraokeStore:
     tax_type: TaxType
     chain_name: str
     pricing_plans: List[PricingPlan] = field(default_factory=list)
+    drink_type: List[str] = field(default_factory=list)

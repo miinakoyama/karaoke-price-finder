@@ -54,7 +54,7 @@ class ShopDetail(BaseModel):
     name: str
     price_per_person: int
     icon_url: Optional[str]
-    # drink_type: str  # 一旦保留
+    drink_type: Optional[str]
     phone: Optional[str]
     all_plans: List[str]
     latitude: Optional[float]
@@ -190,7 +190,7 @@ async def search_shops(request: SearchRequest):
             name=store.store_name,
             price_per_person=int(result["total_price"]),
             icon_url=store.chain_name,
-            # drink_type="ソフトドリンクバー",  # 一旦保留
+            drink_type=", ".join(result["drink_type"]) if result["drink_type"] else None,  # リストを文字列に変換
             phone=store.phone_number,
             all_plans=[result["plan_name"]],
             latitude=store.latitude,
