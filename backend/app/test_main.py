@@ -37,6 +37,7 @@ def test_search_shops_basic():
         assert "latitude" in shop
         assert "longitude" in shop
         assert "phone" in shop
+        assert "distance" in shop  # 直線距離が含まれることを確認
         # drink_typeは除外
 
 
@@ -72,6 +73,7 @@ def test_search_shops_student():
         assert "latitude" in shop
         assert "longitude" in shop
         assert "phone" in shop
+        assert "distance" in shop  # 直線距離が含まれることを確認
         # drink_typeは除外
 
 

@@ -59,6 +59,7 @@ class ShopDetail(BaseModel):
     all_plans: List[str]
     latitude: Optional[float]
     longitude: Optional[float]
+    distance: Optional[float] = None  # 追加: 現在地からの直線距離（メートル）
 
 
 class SearchResponse(BaseModel):
@@ -178,6 +179,12 @@ async def search_shops(request: SearchRequest):
         result = find_cheapest_plan_for_store(store, start_dt, stay_minutes, is_member, is_student)
         if not result:
             continue
+        # 距離計算
+        distance = None
+        if latitude is not None and longitude is not None and store.latitude is not None and store.longitude is not None:
+            from app.utils import haversine
+
+            distance = haversine(latitude, longitude, store.latitude, store.longitude)
         shop_detail = ShopDetail(
             shop_id=str(store.id),
             name=store.store_name,
@@ -188,6 +195,7 @@ async def search_shops(request: SearchRequest):
             all_plans=[result["plan_name"]],
             latitude=store.latitude,
             longitude=store.longitude,
+            distance=distance,
         )
         results.append(shop_detail)
     return SearchResponse(results=results)
