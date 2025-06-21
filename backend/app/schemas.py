@@ -1,49 +1,29 @@
 from pydantic import BaseModel
 from typing import List, Optional, Literal
+from pydantic import Field
 
 # --- Request/Response Schemas ---
 class SearchRequest(BaseModel):
-    """
-    検索リクエストのパラメータ。
-    - 緯度・経度または地名で検索起点を指定
-    - 利用開始時刻、利用時間、人数、学割・会員情報、検索半径など
-    """
+    latitude: float = Field(..., description="緯度", examples=[35.66287926979908])
+    longitude: float = Field(..., description="経度", examples=[139.73315145767197])
+    radius: float = Field(..., description="検索範囲(半径m)", examples=[500])
+    start_time: str = Field(..., description="開始時刻", examples=["18:00"])
+    stay_minutes: int = Field(..., description="利用時間(min.)", examples=[120])
+    group_size: int = Field(..., description="人数", examples=[3])
+    is_student: bool = Field(..., description="学割利用の有無", examples=[True])
+    member_chains: Optional[List[str]] = Field(None, description="会員チェーン名リスト", examples=[["カラオケ太郎", "カラオケ舘"]])
 
-    latitude: Optional[float] = None
-    longitude: Optional[float] = None
-    place_name: Optional[str] = None  # 地名での検索も可能に
-    stay_minutes: Optional[int] = None  # 分数指定
-    start_time: str  # 開始時刻（例: "18:00"）
-    group_size: int
-    is_student: bool
-    member_shop_ids: Optional[List[str]] = None  # 会員情報
-    radius: int  # 追加: 検索半径（メートル単位など）
-
-
-class ShopDetail(BaseModel):
-    """
-    検索結果・店舗詳細レスポンスの1店舗分の情報。
-    - 店舗ID、店舗名、最安値、チェーン名、電話番号、位置情報、最安値プラン名など
-    """
-    shop_id: str
-    name: str
-    price_per_person: int
-    icon_url: Optional[str]
-    drink_type: Optional[str]
-    phone: Optional[str]
-    all_plans: List[str]
-    latitude: Optional[float]
-    longitude: Optional[float]
-    distance: Optional[float] = None  # 追加: 現在地からの直線距離（メートル）
+class SearchResultItem(BaseModel):
+    store_id: int = Field(..., description="店舗ID", examples=[1])
+    chain_name: str = Field(..., description="チェーン名", examples=["カラオケ舘"])
+    store_name: str = Field(..., description="店舗名", examples=["六本木本店"])
+    lowest_price_per_person: int = Field(..., description="最安値(円/人)", examples=[800])
+    drink_option: str = Field(..., description="ドリンク条件", examples=["ドリンク付"])
+    distance: float = Field(..., description="直線距離(m)", examples=[200.5])
 
 
 class SearchResponse(BaseModel):
-    """
-    検索結果のレスポンス。
-    - 店舗ごとの詳細情報リスト
-    """
-
-    results: List[ShopDetail]
+    results: List[SearchResultItem]
 
 
 class PlanDetail(BaseModel):
@@ -71,7 +51,7 @@ class GetDetailRequest(BaseModel):
     start_time: str  # "HH:MM" format
     stay_minutes: Optional[int] = 60
     is_student: bool = False
-    member_shop_ids: Optional[List[str]] = None
+    member_chains: Optional[List[str]] = None
 
 
 class GetDetailResponse(BaseModel):
