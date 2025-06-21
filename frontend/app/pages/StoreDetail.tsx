@@ -76,7 +76,7 @@ export function StoreDetail({ store, detailData, loading, onClose, membershipSet
 
   return (
     <Sheet open={!!store} onOpenChange={onClose}>
-      <SheetContent side="bottom" className="h-[90vh] rounded-t-xl">
+      <SheetContent side="bottom" className="h-[90vh] rounded-t-xl overflow-y-auto">
         <div className="py-6 space-y-6">
           {/* Store Header */}
           <div className="text-center">
