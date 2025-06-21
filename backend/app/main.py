@@ -12,7 +12,7 @@ from app.utils import (
     list_available_plans_for_store,
 )
 
-from sqlmodel import Field, Session, SQLModel, create_engine, select, Column
+from sqlmodel import Field, Session, SQLModel, create_engine, select, Column, Relationship
 from sqlalchemy import Column, Text
 
 from enum import Enum
@@ -61,33 +61,49 @@ class HeroCreate(HeroBase):
     secret_name: str
 
 class PlanOptionDB(SQLModel, table=True):
+    __tablename__ = "plan_option"
     id: int = Field(default=None, primary_key=True)  # ← 主キーを追加
+    days: DayType = Field(sa_column=Column(SQLEnum(DayType)))
     # days: List[DayType]
     customer_type: CustomerType = Field(sa_column=Column(SQLEnum(CustomerType)))
     amount: int
     unit_type: UnitType = Field(sa_column=Column(SQLEnum(UnitType)))
     notes: str = ""
+    # 外部キー：どのプランに属するか
+    pricing_plan_id: Optional[int] = Field(default=None, foreign_key="pricing_plan.id")
+    # リレーションシップ：親のPricingPlanにアクセス
+    pricing_plan: Optional["PricingPlanDB"] = Relationship(back_populates="options")
 
-class PlanOptionCreate(SQLModel):
-    customer_type: CustomerType
-    amount: int
-    unit_type: UnitType
-    notes: str = ""
 
 class PricingPlanDB(SQLModel, table=True):
+    __tablename__ = "pricing_plan"
     id: int = Field(default=None, primary_key=True)  # ← 主キーを追加
     plan_name: str
     start_time: str
     end_time: str
-    # options: List[PlanOption] = field(default_factory=list)
+    # 外部キー：どの店舗のプランか
+    karaoke_store_id: Optional[int] = Field(default=None, foreign_key="karaoke_store.id")
+    # リレーションシップ：子のPlanOptionにアクセス
+    options: List[PlanOptionDB] = Relationship(back_populates="pricing_plan")
+    # リレーションシップ：親のKaraokeStoreにアクセス
+    karaoke_store: Optional["KaraokeStoreDB"] = Relationship(back_populates="pricing_plans")
+
+    # options: List[PlanOptionDB] = field(default_factory=list)
 
 class BusinessHourDB(SQLModel, table=True):
+    __tablename__ = "business_hour"
     id: int = Field(default=None, primary_key=True)  # ← 主キーを追加
     day_type: DayType = Field(sa_column=Column(SQLEnum(DayType)))
     start_time: str
     end_time: str
+    # 外部キー：どの店舗の営業時間か
+    karaoke_store_id: Optional[int] = Field(default=None, foreign_key="karaoke_store.id")
+    # リレーションシップ：親のKaraokeStoreにアクセス
+    karaoke_store: Optional["KaraokeStoreDB"] = Relationship(back_populates="business_hours")
+
 
 class KaraokeStoreDB(SQLModel, table=True):
+    __tablename__ = "karaoke_store"
     id: int = Field(default=None, primary_key=True)  # ← 主キーを追加
     store_name: str
     latitude: float
@@ -96,6 +112,11 @@ class KaraokeStoreDB(SQLModel, table=True):
     # business_hours: List[BusinessHour]
     tax_type: TaxType = Field(sa_column=Column(SQLEnum(TaxType)))
     chain_name: str
+    # リレーションシップ：子のBusinessHourにアクセス
+    business_hours: List[BusinessHourDB] = Relationship(back_populates="karaoke_store")
+    # リレーションシップ：子のPricingPlanにアクセス
+    pricing_plans: List[PricingPlanDB] = Relationship(back_populates="karaoke_store")
+
     # pricing_plans: List[PricingPlan] = field(default_factory=list)
     # drink_type: List[str] = field(default_factory=list)
 
@@ -215,57 +236,61 @@ class GetDetailResponse(BaseModel):
 # PlanDetailTest モデルのpriceはprimary_key=Trueを外す
 
 def seed_plan_option_data():
-    seed_data = [
-        PlanOptionDB(
-            id=1,
-            customer_type=CustomerType.member,
-            amount=100,
-            unit_type=UnitType.per_30min,
-            notes="初期データ1"
-        ),
-        PlanOptionDB(
-            id=2,
-            customer_type=CustomerType.member,
-            amount=200,
-            unit_type=UnitType.per_30min,
-            notes="初期データ2"
-        )
-    ]
-    plan_data = [
-        PricingPlanDB(
-            id = 1,
-            plan_name="フリータイム",
-            start_time="11:00",
-            end_time="20:00"
-        ),
-        PricingPlanDB(
-            id = 2,
-            plan_name="30分制",
-            start_time="11:00",
-            end_time="20:00"
-        )
-    ]
-    business_data = BusinessHourDB(
-        id=1,
-        day_type=DayType.mon,
-        start_time="11:00",
-        end_time="20:00"
-    )
-
-
     with Session(engine) as session:
-        for item in seed_data:
-            existing = session.get(PlanOptionDB, item.id)
-            if not existing:
-                session.add(item)
-        for item in plan_data:
-            existing = session.get(PricingPlanDB, item.id)
-            if not existing:
-                session.add(item)
-        existing = session.get(BusinessHourDB,1 )
-        if not existing:
-            session.add(business_data)
+        # 1. KaraokeStoreDB
+        store = session.get(KaraokeStoreDB, 1)
+        if not store:
+            store = KaraokeStoreDB(
+                id=1,
+                store_name="カラオケ太郎 渋谷店",
+                latitude=35.6595,
+                longitude=139.7005,
+                phone_number="03-1234-5678",
+                tax_type=TaxType.tax_excluded,
+                chain_name="カラオケ太郎"
+            )
+            session.add(store)
+
+        # 2. PricingPlanDB
+        plan = session.get(PricingPlanDB, 1)
+        if not plan:
+            plan = PricingPlanDB(
+                id=1,
+                plan_name="昼のフリータイム",
+                start_time="11:00",
+                end_time="18:00",
+                karaoke_store_id=store.id
+            )
+            session.add(plan)
+
+        # 3. PlanOptionDB
+        option = session.get(PlanOptionDB, 1)
+        if not option:
+            option = PlanOptionDB(
+                id=1,
+                customer_type=CustomerType.member,
+                amount=1200,
+                unit_type=UnitType.per_hour,
+                notes="会員限定プラン",
+                days=DayType.sun,
+                pricing_plan_id=plan.id
+            )
+            session.add(option)
+
+        # 4. BusinessHourDB
+        bh = session.get(BusinessHourDB, 1)
+        if not bh:
+            bh = BusinessHourDB(
+                id=1,
+                day_type=DayType.sun,
+                start_time="10:00",
+                end_time="23:00",
+                karaoke_store_id=store.id
+            )
+            session.add(bh)
+
         session.commit()
+        print("✅ シードデータを挿入しました")
 
 
 @app.on_event("startup")
