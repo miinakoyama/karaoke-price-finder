@@ -190,6 +190,13 @@ export function StoreDetail({ store, detailData, loading, onClose, membershipSet
           <div className="space-y-3">
             <h3 className="font-semibold text-gray-900">サービス</h3>
             <div className="flex flex-wrap gap-2">
+              {/* ドリンク情報 */}
+              {store.drinkInfo && (
+                <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+                  {store.drinkInfo}
+                </Badge>
+              )}
+              {/* その他のサービス */}
               {(store.features ?? []).map((feature) => (
                 <Badge key={feature} variant="secondary">
                   {feature}
