@@ -9,7 +9,7 @@ def seed_plan_option_data():
         if not store:
             store = KaraokeStoreDB(
                 id=1,
-                store_name="カラオケ太郎 渋谷店",
+                store_name="カラオケ太郎 六本木店",
                 latitude=35.6595,
                 longitude=139.7005,
                 phone_number="03-1234-5678",
@@ -50,6 +50,16 @@ def seed_plan_option_data():
             bh = BusinessHourDB(
                 id=1,
                 day_type=DayType.sun,
+                start_time="10:00",
+                end_time="23:00",
+                karaoke_store_id=store.id
+            )
+            session.add(bh)
+        bh = session.get(BusinessHourDB, 2)
+        if not bh:
+            bh = BusinessHourDB(
+                id=2,
+                day_type=DayType.sat,
                 start_time="10:00",
                 end_time="23:00",
                 karaoke_store_id=store.id

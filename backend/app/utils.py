@@ -1,11 +1,11 @@
 import math
 from datetime import datetime, time, timedelta
 from math import asin, cos, radians, sin, sqrt
+from app.models import CustomerType,DayType,TaxType,UnitType,PlanOptionDB,PricingPlanDB,BusinessHourDB,KaraokeStoreDB
 
-from app.models import KaraokeStore
 
 
-def is_store_open(store: KaraokeStore, dt: datetime) -> bool:
+def is_store_open(store: KaraokeStoreDB, dt: datetime) -> bool:
     """
     営業中かどうかを判定する関数
     """
@@ -76,7 +76,7 @@ def is_within_time_range(start_str: str, end_str: str, dt: datetime) -> bool:
 
 
 def find_cheapest_plan_for_store(
-    store: KaraokeStore, dt: datetime, stay_minutes: int, is_member: bool, is_student: bool
+    store: KaraokeStoreDB, dt: datetime, stay_minutes: int, is_member: bool, is_student: bool
 ):
     """
     指定したカラオケ店舗・日時・利用時間・会員/学生区分で最安値プランを計算する。
@@ -140,62 +140,131 @@ def find_cheapest_plan_for_store(
     else:
         return None
 
-
-def list_available_plans_for_store(
-    store: KaraokeStore, dt: datetime, stay_minutes: int, is_member: bool, is_student: bool
+def find_cheapest_plan_for_store(
+    store: KaraokeStoreDB, dt: datetime, stay_minutes: int, is_member: bool, is_student: bool
 ):
     """
-    指定したカラオケ店舗・日時・利用時間・会員/学生区分で該当する全プラン（PlanDetail相当の情報）をリストで返す。
+    指定したカラオケ店舗・日時・利用時間・会員/学生区分で最安値プランを計算する。
 
     Args:
-        store (KaraokeStore): 対象のカラオケ店舗インスタンス
+        store (KaraokeStoreDB): 対象のカラオケ店舗インスタンス
         dt (datetime): 利用開始日時
         stay_minutes (int): 利用時間（分）
         is_member (bool): 会員かどうか
         is_student (bool): 学生かどうか
+
     Returns:
-        list: 条件に合致するプラン情報のリスト
+        dict or None: 最安値プランが見つかった場合は{
+            'plan_name': str,
+            'option': PlanOption,
+            'total_price': int
+        }を返す。該当プランがなければNone。
     """
-    plans = []
     if not is_store_open(store, dt):
-        return plans
+        return None
     day = get_weekday_str(dt)
+    best_price = float("inf")
+    best_plan = None
+    best_option = None
+
+    types_to_check = []
+    if is_member:
+        types_to_check.append("member")
+    if is_student:
+        types_to_check.append("student")
+    if not types_to_check:
+        types_to_check.append("general")
+
     for plan in store.pricing_plans:
+        # 時間帯が合うか
         if not is_within_time_range(plan.start_time, plan.end_time, dt):
             continue
         for option in plan.options:
-            if day not in option.days:
+            # 曜日・顧客種別が合うか
+            if day != option.days.value:
                 continue
-            # customer_type判定
-            if is_member and option.customer_type == "member":
-                pass
-            elif is_student and option.customer_type == "student":
-                pass
-            elif option.customer_type == "general":
-                pass
-            else:
+            if option.customer_type.value not in types_to_check:
                 continue
             # 金額計算
-            if option.unit_type == "per_30min":
+            if option.unit_type.value == "per_30min":
                 units = math.ceil(stay_minutes / 30)
                 total = option.amount * units
-            elif option.unit_type == "per_hour":
+            elif option.unit_type.value == "per_hour":
                 units = math.ceil(stay_minutes / 60)
                 total = option.amount * units
-            else:
+            elif option.unit_type.value in ("free_time", "pack", "special"):
                 total = option.amount
-            plans.append(
-                {
-                    "plan_name": plan.plan_name,
-                    "unit": option.unit_type,
-                    "price": int(total),
-                    "price_per_30_min": option.amount if option.unit_type == "per_30min" else None,
-                    "start": plan.start_time,
-                    "end": plan.end_time,
-                    "customer_type": [option.customer_type],
-                }
-            )
-    return plans
+            else:
+                continue
+            if total < best_price:
+                best_price = total
+                best_plan = plan
+                best_option = option
+    
+    if best_plan and best_option:
+        result = {
+            "plan_name": best_plan.plan_name,
+            "option": best_option,
+            "total_price": best_price
+        }
+        return result
+    else:
+        return None
+# def list_available_plans_for_store(
+#     store: KaraokeStoreDB, dt: datetime, stay_minutes: int, is_member: bool, is_student: bool
+# ):
+#     """
+#     指定したカラオケ店舗・日時・利用時間・会員/学生区分で該当する全プラン（PlanDetail相当の情報）をリストで返す。
+
+#     Args:
+#         store (KaraokeStore): 対象のカラオケ店舗インスタンス
+#         dt (datetime): 利用開始日時
+#         stay_minutes (int): 利用時間（分）
+#         is_member (bool): 会員かどうか
+#         is_student (bool): 学生かどうか
+#     Returns:
+#         list: 条件に合致するプラン情報のリスト
+#     """
+#     plans = []
+#     if not is_store_open(store, dt):
+#         return plans
+#     day = get_weekday_str(dt)
+#     for plan in store.pricing_plans:
+#         if not is_within_time_range(plan.start_time, plan.end_time, dt):
+#             continue
+#         for option in plan.options:
+#             if day not in option.days:
+#                 continue
+#             # customer_type判定
+#             if is_member and option.customer_type == "member":
+#                 pass
+#             elif is_student and option.customer_type == "student":
+#                 pass
+#             elif option.customer_type == "general":
+#                 pass
+#             else:
+#                 continue
+#             # 金額計算
+#             if option.unit_type == "per_30min":
+#                 units = math.ceil(stay_minutes / 30)
+#                 total = option.amount * units
+#             elif option.unit_type == "per_hour":
+#                 units = math.ceil(stay_minutes / 60)
+#                 total = option.amount * units
+#             else:
+#                 total = option.amount
+#             plans.append(
+#                 {
+#                     "plan_name": plan.plan_name,
+#                     "unit": option.unit_type,
+#                     "price": int(total),
+#                     "price_per_30_min": option.amount if option.unit_type == "per_30min" else None,
+#                     "start": plan.start_time,
+#                     "end": plan.end_time,
+#                     "customer_type": [option.customer_type],
+#                 }
+#             )
+#     return plans
 
 
 def haversine(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
