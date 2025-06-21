@@ -205,7 +205,7 @@ export function SearchPage({
                 variant={studentDiscount ? "default" : "outline"}
                 size="sm"
                 onClick={() => setStudentDiscount(!studentDiscount)}
-                className={studentDiscount ? "bg-orange-500 hover:bg-orange-600" : ""}
+                className={studentDiscount ? "bg-indigo-600 hover:bg-indigo-600" : ""}
               >
                 学割
               </Button>
