@@ -39,7 +39,31 @@ def seed_plan_option_data():
                 amount=1200,
                 unit_type=UnitType.per_hour,
                 notes="会員限定プラン",
+                days=DayType.sat,
+                pricing_plan_id=plan.id
+            )
+            session.add(option) 
+        option = session.get(PlanOptionDB, 2)
+        if not option:
+            option = PlanOptionDB(
+                id=2,
+                customer_type=CustomerType.member,
+                amount=1200,
+                unit_type=UnitType.per_hour,
+                notes="会員限定プラン",
                 days=DayType.sun,
+                pricing_plan_id=plan.id
+            )
+            session.add(option)
+        option = session.get(PlanOptionDB, 3)
+        if not option:
+            option = PlanOptionDB(
+                id=3,
+                customer_type=CustomerType.general,
+                amount=1200,
+                unit_type=UnitType.per_hour,
+                notes="つうじょうプラン",
+                days=DayType.sat,
                 pricing_plan_id=plan.id
             )
             session.add(option)

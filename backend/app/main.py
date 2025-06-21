@@ -69,6 +69,8 @@ async def get_shop_detail(request: GetDetailRequest, session: SessionDep):
             option = cheapest_plan["option"]
             pricing_plan = cheapest_plan["plan_name"]
             
+            list=[]
+            list.append(option.customer_type.value)
             plans = [
                 PlanDetail(
                     plan_name=pricing_plan,
@@ -77,7 +79,7 @@ async def get_shop_detail(request: GetDetailRequest, session: SessionDep):
                     price_per_30_min=calculate_price_per_30min(option, cheapest_plan["total_price"], stay_minutes),
                     start=option.pricing_plan.start_time if option.pricing_plan else "",
                     end=option.pricing_plan.end_time if option.pricing_plan else "",
-                    customer_type=option.customer_type.value,
+                    customer_type=list,
                 )
             ]
         
