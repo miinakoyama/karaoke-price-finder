@@ -76,18 +76,40 @@ export function StoreDetail({ store, detailData, loading, onClose, membershipSet
               <div className="text-center py-8">読み込み中...</div>
             ) : detailData ? (
               <div className="space-y-2">
-                {detailData.plans.map((plan: PlanDetail, idx: number) => (
-                  <div key={idx} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg border">
-                    <span>{plan.plan_name}（{plan.start}〜{plan.end}）</span>
-                    <div className="text-right">
-                      <span className="font-bold text-indigo-600">¥{plan.price.toLocaleString()}</span>
-                      {plan.price_per_30_min && (
-                        <div className="text-xs text-gray-400">30分単価: ¥{plan.price_per_30_min}</div>
-                      )}
-                      <div className="text-xs text-gray-500">{(plan.customer_type ?? []).map(customerTypeToJa).join(', ')}</div>
+                {detailData.plans.map((plan: PlanDetail, idx: number) => {
+                  const isCheapest = plan.price === store.price_per_person;
+                  
+                  return (
+                    <div 
+                      key={idx} 
+                      className={`flex justify-between items-center p-3 rounded-lg border ${
+                        isCheapest 
+                          ? 'bg-orange-50 border-orange-200 shadow-sm' 
+                          : 'bg-gray-50 border-gray-200'
+                      }`}
+                    >
+                      <div className="flex items-center gap-2">
+                        <span>{plan.plan_name}（{plan.start}〜{plan.end}）</span>
+                        {isCheapest && (
+                          <Badge variant="default" className="bg-orange-500 text-white text-xs">
+                            最安値
+                          </Badge>
+                        )}
+                      </div>
+                      <div className="text-right">
+                        <span className={`font-bold ${
+                          isCheapest ? 'text-orange-600' : 'text-indigo-600'
+                        }`}>
+                          ¥{plan.price.toLocaleString()}
+                        </span>
+                        {plan.price_per_30_min && (
+                          <div className="text-xs text-gray-400">30分単価: ¥{plan.price_per_30_min}</div>
+                        )}
+                        <div className="text-xs text-gray-500">{(plan.customer_type ?? []).map(customerTypeToJa).join(', ')}</div>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             ) : (
               <div className="space-y-2">
