@@ -36,7 +36,6 @@ class SearchRequest(BaseModel):
     longitude: Optional[float] = None
     place_name: Optional[str] = None  # 地名での検索も可能に
     stay_minutes: Optional[int] = None  # 分数指定
-    is_free_time: Optional[bool] = None  # フリータイム指定
     start_time: str  # 開始時刻（例: "18:00"）
     group_size: int
     is_student: bool
