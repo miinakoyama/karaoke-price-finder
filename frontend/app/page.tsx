@@ -6,7 +6,8 @@ import { useDebounce } from "use-debounce"
 import { SearchPage } from "./pages/SearchPage"
 import { ResultsPage } from "./pages/ResultsPage"
 import { StoreDetail } from "./pages/StoreDetail"
-import { Store, MembershipSettings, mockStores } from "./types/store"
+import { Store, MembershipSettings } from "./types/store"
+import { GetDetailResponse } from "./types/api"
 
 export default function KaraokeSearchApp() {
   const [currentView, setCurrentView] = useState<"home" | "results">("home")
@@ -25,6 +26,9 @@ export default function KaraokeSearchApp() {
   const [inputAddress, setInputAddress] = useState("")
   const [validAddress, setValidAddress] = useState(false)
   const [debouncedAddress] = useDebounce(inputAddress, 1000) // 1秒間入力が止まったら反応
+  const [detailData, setDetailData] = useState<GetDetailResponse | null>(null)
+  const [loadingDetail, setLoadingDetail] = useState(false)
+
   const [membershipSettings, setMembershipSettings] = useState<MembershipSettings>({
     karaokeCan: { isMember: false },
     bigEcho: { isMember: false },
@@ -39,6 +43,53 @@ export default function KaraokeSearchApp() {
       ...prev,
       [chainKey]: { isMember },
     }))
+  }
+  
+  function getChainKey(chainName: string): string {
+    switch (chainName) {
+      case "カラオケ館":
+      case "karaokeCan":
+        return "karaokeCan";
+      case "ビッグエコー":
+      case "bigEcho":
+        return "bigEcho";
+      case "カラオケの鉄人":
+      case "tetsuJin":
+        return "tetsuJin";
+      case "まねきねこ":
+      case "manekineko":
+        return "manekineko";
+      case "ジャンカラ":
+      case "jankara":
+        return "jankara";
+      case "歌広場":
+      case "utahiroba":
+        return "utahiroba";
+      default:
+        return "karaokeCan";
+    }
+  }
+
+  function mapApiShopToStore(apiShop: any): Store {
+    const chainKey = getChainKey(apiShop.icon_url || apiShop.chain_name || "");
+    return {
+      shop_id: apiShop.shop_id,
+      name: apiShop.name,
+      icon_url: apiShop.icon_url || "",
+      price_per_person: apiShop.price_per_person,
+      memberPrice: undefined,
+      drinkInfo: "ドリンクバー付",
+      badges: [],
+      distance: "0.5km",
+      rating: 4.0,
+      address: "住所未設定",
+      phone: apiShop.phone || "",
+      features: [],
+      all_plans: apiShop.all_plans || [],
+      chainKey,
+      latitude: apiShop.latitude || 0,
+      longitude: apiShop.longitude || 0,
+    }
   }
   
   const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
@@ -142,13 +193,39 @@ export default function KaraokeSearchApp() {
         })
     
         const data = await response.json()
-        setStores(data.results || [])
+        setStores((data.results || []).map(mapApiShopToStore))
         setCurrentView("results")
       } catch (error) {
         console.error("検索APIエラー:", error)
       }
     }
   }
+
+  useEffect(() => {
+    if (!selectedStore) return;
+    setLoadingDetail(true);
+    setDetailData(null);
+    fetch("http://localhost:8000/get_detail", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        shop_id: selectedStore.shop_id,
+        start_time: startTime,
+        stay_minutes: Math.round(duration[0] * 60),
+        is_student: studentDiscount,
+        member_shop_ids: Object.entries(membershipSettings)
+          .filter(([, v]) => v.isMember)
+          .map(([k]) => k),
+      }),
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("詳細APIエラー");
+        return res.json();
+      })
+      .then((data) => setDetailData(data))
+      .catch(() => setDetailData(null))
+      .finally(() => setLoadingDetail(false));
+  }, [selectedStore, startTime, duration, studentDiscount, membershipSettings]);
 
   if (currentView === "home") {
     return (
@@ -183,7 +260,7 @@ export default function KaraokeSearchApp() {
         onBack={() => setCurrentView("home")}
         viewMode={viewMode}
         setViewMode={setViewMode}
-        stores={mockStores}
+        stores={stores}
         searchLocation={searchLocation}
         distance={distance}
         startTime={startTime}
@@ -195,7 +272,13 @@ export default function KaraokeSearchApp() {
       />
       <StoreDetail
         store={selectedStore}
-        onClose={() => setSelectedStore(null)}
+        detailData={detailData}
+        loading={loadingDetail}
+        onClose={() => {
+          setSelectedStore(null)
+          setDetailData(null)
+          setLoadingDetail(false)
+        }}
         membershipSettings={membershipSettings}
       />
     </>

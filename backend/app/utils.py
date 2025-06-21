@@ -186,6 +186,7 @@ def list_available_plans_for_store(
                 total = option.amount
             plans.append(
                 {
+                    "plan_name": plan.plan_name,
                     "unit": option.unit_type,
                     "price": int(total),
                     "price_per_30_min": option.amount if option.unit_type == "per_30min" else None,
