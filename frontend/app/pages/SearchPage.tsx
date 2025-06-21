@@ -8,7 +8,6 @@ import { MapPin, Search, Footprints, Clock, Users, X } from "lucide-react"
 import { MembershipSettings } from "../types/store"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Dropdown } from 'primereact/dropdown';
-import { classNames } from "primereact/utils"
 
 interface SearchPageProps {
   searchLocation: string
