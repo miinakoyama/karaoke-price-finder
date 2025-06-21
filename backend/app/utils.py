@@ -198,6 +198,7 @@ def find_cheapest_plan_for_store(
 #     return plans
 
 
+
 def haversine(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     """
     2点間の緯度経度から距離（メートル）を返す。

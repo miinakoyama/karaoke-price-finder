@@ -47,6 +47,7 @@ class PlanOptionDB(SQLModel, table=True):
     pricing_plan: Optional["PricingPlanDB"] = Relationship(back_populates="options")
 
 
+
 class PricingPlanDB(SQLModel, table=True):
     __tablename__ = "pricing_plan"
     id: int = Field(default=None, primary_key=True)  # ← 主キーを追加

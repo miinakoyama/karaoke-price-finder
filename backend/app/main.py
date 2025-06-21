@@ -41,8 +41,10 @@ def on_startup():
     seed_plan_option_data()
 
 
+
 @app.post("/get_detail", response_model=GetDetailResponse)
 async def get_shop_detail(request: GetDetailRequest, session: SessionDep):
+
     """
     指定した店舗ID・利用開始時刻・利用時間・会員/学生区分で、
     条件に合致する全プラン詳細を返すエンドポイント。

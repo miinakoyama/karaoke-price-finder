@@ -15,6 +15,8 @@ interface ResultsPageProps {
   setViewMode: (mode: "list" | "map") => void
   stores: Store[]
   searchLocation: string
+  searchLatitude: number | null
+  searchLongitude: number | null
   distance: number[]
   startTime: string
   duration: number[]
@@ -30,6 +32,8 @@ export function ResultsPage({
   setViewMode,
   stores,
   searchLocation,
+  searchLatitude,
+  searchLongitude,
   distance,
   startTime,
   duration,
@@ -78,6 +82,15 @@ export function ResultsPage({
     .filter(([, v]) => v.isMember)
     .map(([k]) => chainNameMap[k] || k)
     .join('、')
+
+  // 店舗リストを表示価格で昇順ソート
+  const sortedStores = stores.slice().sort((a, b) => {
+    const aIsMember = membershipSettings[a.chainKey as keyof typeof membershipSettings]?.isMember
+    const bIsMember = membershipSettings[b.chainKey as keyof typeof membershipSettings]?.isMember
+    const aPrice = aIsMember && a.memberPrice ? a.memberPrice : a.price_per_person
+    const bPrice = bIsMember && b.memberPrice ? b.memberPrice : b.price_per_person
+    return aPrice - bPrice
+  })
 
   // 店舗選択時に詳細APIを呼ぶ
   const handleStoreSelect = async (store: Store) => {
@@ -158,7 +171,7 @@ export function ResultsPage({
       {/* Results */}
       {viewMode === "list" ? (
         <div className="p-4 space-y-2 pb-20">
-          {stores.length === 0 ? (
+          {sortedStores.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-center">
               <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
                 <Search className="w-8 h-8 text-gray-400" />
@@ -171,12 +184,11 @@ export function ResultsPage({
               </p>
             </div>
           ) : (
-            stores.map((store) => {
+            sortedStores.map((store) => {
               const isMember = membershipSettings[store.chainKey as keyof typeof membershipSettings]?.isMember
               const displayPrice = isMember && store.memberPrice ? store.memberPrice : store.price_per_person
 
               return (
-
                 <Card key={store.shop_id} className="shadow-sm cursor-pointer hover:shadow-md transition-shadow">
                   <CardContent className="p-3" onClick={() => onStoreSelect(store)}>
                     <div className="flex items-center gap-3">
@@ -226,16 +238,19 @@ export function ResultsPage({
             stores={stores}
             membershipSettings={membershipSettings}
             onMarkerClick={onStoreSelect}
+            searchLatitude={searchLatitude}
+            searchLongitude={searchLongitude}
+            searchLocation={searchLocation}
           />
         </div>
       )}
 
       {/* StoreDetail モーダル */}
       <StoreDetail
-        store={null}
-        detailData={null}
-        loading={false}
-        onClose={() => {}}
+        store={selectedStore}
+        detailData={detailData}
+        loading={loadingDetail}
+        onClose={() => setSelectedStore(null)}
         membershipSettings={membershipSettings}
       />
     </div>
