@@ -93,6 +93,50 @@ async def get_shop_detail(request: GetDetailRequest, session: SessionDep):
         raise HTTPException(status_code=500, detail="Internal server error")
 
 
+# TODO: store_detail更新
+# @app.get("/stores/{store_id}", response_model=StoreDetailResponse)
+# async def get_store_detail(
+#     store_id: int,
+#     session: SessionDep,
+#     start_time: str = Query(..., description="利用開始時刻（例: '18:00'）"),
+# ):
+#     """
+#     指定した店舗ID・利用開始時刻から閉店までの全プラン詳細を返すエンドポイント。
+#     """
+#     store = session.get(KaraokeStoreDB, store_id)
+#     if store is None:
+#         raise HTTPException(status_code=404, detail="Shop not found")
+
+#     today = datetime.now().date()
+#     start_dt = datetime.strptime(f"{today} {start_time}", "%Y-%m-%d %H:%M")
+#     day = start_dt.strftime("%a").lower()
+
+#     # 閉店時刻を取得（当日のbusiness_hoursから）
+#     closing_time = None
+#     for bh in store.business_hours:
+#         if bh.day_type.value == day:
+#             closing_time = bh.end_time
+#             break
+#     if not closing_time:
+#         closing_time = "23:59"  # fallback
+
+#     # プランの開始時刻がstart_time以降、かつ終了時刻が閉店時刻以下のものを返す
+#     plans = []
+#     for plan in store.pricing_plans:
+#         # プランの時間帯が条件に合うか
+#         if plan.start_time >= start_time and plan.end_time <= closing_time:
+#             for option in plan.options:
+#                 plan_detail = PlanDetail(
+#                     plan_name=plan.plan_name,
+#                     general_price=option.amount if option.customer_type.value == "general" else None,
+#                     student_price=option.amount if option.customer_type.value == "student" else None,
+#                     member_price=option.amount if option.customer_type.value == "member" else None,
+#                 )
+#                 plans.append(plan_detail)
+
+#     return StoreDetailResponse(store_id=store.id, store_name=store.store_name, plans=plans)
+
+
 def calculate_price_per_30min(option: PlanOptionDB, total_price: int, stay_minutes: int) -> int:
     """
     30分あたりの料金を計算する補助関数

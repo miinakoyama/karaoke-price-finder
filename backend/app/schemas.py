@@ -51,7 +51,7 @@ class GetDetailRequest(BaseModel):
     start_time: str  # "HH:MM" format
     stay_minutes: Optional[int] = 60
     is_student: bool = False
-    member_chains: Optional[List[str]] = None
+    member_shop_ids: Optional[List[str]] = None
 
 
 class GetDetailResponse(BaseModel):
@@ -64,3 +64,16 @@ class GetDetailResponse(BaseModel):
     name: str
     plans: List[PlanDetail]
 # PlanDetailTest モデルのpriceはprimary_key=Trueを外す
+
+# TODO: store_detail更新
+# class PlanDetail(BaseModel):
+#     plan_name: str = Field(..., description="プラン名", examples=["2時間パック"])
+#     general_price: Optional[int] = Field(..., description="一般料金(円)", examples=[1000])
+#     student_price: Optional[int] = Field(..., description="学生料金(円)", examples=[800])
+#     member_price: Optional[int] = Field(..., description="会員料金(円)", examples=[700])
+
+
+# class StoreDetailResponse(BaseModel):
+#     store_id: int = Field(..., description="店舗ID", examples=[1])
+#     store_name: str = Field(..., description="店舗名", examples=["六本木本店"])
+#     plans: List[PlanDetail] = Field(..., description="利用可能プラン一覧")
