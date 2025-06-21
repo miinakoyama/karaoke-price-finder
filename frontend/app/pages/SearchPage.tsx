@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { MapPin, Search, Footprints, Clock, Users, X } from "lucide-react"
 import { MembershipSettings } from "../types/store"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { Dropdown } from 'primereact/dropdown';
 
 interface SearchPageProps {
   searchLocation: string
@@ -53,6 +54,20 @@ export function SearchPage({
   membershipSettings,
   updateMembership,
 }: SearchPageProps) {
+  const generateTimeOptions = () => {
+    const options = [];
+    for (let h = 0; h < 24; h++) {
+      for (let m = 0; m < 60; m += 15) {
+        const hour = String(h).padStart(2, '0');
+        const minute = String(m).padStart(2, '0');
+        options.push(`${hour}:${minute}`);
+      }
+    }
+    return options;
+  };
+
+  const timeOptions = generateTimeOptions();
+
   const formatDistance = (distance: number) => {
     if (distance === 500) return `${distance}m以内`
     return `${distance/1000}km以内`
@@ -137,13 +152,20 @@ export function SearchPage({
                   <Clock className="w-4 h-4" />
                   開始時間
                 </label>
-                <Input
-                  type="time"
-                  value={startTime}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                    setStartTime(e.target.value)
-                  }
+                <Dropdown 
+                  value={startTime} 
+                  onChange={(e) => setStartTime(e.value)} 
+                  options={timeOptions} 
+                  optionLabel="name" 
+                  placeholder="--:--" 
+                  className="w-full md:w-14rem border border-gray-200 rounded-md text-sm"
                 />
+                <style jsx>{`
+                  :global(.p-dropdown.p-focus) {
+                    border-color: #4F46E5 !important;
+                    box-shadow: 0 0 0 1px #4F46E5 !important;
+                  }
+                `}</style>
               </div>
               <div className="space-y-2">
                 <label className="text-sm font-medium">利用時間</label>
@@ -183,7 +205,7 @@ export function SearchPage({
                 variant={studentDiscount ? "default" : "outline"}
                 size="sm"
                 onClick={() => setStudentDiscount(!studentDiscount)}
-                className={studentDiscount ? "bg-orange-500 hover:bg-orange-600" : ""}
+                className={studentDiscount ? "bg-indigo-600 hover:bg-indigo-600" : ""}
               >
                 学割
               </Button>

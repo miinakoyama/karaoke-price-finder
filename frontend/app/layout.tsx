@@ -2,6 +2,7 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Noto_Sans_JP } from "next/font/google"
 import "./globals.css"
+import 'primereact/resources/themes/lara-light-cyan/theme.css';
 
 const notoSansJP = Noto_Sans_JP({
   subsets: ["latin"],
