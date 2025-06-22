@@ -13,6 +13,11 @@ class SearchRequest(BaseModel):
     is_student: bool = Field(..., description="学割利用の有無", examples=[True])
     member_chains: Optional[List[str]] = Field(None, description="会員チェーン名リスト", examples=[["カラオケ太郎", "カラオケ舘"]])
 
+class PriceBreakdown(BaseModel):
+    plan_name: str = Field(..., description="適用プラン名", examples=["昼フリータイム"])
+    time_range: str = Field(..., description="適用時間帯", examples=["11:00~20:00"])
+    total_price: int = Field(..., description="合計金額(円)", examples=[1200])
+
 class SearchResultItem(BaseModel):
     store_id: int = Field(..., description="店舗ID", examples=[1])
     chain_name: str = Field(..., description="チェーン名", examples=["カラオケ舘"])
@@ -23,50 +28,11 @@ class SearchResultItem(BaseModel):
     latitude: Optional[float] = Field(..., description="緯度", examples=[35.66287926979908])
     longitude: Optional[float] = Field(..., description="経度", examples=[139.73315145767197])
     phone_number: Optional[str] = Field(..., description="電話番号", examples=["03-1234-5678"])
+    price_breakdown: Optional[List[PriceBreakdown]] = Field(None, description="最安値の計算根拠リスト")
 
 
 class SearchResponse(BaseModel):
     results: List[SearchResultItem]
-
-
-# class PlanDetail(BaseModel):
-#     """
-#     プラン詳細情報。
-#     - 単位種別、金額、30分単価、時間帯、顧客種別
-#     """
-
-#     plan_name: str
-#     unit: str
-#     price: int
-#     price_per_30_min: Optional[int] = None
-#     start: str
-#     end: str
-#     customer_type: List[str]
-
-
-# class GetDetailRequest(BaseModel):
-#     """
-#     店舗詳細取得リクエスト。
-#     - 店舗ID、利用開始時刻、利用時間、学割・会員情報
-#     """
-
-#     shop_id: str
-#     start_time: str  # "HH:MM" format
-#     stay_minutes: Optional[int] = 60
-#     is_student: bool = False
-#     member_shop_ids: Optional[List[str]] = None
-
-
-# class GetDetailResponse(BaseModel):
-#     """
-#     店舗詳細取得レスポンス。
-#     - 店舗ID、店舗名、該当条件下での全プラン詳細リスト
-#     """
-
-#     shop_id: str
-#     name: str
-#     plans: List[PlanDetail]
-# # PlanDetailTest モデルのpriceはprimary_key=Trueを外す
 
 
 class PlanDetail(BaseModel):
@@ -74,6 +40,7 @@ class PlanDetail(BaseModel):
     general_price: Optional[int] = Field(..., description="一般料金(円)", examples=[1000])
     student_price: Optional[int] = Field(..., description="学生料金(円)", examples=[800])
     member_price: Optional[int] = Field(..., description="会員料金(円)", examples=[700])
+    time_range: Optional[str] = Field(None, description="プランの時間帯（例: '11:00~14:00'）", examples=["11:00~14:00"])
 
 
 class StoreDetailResponse(BaseModel):
