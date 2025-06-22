@@ -76,11 +76,11 @@ async def get_shop_detail(request: GetDetailRequest, session: SessionDep):
             pricing_plan = cheapest_plan["plan_name"]
 
             list = []
-            list.append(option.customer_type.value)
+            list.append(str(option.customer_type.value) if hasattr(option.customer_type, 'value') else str(option.customer_type))
             plans = [
                 PlanDetail(
                     plan_name=pricing_plan,
-                    unit=option.unit_type.value,
+                    unit=str(option.unit_type.value) if hasattr(option.unit_type, 'value') else str(option.unit_type),
                     price=cheapest_plan["total_price"],
                     price_per_30_min=calculate_price_per_30min(option, cheapest_plan["total_price"], stay_minutes),
                     start=option.pricing_plan.start_time if option.pricing_plan else "",
@@ -134,11 +134,11 @@ async def get_store_detail(
             pricing_plan = cheapest_plan["plan_name"]
 
             list = []
-            list.append(option.customer_type.value)
+            list.append(str(option.customer_type.value) if hasattr(option.customer_type, 'value') else str(option.customer_type))
             plans = [
                 PlanDetail(
                     plan_name=pricing_plan,
-                    unit=option.unit_type.value,
+                    unit=str(option.unit_type.value) if hasattr(option.unit_type, 'value') else str(option.unit_type),
                     price=cheapest_plan["total_price"],
                     price_per_30_min=calculate_price_per_30min(option, cheapest_plan["total_price"], stay_minutes),
                     start=option.pricing_plan.start_time if option.pricing_plan else "",

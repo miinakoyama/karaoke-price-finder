@@ -113,7 +113,7 @@ def find_cheapest_plan_for_store(
         if not is_within_time_range(plan.start_time, plan.end_time, dt):
             continue
         for option in plan.options:
-            if day != option.days.value:
+            if day not in option.days:
                 continue
             if option.customer_type not in types_to_check:
                 continue
