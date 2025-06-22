@@ -76,7 +76,7 @@ export function StoreDetail({ store, detailData, loading, onClose, membershipSet
 
   return (
     <Sheet open={!!store} onOpenChange={onClose}>
-      <SheetContent side="bottom" className="h-[90vh] rounded-t-xl">
+      <SheetContent side="bottom" className="h-[90vh] rounded-t-xl overflow-y-auto">
         <div className="py-6 space-y-6">
           {/* Store Header */}
           <div className="text-center">
@@ -115,25 +115,31 @@ export function StoreDetail({ store, detailData, loading, onClose, membershipSet
               <div className="space-y-2">
                 {detailData.plans.map((plan: PlanDetail, idx: number) => {
                   const isCheapest = plan.price === store.price_per_person;
-                  
                   return (
                     <div 
                       key={idx} 
-                      className={`flex justify-between items-center p-3 rounded-lg border ${
+                      className={`flex items-center p-3 rounded-lg border gap-2 ${
                         isCheapest 
                           ? 'bg-orange-50 border-orange-200 shadow-sm' 
                           : 'bg-gray-50 border-gray-200'
                       }`}
                     >
-                      <div className="flex items-center gap-2">
+                      {/* プラン名 */}
+                      <div className="flex-1 flex items-center gap-2 min-w-0">
                         <span>{plan.plan_name}（{plan.start}〜{plan.end}）</span>
-                        {isCheapest && (
-                          <Badge variant="default" className="bg-orange-500 text-white text-xs">
+                      </div>
+                      {/* 最安値チップ（中央カラム） */}
+                      <div className="w-14 flex justify-center items-center">
+                        {isCheapest ? (
+                          <Badge variant="default" className="bg-orange-500 text-white text-xs whitespace-nowrap h-6 flex items-center justify-center">
                             最安値
                           </Badge>
+                        ) : (
+                          <div className="h-6" />
                         )}
                       </div>
-                      <div className="text-right">
+                      {/* 値段・顧客タイプ */}
+                      <div className="text-right min-w-[80px]">
                         <span className={`font-bold ${
                           isCheapest ? 'text-orange-600' : 'text-indigo-600'
                         }`}>

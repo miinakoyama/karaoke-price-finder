@@ -2,9 +2,10 @@ from dataclasses import dataclass, field
 from typing import List, Literal
 
 CustomerType = Literal["student", "member", "general"]
-DayType = Literal["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
+DayType = Literal["mon", "tue", "wed", "thu", "fri", "sat", "sun", "holiday", "holiday_eve"]
 TaxType = Literal["tax_included", "tax_excluded"]
-UnitType = Literal["per_30min", "per_hour", "free_time", "pack", "special"]
+UnitType = Literal["per_30min", "free_time", "special"]
+chain_name = Literal["カラオケ館", "まねきねこ", "ビッグエコー", "カラオケの鉄人", "ジャンカラ", "歌広場"]
 
 
 @dataclass
@@ -14,6 +15,7 @@ class PlanOption:
     amount: int
     unit_type: UnitType
     notes: str = ""
+    drink_option: str = ""  # 例: "1ドリンク制", "ドリンクバー付き"
 
 
 @dataclass
