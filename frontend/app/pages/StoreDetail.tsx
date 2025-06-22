@@ -63,6 +63,7 @@ export function StoreDetail({ store, detailData, loading, onClose, membershipSet
     manekineko: '/manekiNeko.jpg',
     jankara: '/jyanKara.jpg',
     utahiroba: '/utahiroba.jpeg',
+    pasela: '/pasela.png',
   }
 
   function customerTypeToJa(type: string): string {
@@ -248,19 +249,20 @@ export function StoreDetail({ store, detailData, loading, onClose, membershipSet
               className="w-full"
               onClick={() => {
                 // 電話番号に電話をかける
-                if (store.phone) {
-                  window.location.href = `tel:${store.phone}`
+                const phoneNumber = detailData?.phone_number || store.phone;
+                if (phoneNumber) {
+                  window.location.href = `tel:${phoneNumber}`
                 } else {
                   alert('電話番号が登録されていません')
                 }
               }}
             >
               <Phone className="w-4 h-4 mr-2" />
-              電話する {store.phone && `(${store.phone})`}
+              電話する {detailData?.phone_number && `(${detailData.phone_number})`}
             </Button>
           </div>
         </div>
       </SheetContent>
     </Sheet>
   )
-} 
+}

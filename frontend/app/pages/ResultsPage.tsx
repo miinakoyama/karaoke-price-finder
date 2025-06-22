@@ -67,6 +67,7 @@ export function ResultsPage({
     manekineko: 'まねきねこ',
     jankara: 'ジャンカラ',
     utahiroba: '歌広場',
+    pasela: 'カラオケパセラ',
   }
 
   const chainLogoMap: Record<string, string> = {
@@ -76,6 +77,7 @@ export function ResultsPage({
     manekineko: '/manekiNeko.jpg',
     jankara: '/jyanKara.jpg',
     utahiroba: '/utahiroba.jpeg',
+    pasela: '/pasela.png',
   }
 
   const memberStoreLabel = Object.entries(membershipSettings)

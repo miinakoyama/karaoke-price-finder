@@ -153,7 +153,7 @@ dummy_stores = [
             # holiday_eve→fri
         ],
         tax_type="tax_included",
-        chain_name="パセラ",
+        chain_name="カラオケパセラ",
         pricing_plans=[
             PricingPlan(
                 plan_name="オールナイトフリータイム",
@@ -1176,7 +1176,7 @@ dummy_stores = [
                 options=[
                     PlanOption(
                         days=["mon","tue","wed","thu","fri"],
-                        customer_type="student",
+                        customer_type="general",
                         amount=700,
                         unit_type="special",
                         notes="最終受付16:00／短大・大学生・専門学生対象／税込770円",
@@ -1184,7 +1184,7 @@ dummy_stores = [
                     ),
                     PlanOption(
                         days=["sat","sun","holiday"],
-                        customer_type="student",
+                        customer_type="general",
                         amount=1_500,
                         unit_type="special",
                         notes="最終受付16:00／短大・大学生・専門学生対象／税込1 650円",
@@ -1248,7 +1248,7 @@ dummy_stores = [
                 options=[
                     PlanOption(
                         days=["mon","tue","wed","thu","fri"],
-                        customer_type="student",
+                        customer_type="general",
                         amount=700,
                         unit_type="special",
                         notes="短大・大学生・専門学生対象／税込770円",
@@ -1256,7 +1256,7 @@ dummy_stores = [
                     ),
                     PlanOption(
                         days=["sat","sun","holiday"],
-                        customer_type="student",
+                        customer_type="general",
                         amount=1_500,
                         unit_type="special",
                         notes="短大・大学生・専門学生対象／税込1 650円",
@@ -1914,7 +1914,7 @@ dummy_stores = [
             for day in ["sun", "holiday"]
         ],
         tax_type="tax_included",
-        chain_name="パセラ",
+        chain_name="カラオケパセラ",
         pricing_plans=[
             # 基本30分料金（OPEN〜17:00）
             PricingPlan(

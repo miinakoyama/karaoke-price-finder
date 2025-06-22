@@ -36,6 +36,7 @@ export default function KaraokeSearchApp() {
     manekineko: { isMember: false },
     jankara: { isMember: false },
     utahiroba: { isMember: false },
+    pasela: { isMember: false },
   })
 
   const updateMembership = (chainKey: string, isMember: boolean) => {
@@ -65,6 +66,9 @@ export default function KaraokeSearchApp() {
       case "歌広場":
       case "utahiroba":
         return "utahiroba";
+      case "カラオケパセラ":
+      case "pasela":
+        return "pasela";
       default:
         return "karaokeCan";
     }
@@ -195,6 +199,7 @@ export default function KaraokeSearchApp() {
         manekineko: 'まねきねこ',
         jankara: 'ジャンカラ',
         utahiroba: '歌広場',
+        pasela: 'カラオケパセラ',
       }
 
       const member_shop_ids = Object.entries(membershipSettings)
@@ -244,6 +249,7 @@ export default function KaraokeSearchApp() {
       manekineko: 'まねきねこ',
       jankara: 'ジャンカラ',
       utahiroba: '歌広場',
+      pasela: 'カラオケパセラ',
     }
 
     const member_shop_ids = Object.entries(membershipSettings)

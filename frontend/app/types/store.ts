@@ -24,6 +24,7 @@ export interface MembershipSettings {
   manekineko: { isMember: boolean }
   jankara: { isMember: boolean }
   utahiroba: { isMember: boolean }
+  pasela: { isMember: boolean }
 }
 
 export const mockStores: Store[] = [
