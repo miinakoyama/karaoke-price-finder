@@ -144,14 +144,13 @@ export function StoreDetail({ store, detailData, loading, onClose, membershipSet
                           : 'bg-gray-50 border-gray-200'
                       }`}
                     >
-                      {/* プラン名 */}
-                      <div className="flex-1 flex items-center gap-2 min-w-0">
-                        <span>{plan.plan_name}</span>
-                      </div>
-                      {/* 最安値チップ（中央カラム） */}
-                      <div className="w-14 flex justify-center items-center">
-                        {isCheapest ? (
-                          <Badge variant="default" className="bg-orange-500 text-white text-xs whitespace-nowrap h-6 flex items-center justify-center">
+                      <div className="flex items-center gap-2">
+                        <span>
+                          {plan.plan_name}
+                          {plan.time_range && ` (${plan.time_range})`}
+                        </span>
+                        {isCheapest && (
+                          <Badge variant="default" className="bg-orange-500 text-white text-xs whitespace-nowrap">
                             最安値
                           </Badge>
                         ) : (
@@ -208,6 +207,57 @@ export function StoreDetail({ store, detailData, loading, onClose, membershipSet
               </div>
             )}
           </div>
+
+          {/* 最安値計算セクション */}
+          {store.plan_calc && store.plan_calc.length > 0 && (
+            <div className="space-y-3">
+              <h3 className="font-semibold text-gray-900">最安値計算</h3>
+              <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                {store.plan_calc.length === 1 ? (
+                  // 単一の時間帯の場合
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <div className="text-sm text-gray-600">{store.plan_calc[0].time_range}</div>
+                      <div className="font-medium">{store.plan_calc[0].plan_name}</div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-xl font-bold text-orange-600">
+                        ¥{store.plan_calc[0].total_price.toLocaleString()}
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  // 複数の時間帯にまたがる場合
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <div className="flex-1">
+                        {store.plan_calc.map((calc, idx) => (
+                          <div key={idx} className="flex justify-between items-center mb-1">
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm text-gray-600">{calc.time_range}</span>
+                              <span className="font-medium">{calc.plan_name}</span>
+                            </div>
+                            <div className="text-right">
+                              <span className="font-medium">¥{calc.total_price.toLocaleString()}</span>
+                              {idx < store.plan_calc!.length - 1 && (
+                                <span className="text-gray-400 ml-2">+</span>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="border-t border-orange-200 pt-2 flex justify-between items-center">
+                      <span className="font-semibold">合計</span>
+                      <span className="text-xl font-bold text-orange-600">
+                        ¥{store.plan_calc.reduce((sum, calc) => sum + calc.total_price, 0).toLocaleString()}
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Features */}
           <div className="space-y-3">

@@ -93,6 +93,7 @@ export default function KaraokeSearchApp() {
       chainKey,
       latitude: apiShop.latitude || 0,
       longitude: apiShop.longitude || 0,
+      plan_calc: apiShop.plan_calc || [],
     }
   }
 

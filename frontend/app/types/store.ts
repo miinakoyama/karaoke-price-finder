@@ -1,3 +1,5 @@
+import { PlanCalc } from './api'
+
 export interface Store {
   shop_id: string
   name: string
@@ -15,6 +17,7 @@ export interface Store {
   chainKey: string
   latitude: number
   longitude: number
+  plan_calc?: PlanCalc[]
 }
 
 export interface MembershipSettings {
