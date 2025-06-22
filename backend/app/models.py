@@ -1,13 +1,17 @@
-from typing import List, Optional
-from sqlmodel import Field, Session, SQLModel, create_engine, select, Column, Relationship
-from sqlalchemy import Column, Text
-from sqlalchemy.types import Enum as SQLEnum, JSON
 from enum import Enum
+from typing import List, Optional
+
+from sqlalchemy import Column
+from sqlalchemy.types import JSON
+from sqlalchemy.types import Enum as SQLEnum
+from sqlmodel import Column, Field, Relationship, SQLModel
+
 
 class CustomerType(Enum):
     student = "student"
     member = "member"
     general = "general"
+
 
 class DayType(Enum):
     mon = "mon"
@@ -20,9 +24,11 @@ class DayType(Enum):
     holiday = "holiday"  # 追加
     holiday_eve = "holiday_eve"  # 追加
 
+
 class TaxType(Enum):
     tax_included = "tax_included"
     tax_excluded = "tax_excluded"
+
 
 class UnitType(Enum):
     per_30min = "per_30min"
@@ -30,6 +36,7 @@ class UnitType(Enum):
     free_time = "free_time"
     pack = "pack"
     special = "special"
+
 
 class KaraokeStoreDB(SQLModel, table=True):
     __tablename__ = "karaoke_store"
@@ -43,6 +50,7 @@ class KaraokeStoreDB(SQLModel, table=True):
     business_hours: List["BusinessHourDB"] = Relationship(back_populates="karaoke_store")
     pricing_plans: List["PricingPlanDB"] = Relationship(back_populates="karaoke_store")
 
+
 class PricingPlanDB(SQLModel, table=True):
     __tablename__ = "pricing_plan"
     id: int = Field(default=None, primary_key=True)
@@ -52,6 +60,7 @@ class PricingPlanDB(SQLModel, table=True):
     karaoke_store_id: Optional[int] = Field(default=None, foreign_key="karaoke_store.id")
     options: List["PlanOptionDB"] = Relationship(back_populates="pricing_plan")
     karaoke_store: Optional["KaraokeStoreDB"] = Relationship(back_populates="pricing_plans")
+
 
 class PlanOptionDB(SQLModel, table=True):
     __tablename__ = "plan_option"
@@ -64,6 +73,7 @@ class PlanOptionDB(SQLModel, table=True):
     notes: Optional[str] = ""
     pricing_plan_id: Optional[int] = Field(default=None, foreign_key="pricing_plan.id")
     pricing_plan: Optional["PricingPlanDB"] = Relationship(back_populates="options")
+
 
 class BusinessHourDB(SQLModel, table=True):
     __tablename__ = "business_hour"

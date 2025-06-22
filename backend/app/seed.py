@@ -1,7 +1,18 @@
-from .models import CustomerType,DayType,TaxType,UnitType,PlanOptionDB,PricingPlanDB,BusinessHourDB,KaraokeStoreDB
-from sqlmodel import Field, Session, SQLModel, create_engine, select, Column, Relationship
+from sqlmodel import Session
+
 from .db import engine
+from .models import (
+    BusinessHourDB,
+    CustomerType,
+    DayType,
+    KaraokeStoreDB,
+    PlanOptionDB,
+    PricingPlanDB,
+    TaxType,
+    UnitType,
+)
 from .seed_from_dummy import seed_from_dummy
+
 
 def seed_plan_option_data():
     with Session(engine) as session:
@@ -15,7 +26,7 @@ def seed_plan_option_data():
                 longitude=139.7005,
                 phone_number="03-1234-5678",
                 tax_type=TaxType.tax_excluded,
-                chain_name="カラオケ太郎"
+                chain_name="カラオケ太郎",
             )
             session.add(store)
 
@@ -23,11 +34,7 @@ def seed_plan_option_data():
         plan = session.get(PricingPlanDB, 1)
         if not plan:
             plan = PricingPlanDB(
-                id=1,
-                plan_name="昼のフリータイム",
-                start_time="11:00",
-                end_time="18:00",
-                karaoke_store_id=store.id
+                id=1, plan_name="昼のフリータイム", start_time="11:00", end_time="18:00", karaoke_store_id=store.id
             )
             session.add(plan)
 
@@ -41,9 +48,9 @@ def seed_plan_option_data():
                 unit_type=UnitType.per_hour,
                 notes="会員限定プラン",
                 days=DayType.sat,
-                pricing_plan_id=plan.id
+                pricing_plan_id=plan.id,
             )
-            session.add(option) 
+            session.add(option)
         option = session.get(PlanOptionDB, 2)
         if not option:
             option = PlanOptionDB(
@@ -53,7 +60,7 @@ def seed_plan_option_data():
                 unit_type=UnitType.per_hour,
                 notes="会員限定プラン",
                 days=DayType.sun,
-                pricing_plan_id=plan.id
+                pricing_plan_id=plan.id,
             )
             session.add(option)
         option = session.get(PlanOptionDB, 3)
@@ -65,7 +72,7 @@ def seed_plan_option_data():
                 unit_type=UnitType.per_hour,
                 notes="つうじょうプラン",
                 days=DayType.sat,
-                pricing_plan_id=plan.id
+                pricing_plan_id=plan.id,
             )
             session.add(option)
 
@@ -73,29 +80,23 @@ def seed_plan_option_data():
         bh = session.get(BusinessHourDB, 1)
         if not bh:
             bh = BusinessHourDB(
-                id=1,
-                day_type=DayType.sun,
-                start_time="10:00",
-                end_time="23:00",
-                karaoke_store_id=store.id
+                id=1, day_type=DayType.sun, start_time="10:00", end_time="23:00", karaoke_store_id=store.id
             )
             session.add(bh)
         bh = session.get(BusinessHourDB, 2)
         if not bh:
             bh = BusinessHourDB(
-                id=2,
-                day_type=DayType.sat,
-                start_time="10:00",
-                end_time="23:00",
-                karaoke_store_id=store.id
+                id=2, day_type=DayType.sat, start_time="10:00", end_time="23:00", karaoke_store_id=store.id
             )
             session.add(bh)
 
         session.commit()
 
+
 def seed_all():
     # seed_plan_option_data()
     seed_from_dummy()
+
 
 if __name__ == "__main__":
     seed_all()

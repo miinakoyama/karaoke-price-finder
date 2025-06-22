@@ -1,29 +1,25 @@
-from datetime import datetime, timedelta
 from contextlib import asynccontextmanager
+from datetime import datetime, timedelta
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from sqlmodel import select
-from fastapi import Query
-from typing import List
-from .db import SessionDep
 
 # from app.dummy_karaoke_stores import dummy_stores
 from app.utils import (
     find_cheapest_plan_for_store,
     haversine,
-    is_within_time_range,
 )
 
 from .db import (
-    SessionDep,  # または適切なimportパス
+    SessionDep,
     reset_db_and_tables,
 )
 from .models import (
     KaraokeStoreDB,
     PlanOptionDB,
 )
-from .schemas import PlanDetail, SearchRequest, SearchResponse, SearchResultItem, StoreDetailResponse, PriceBreakdown
+from .schemas import PlanDetail, SearchRequest, SearchResponse, SearchResultItem, StoreDetailResponse
 from .seed import seed_all
 
 

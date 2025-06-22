@@ -1,8 +1,12 @@
 import math
 from datetime import datetime, time, timedelta
 from math import asin, cos, radians, sin, sqrt
-from app.models import CustomerType,DayType,TaxType,UnitType,PlanOptionDB,PricingPlanDB,BusinessHourDB,KaraokeStoreDB
 
+from app.models import (
+    CustomerType,
+    KaraokeStoreDB,
+    UnitType,
+)
 
 
 def is_store_open(store: KaraokeStoreDB, dt: datetime) -> bool:
@@ -13,7 +17,7 @@ def is_store_open(store: KaraokeStoreDB, dt: datetime) -> bool:
     prev_day = get_weekday_str(dt - timedelta(days=1))
     time_str = dt.strftime("%H:%M")
     for bh in store.business_hours:
-        # 1. 
+        # 1.
         if bh.day_type.value == current_day and bh.start_time <= bh.end_time:
             if bh.start_time <= time_str < bh.end_time:
                 return True
@@ -69,7 +73,7 @@ def is_within_time_range(start_str: str, end_str: str, dt: datetime) -> bool:
     target_time = dt.time()
 
     # 24時間営業（00:00〜24:00 or 00:00〜00:00）は常にTrue
-    if (start_str == "00:00" and (end_str == "24:00" or end_str == "00:00")):
+    if start_str == "00:00" and (end_str == "24:00" or end_str == "00:00"):
         return True
     # 24:00は翌日0:00とみなす
     if end_str == "24:00":
@@ -133,7 +137,7 @@ def find_cheapest_plan_for_store(
     # 2. フリータイム・パック・スペシャルで全体カバーできるか判定
     from app.schemas import PriceBreakdown
 
-    dt_end = dt + timedelta(minutes=stay_minutes-1)
+    dt_end = dt + timedelta(minutes=stay_minutes - 1)
     for plan in store.pricing_plans:
         for option in plan.options:
             if option.customer_type not in types_to_check:
@@ -142,17 +146,21 @@ def find_cheapest_plan_for_store(
                 continue
             # フリータイム・パック・スペシャルは全体が時間帯に含まれる場合のみ一括適用
             if option.unit_type in (UnitType.free_time, UnitType.pack, UnitType.special):
-                if is_within_time_range(plan.start_time, plan.end_time, dt) and is_within_time_range(plan.start_time, plan.end_time, dt_end):
-                    breakdown = [PriceBreakdown(
-                        plan_name=plan.plan_name,
-                        time_range=f"{plan.start_time}~{plan.end_time}",
-                        total_price=option.amount
-                    )]
+                if is_within_time_range(plan.start_time, plan.end_time, dt) and is_within_time_range(
+                    plan.start_time, plan.end_time, dt_end
+                ):
+                    breakdown = [
+                        PriceBreakdown(
+                            plan_name=plan.plan_name,
+                            time_range=f"{plan.start_time}~{plan.end_time}",
+                            total_price=option.amount,
+                        )
+                    ]
                     return {
                         "plan_name": plan.plan_name,
                         "option": option,
                         "total_price": option.amount,
-                        "breakdown": breakdown
+                        "breakdown": breakdown,
                     }
     # 3. 30分単位で区間ごとに最安プランを選択（フリータイムも区間ごとに候補に含める）
     intervals = []
@@ -195,11 +203,11 @@ def find_cheapest_plan_for_store(
             # best_plan.start_time, best_plan.end_timeを直接str変換して結合
             start_str = str(best_plan.start_time)
             end_str = str(best_plan.end_time)
-            breakdown.append(PriceBreakdown(
-                plan_name=best_plan.plan_name,
-                time_range=start_str + "~" + end_str,
-                total_price=int(best_price)
-            ))
+            breakdown.append(
+                PriceBreakdown(
+                    plan_name=best_plan.plan_name, time_range=start_str + "~" + end_str, total_price=int(best_price)
+                )
+            )
             total_price += best_price
         else:
             # 該当プランがない区間があれば除外（Noneを返す）
@@ -208,7 +216,7 @@ def find_cheapest_plan_for_store(
         "plan_name": breakdown[0].plan_name if breakdown else None,
         "option": None,
         "total_price": total_price,
-        "breakdown": breakdown
+        "breakdown": breakdown,
     }
 
 
