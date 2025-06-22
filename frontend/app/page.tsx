@@ -148,6 +148,7 @@ export default function KaraokeSearchApp() {
         const response = await fetch(
           `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(debouncedAddress)}&key=${GOOGLE_MAPS_API_KEY}`
         )
+
         const data = await response.json()
         if (data.status === "OK") {
           const formattedAddress = data.results[0].formatted_address
