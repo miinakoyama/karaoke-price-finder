@@ -228,11 +228,20 @@ export default function KaraokeSearchApp() {
           body: JSON.stringify(payload),
         })
 
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
         const data = await response.json()
         setStores((data.results || []).map(mapApiShopToStore))
         setCurrentView("results")
       } catch (error) {
         console.error("検索APIエラー:", error)
+        if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+          toast.error("バックエンドサーバーに接続できません。サーバーが起動しているか確認してください。")
+        } else {
+          toast.error("検索に失敗しました。しばらく時間をおいて再度お試しください。")
+        }
       }
     }
   }
