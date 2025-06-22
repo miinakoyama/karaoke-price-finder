@@ -55,7 +55,7 @@ def parse_time_str(s: str) -> time:
 
 def is_within_time_range(start_str: str, end_str: str, dt: datetime) -> bool:
     """
-    指定時刻dtがstart_str〜end_strの範囲内か判定する（24時跨ぎ対応）。
+    指定時刻dtがstart_str〜end_strの範囲内か判定する（24時跨ぎ・24時間営業対応）。
 
     Args:
         start_str (str): 開始時刻（'HH:MM'）
@@ -68,9 +68,18 @@ def is_within_time_range(start_str: str, end_str: str, dt: datetime) -> bool:
     end = parse_time_str(end_str)
     target_time = dt.time()
 
+    # 24時間営業（00:00〜24:00 or 00:00〜00:00）は常にTrue
+    if (start_str == "00:00" and (end_str == "24:00" or end_str == "00:00")):
+        return True
+    # 24:00は翌日0:00とみなす
+    if end_str == "24:00":
+        end = time(0, 0)
+        if start == end:
+            return True  # 00:00〜24:00は常にTrue
     if start < end:
         return start <= target_time < end
     else:
+        # 日付またぎ
         return target_time >= start or target_time < end
 
 
