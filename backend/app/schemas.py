@@ -29,54 +29,55 @@ class SearchResponse(BaseModel):
     results: List[SearchResultItem]
 
 
-class PlanDetail(BaseModel):
-    """
-    プラン詳細情報。
-    - 単位種別、金額、30分単価、時間帯、顧客種別
-    """
-
-    plan_name: str
-    unit: str
-    price: int
-    price_per_30_min: Optional[int] = None
-    start: str
-    end: str
-    customer_type: List[str]
-
-
-class GetDetailRequest(BaseModel):
-    """
-    店舗詳細取得リクエスト。
-    - 店舗ID、利用開始時刻、利用時間、学割・会員情報
-    """
-
-    shop_id: str
-    start_time: str  # "HH:MM" format
-    stay_minutes: Optional[int] = 60
-    is_student: bool = False
-    member_shop_ids: Optional[List[str]] = None
-
-
-class GetDetailResponse(BaseModel):
-    """
-    店舗詳細取得レスポンス。
-    - 店舗ID、店舗名、該当条件下での全プラン詳細リスト
-    """
-
-    shop_id: str
-    name: str
-    plans: List[PlanDetail]
-# PlanDetailTest モデルのpriceはprimary_key=Trueを外す
-
-# TODO: store_detail更新
 # class PlanDetail(BaseModel):
-#     plan_name: str = Field(..., description="プラン名", examples=["2時間パック"])
-#     general_price: Optional[int] = Field(..., description="一般料金(円)", examples=[1000])
-#     student_price: Optional[int] = Field(..., description="学生料金(円)", examples=[800])
-#     member_price: Optional[int] = Field(..., description="会員料金(円)", examples=[700])
+#     """
+#     プラン詳細情報。
+#     - 単位種別、金額、30分単価、時間帯、顧客種別
+#     """
+
+#     plan_name: str
+#     unit: str
+#     price: int
+#     price_per_30_min: Optional[int] = None
+#     start: str
+#     end: str
+#     customer_type: List[str]
 
 
-# class StoreDetailResponse(BaseModel):
-#     store_id: int = Field(..., description="店舗ID", examples=[1])
-#     store_name: str = Field(..., description="店舗名", examples=["六本木本店"])
-#     plans: List[PlanDetail] = Field(..., description="利用可能プラン一覧")
+# class GetDetailRequest(BaseModel):
+#     """
+#     店舗詳細取得リクエスト。
+#     - 店舗ID、利用開始時刻、利用時間、学割・会員情報
+#     """
+
+#     shop_id: str
+#     start_time: str  # "HH:MM" format
+#     stay_minutes: Optional[int] = 60
+#     is_student: bool = False
+#     member_shop_ids: Optional[List[str]] = None
+
+
+# class GetDetailResponse(BaseModel):
+#     """
+#     店舗詳細取得レスポンス。
+#     - 店舗ID、店舗名、該当条件下での全プラン詳細リスト
+#     """
+
+#     shop_id: str
+#     name: str
+#     plans: List[PlanDetail]
+# # PlanDetailTest モデルのpriceはprimary_key=Trueを外す
+
+
+class PlanDetail(BaseModel):
+    plan_name: str = Field(..., description="プラン名", examples=["2時間パック"])
+    general_price: Optional[int] = Field(..., description="一般料金(円)", examples=[1000])
+    student_price: Optional[int] = Field(..., description="学生料金(円)", examples=[800])
+    member_price: Optional[int] = Field(..., description="会員料金(円)", examples=[700])
+
+
+class StoreDetailResponse(BaseModel):
+    store_id: int = Field(..., description="店舗ID", examples=[1])
+    store_name: str = Field(..., description="店舗名", examples=["六本木本店"])
+    phone_number: Optional[str] = Field(None, description="電話番号", examples=["03-1234-5678"])
+    plans: List[PlanDetail] = Field(..., description="利用可能プラン一覧")
