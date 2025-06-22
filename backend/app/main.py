@@ -165,26 +165,10 @@ async def search_shops(request: SearchRequest, session: SessionDep):
             continue
         # ドリンクオプション取得
         drink_option = getattr(result["option"], "drink_option", "") if result.get("option") else ""
-        # 最安値の計算根拠をセット
-        plan_obj = result["option"]
-        # start_time, end_timeをoptionまたはplanから取得
-        start_time = (
-            getattr(plan_obj, "start_time", None)
-            or (getattr(plan_obj, "plan", None) and getattr(plan_obj.plan, "start_time", None))
-            or ""
-        )
-        end_time = (
-            getattr(plan_obj, "end_time", None)
-            or (getattr(plan_obj, "plan", None) and getattr(plan_obj.plan, "end_time", None))
-            or ""
-        )
-        price_breakdown = [
-            PriceBreakdown(
-                plan_name=result["plan_name"],
-                time_range=f"{start_time}~{end_time}",
-                total_price=int(result["total_price"]),
-            )
-        ]
+        # breakdownからtime_rangeを取得（utils.pyで正しいtime_rangeを返すよう修正済み）
+        price_breakdown = result["breakdown"] if "breakdown" in result else []
+        # breakdownの最初の区間のtime_rangeを使う
+        time_range = price_breakdown[0].time_range if price_breakdown else ""
         results.append(
             SearchResultItem(
                 store_id=store.id,

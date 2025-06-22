@@ -192,13 +192,12 @@ def find_cheapest_plan_for_store(
                     best_plan = plan
                     best_option = option
         if best_plan and best_option:
-            print(best_plan)
-            s = best_plan.start_time
-            e = best_plan.end_time
-            print(s, e)
+            # best_plan.start_time, best_plan.end_timeを直接str変換して結合
+            start_str = str(best_plan.start_time)
+            end_str = str(best_plan.end_time)
             breakdown.append(PriceBreakdown(
                 plan_name=best_plan.plan_name,
-                time_range=f"{s}~{e}",
+                time_range=start_str + "~" + end_str,
                 total_price=int(best_price)
             ))
             total_price += best_price
