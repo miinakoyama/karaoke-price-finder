@@ -169,7 +169,7 @@ export default function KaraokeSearchApp() {
           setValidAddress(true)
         } else {
           console.log("位置情報の取得に失敗")
-          toast.error("無効な住所です。「現在地を使う」を押すか、住所を再度手入力してください。")
+          toast.error("住所解決に失敗しました。「現在地を使う」を押すか、住所を再度手入力してください。")
           setValidAddress(false)
         }
       } catch (error) {
