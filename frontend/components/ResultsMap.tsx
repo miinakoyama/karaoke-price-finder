@@ -98,7 +98,7 @@ export function ResultsMap({ stores, membershipSettings, onMarkerClick, searchLa
   const getPrice = (store: Store) => {
     const isMember =
       membershipSettings[store.chainKey as keyof MembershipSettings]?.isMember
-    return isMember && store.memberPrice ? store.memberPrice : store.price_per_person
+    return isMember && store.memberPrice ? store.memberPrice : (store.price_per_person || 0)
   }
 
   if (!isLoaded) {

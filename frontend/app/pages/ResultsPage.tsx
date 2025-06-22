@@ -87,8 +87,8 @@ export function ResultsPage({
   const sortedStores = stores.slice().sort((a, b) => {
     const aIsMember = membershipSettings[a.chainKey as keyof typeof membershipSettings]?.isMember
     const bIsMember = membershipSettings[b.chainKey as keyof typeof membershipSettings]?.isMember
-    const aPrice = aIsMember && a.memberPrice ? a.memberPrice : a.price_per_person
-    const bPrice = bIsMember && b.memberPrice ? b.memberPrice : b.price_per_person
+    const aPrice = aIsMember && a.memberPrice ? a.memberPrice : (a.price_per_person || 0)
+    const bPrice = bIsMember && b.memberPrice ? b.memberPrice : (b.price_per_person || 0)
     return aPrice - bPrice
   })
 

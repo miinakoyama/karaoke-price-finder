@@ -71,16 +71,16 @@ export default function KaraokeSearchApp() {
   }
 
   function mapApiShopToStore(apiShop: any): Store {
-    const chainKey = getChainKey(apiShop.icon_url || apiShop.chain_name || "");
+    const chainKey = getChainKey(apiShop.chain_name || "");
     return {
-      shop_id: apiShop.shop_id,
-      name: apiShop.name,
+      shop_id: apiShop.store_id,  // store_id → shop_id
+      name: apiShop.store_name,   // store_name → name
       icon_url: apiShop.icon_url || "",
-      price_per_person: apiShop.price_per_person,
+      price_per_person: apiShop.lowest_price_per_person || 0,  // lowest_price_per_person → price_per_person
       memberPrice: undefined,
       drinkInfo: "ドリンクバー付",
       badges: [],
-      distance: "0.5km",
+      distance: `${(apiShop.distance / 1000).toFixed(1)}km`,  // distanceを適切にフォーマット
       rating: 4.0,
       address: "住所未設定",
       phone: apiShop.phone || "",
