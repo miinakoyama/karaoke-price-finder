@@ -1098,7 +1098,7 @@ dummy_stores = [
         longitude=139.736134,
         phone_number="03-6441-3200",
         business_hours=[
-            BusinessHour(day_type=day, start_time="00:00", end_time="00:00")
+            BusinessHour(day_type=day, start_time="00:00", end_time="24:00")
             for day in ["mon", "tue", "wed", "thu", "fri", "sat", "sun", "holiday", "holiday_eve"]
         ],
         tax_type="tax_included",
