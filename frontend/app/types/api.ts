@@ -29,5 +29,5 @@ export interface SearchResultItem {
     latitude: number
     longitude: number
     phone_number?: string
-    plan_calc: PlanCalc[]
+    price_breakdown: PlanCalc[]
 }

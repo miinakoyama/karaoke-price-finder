@@ -114,61 +114,88 @@ export function StoreDetail({ store, detailData, loading, onClose, membershipSet
               <div className="text-center py-8">読み込み中...</div>
             ) : detailData ? (
               <div className="space-y-2">
-                {detailData.plans.map((plan: PlanDetail, idx: number) => {
-                  // 会員・学生・一般の順で価格を決定
-                  const isMember = membershipSettings[store.chainKey as keyof typeof membershipSettings]?.isMember;
-                  const isStudent = false; // 学生情報は別途管理が必要
+                {(() => {
+                  // プラン名でグループ化
+                  const planGroups = detailData.plans.reduce((groups, plan) => {
+                    if (!groups[plan.plan_name]) {
+                      groups[plan.plan_name] = [];
+                    }
+                    groups[plan.plan_name].push(plan);
+                    return groups;
+                  }, {} as Record<string, PlanDetail[]>);
 
-                  let displayPrice = 0;
-                  let priceType = "";
+                  return Object.entries(planGroups).map(([planName, plans]) => {
+                    // 各プランから有効な価格を取得
+                    const prices = {
+                      general: plans.find(p => p.general_price !== null)?.general_price,
+                      student: plans.find(p => p.student_price !== null)?.student_price,
+                      member: plans.find(p => p.member_price !== null)?.member_price,
+                    };
 
-                  if (isMember && plan.member_price !== null) {
-                    displayPrice = plan.member_price;
-                    priceType = "会員";
-                  } else if (isStudent && plan.student_price !== null) {
-                    displayPrice = plan.student_price;
-                    priceType = "学生";
-                  } else if (plan.general_price !== null) {
-                    displayPrice = plan.general_price;
-                    priceType = "一般";
-                  }
+                    // 時間帯を取得（最初のプランから）
+                    const timeRange = plans[0]?.time_range;
 
-                  const isCheapest = displayPrice === store.price_per_person;
+                    // 最安値を計算
+                    const validPrices = Object.values(prices).filter(p => p !== null && p !== undefined) as number[];
+                    const minPrice = validPrices.length > 0 ? Math.min(...validPrices) : 0;
+                    const isCheapest = minPrice === store.price_per_person;
 
-                  return (
-                    <div
-                      key={idx}
-                      className={`flex justify-between items-center p-3 rounded-lg border ${
-                        isCheapest
-                          ? 'bg-orange-50 border-orange-200 shadow-sm'
-                          : 'bg-gray-50 border-gray-200'
-                      }`}
-                    >
-                      <div className="flex items-center gap-2">
-                        <span>
-                          {plan.plan_name}
-                          {plan.time_range && ` (${plan.time_range})`}
-                        </span>
-                        {isCheapest && (
-                          <Badge variant="default" className="bg-orange-500 text-white text-xs whitespace-nowrap">
-                            最安値
-                          </Badge>
-                        ) : (
-                          <div className="h-6" />
-                        )}
+                    return (
+                      <div
+                        key={planName}
+                        className={`flex justify-between items-center p-3 rounded-lg border ${
+                          isCheapest
+                            ? 'bg-orange-50 border-orange-200 shadow-sm'
+                            : 'bg-gray-50 border-gray-200'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <span>
+                            {planName}
+                            {timeRange && ` (${timeRange})`}
+                          </span>
+                          {isCheapest && (
+                            <Badge variant="default" className="bg-orange-500 text-white text-xs whitespace-nowrap">
+                              最安値
+                            </Badge>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-4">
+                          {prices.general !== null && prices.general !== undefined && (
+                            <div className="text-right">
+                              <div className="text-xs text-gray-500">一般</div>
+                              <div className={`font-bold ${
+                                prices.general === minPrice ? 'text-orange-600' : 'text-gray-900'
+                              }`}>
+                                ¥{prices.general.toLocaleString()}
+                              </div>
+                            </div>
+                          )}
+                          {prices.student !== null && prices.student !== undefined && (
+                            <div className="text-right">
+                              <div className="text-xs text-gray-500">学生</div>
+                              <div className={`font-bold ${
+                                prices.student === minPrice ? 'text-orange-600' : 'text-gray-900'
+                              }`}>
+                                ¥{prices.student.toLocaleString()}
+                              </div>
+                            </div>
+                          )}
+                          {prices.member !== null && prices.member !== undefined && (
+                            <div className="text-right">
+                              <div className="text-xs text-gray-500">会員</div>
+                              <div className={`font-bold ${
+                                prices.member === minPrice ? 'text-orange-600' : 'text-gray-900'
+                              }`}>
+                                ¥{prices.member.toLocaleString()}
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                      {/* 値段・顧客タイプ */}
-                      <div className="text-right min-w-[80px]">
-                        <span className={`font-bold ${
-                          isCheapest ? 'text-orange-600' : 'text-indigo-600'
-                        }`}>
-                          ¥{displayPrice.toLocaleString()}
-                        </span>
-                        <div className="text-xs text-gray-500">{priceType}</div>
-                      </div>
-                    </div>
-                  );
-                })}
+                    );
+                  });
+                })()}
               </div>
             ) : (
               <div className="space-y-2">
@@ -209,20 +236,20 @@ export function StoreDetail({ store, detailData, loading, onClose, membershipSet
           </div>
 
           {/* 最安値計算セクション */}
-          {store.plan_calc && store.plan_calc.length > 0 && (
+          {store.price_breakdown && store.price_breakdown.length > 0 && (
             <div className="space-y-3">
               <h3 className="font-semibold text-gray-900">最安値計算</h3>
               <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
-                {store.plan_calc.length === 1 ? (
+                {store.price_breakdown.length === 1 ? (
                   // 単一の時間帯の場合
                   <div className="flex justify-between items-center">
                     <div>
-                      <div className="text-sm text-gray-600">{store.plan_calc[0].time_range}</div>
-                      <div className="font-medium">{store.plan_calc[0].plan_name}</div>
+                      <div className="text-sm text-gray-600">{store.price_breakdown[0].time_range}</div>
+                      <div className="font-medium">{store.price_breakdown[0].plan_name}</div>
                     </div>
                     <div className="text-right">
                       <div className="text-xl font-bold text-orange-600">
-                        ¥{store.plan_calc[0].total_price.toLocaleString()}
+                        ¥{store.price_breakdown[0].total_price.toLocaleString()}
                       </div>
                     </div>
                   </div>
@@ -231,7 +258,7 @@ export function StoreDetail({ store, detailData, loading, onClose, membershipSet
                   <div className="space-y-2">
                     <div className="flex justify-between items-center">
                       <div className="flex-1">
-                        {store.plan_calc.map((calc, idx) => (
+                        {store.price_breakdown.map((calc, idx) => (
                           <div key={idx} className="flex justify-between items-center mb-1">
                             <div className="flex items-center gap-2">
                               <span className="text-sm text-gray-600">{calc.time_range}</span>
@@ -239,7 +266,7 @@ export function StoreDetail({ store, detailData, loading, onClose, membershipSet
                             </div>
                             <div className="text-right">
                               <span className="font-medium">¥{calc.total_price.toLocaleString()}</span>
-                              {idx < store.plan_calc!.length - 1 && (
+                              {idx < store.price_breakdown!.length - 1 && (
                                 <span className="text-gray-400 ml-2">+</span>
                               )}
                             </div>
@@ -250,7 +277,7 @@ export function StoreDetail({ store, detailData, loading, onClose, membershipSet
                     <div className="border-t border-orange-200 pt-2 flex justify-between items-center">
                       <span className="font-semibold">合計</span>
                       <span className="text-xl font-bold text-orange-600">
-                        ¥{store.plan_calc.reduce((sum, calc) => sum + calc.total_price, 0).toLocaleString()}
+                        ¥{store.price_breakdown.reduce((sum, calc) => sum + calc.total_price, 0).toLocaleString()}
                       </span>
                     </div>
                   </div>

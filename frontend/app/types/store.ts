@@ -17,7 +17,7 @@ export interface Store {
   chainKey: string
   latitude: number
   longitude: number
-  plan_calc?: PlanCalc[]
+  price_breakdown?: PlanCalc[]
 }
 
 export interface MembershipSettings {
