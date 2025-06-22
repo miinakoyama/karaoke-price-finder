@@ -12,3 +12,6 @@ wheels/
 # personal
 data/
 docs/
+
+# database files
+*.db

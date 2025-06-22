@@ -67,6 +67,7 @@ export function ResultsPage({
     manekineko: 'まねきねこ',
     jankara: 'ジャンカラ',
     utahiroba: '歌広場',
+    pasela: 'カラオケパセラ',
   }
 
   const chainLogoMap: Record<string, string> = {
@@ -76,6 +77,7 @@ export function ResultsPage({
     manekineko: '/manekiNeko.jpg',
     jankara: '/jyanKara.jpg',
     utahiroba: '/utahiroba.jpeg',
+    pasela: '/pasela.png',
   }
 
   const memberStoreLabel = Object.entries(membershipSettings)
@@ -87,8 +89,8 @@ export function ResultsPage({
   const sortedStores = stores.slice().sort((a, b) => {
     const aIsMember = membershipSettings[a.chainKey as keyof typeof membershipSettings]?.isMember
     const bIsMember = membershipSettings[b.chainKey as keyof typeof membershipSettings]?.isMember
-    const aPrice = aIsMember && a.memberPrice ? a.memberPrice : a.price_per_person
-    const bPrice = bIsMember && b.memberPrice ? b.memberPrice : b.price_per_person
+    const aPrice = aIsMember && a.memberPrice ? a.memberPrice : (a.price_per_person || 0)
+    const bPrice = bIsMember && b.memberPrice ? b.memberPrice : (b.price_per_person || 0)
     return aPrice - bPrice
   })
 
@@ -97,19 +99,36 @@ export function ResultsPage({
     setSelectedStore(store)
     setLoadingDetail(true)
     setDetailData(null)
+
+    // チェーンキーを日本語名に変換するマップ
+    const chainKeyToJapaneseMap: Record<string, string> = {
+      karaokeCan: 'カラオケ館',
+      bigEcho: 'ビッグエコー',
+      tetsuJin: 'カラオケの鉄人',
+      manekineko: 'まねきねこ',
+      jankara: 'ジャンカラ',
+      utahiroba: '歌広場',
+    }
+
+    const member_shop_ids = Object.entries(membershipSettings)
+      .filter(([, v]) => v.isMember)
+      .map(([k]) => chainKeyToJapaneseMap[k] || k)
+
+    // URLパラメータを構築
+    const params = new URLSearchParams({
+      start_time: startTime,
+      stay_minutes: Math.round(duration[0] * 60).toString(),
+      is_student: studentDiscount.toString(),
+      ...member_shop_ids.reduce((acc, id, index) => {
+        acc[`member_shop_ids`] = id;
+        return acc;
+      }, {} as Record<string, string>)
+    });
+
     try {
-      const res = await fetch("http://localhost:8000/get_detail", {
-        method: "POST",
+      const res = await fetch(`http://localhost:8000/stores/${store.shop_id}?${params}`, {
+        method: "GET",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          shop_id: store.shop_id,
-          start_time: startTime,
-          stay_minutes: Math.round(duration[0] * 60),
-          is_student: studentDiscount,
-          member_shop_ids: Object.entries(membershipSettings)
-            .filter(([, v]) => v.isMember)
-            .map(([k]) => k),
-        }),
       })
       if (!res.ok) throw new Error("詳細APIエラー")
       const data = await res.json()

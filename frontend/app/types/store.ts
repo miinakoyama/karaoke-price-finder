@@ -1,3 +1,5 @@
+import { PlanCalc } from './api'
+
 export interface Store {
   shop_id: string
   name: string
@@ -15,6 +17,7 @@ export interface Store {
   chainKey: string
   latitude: number
   longitude: number
+  price_breakdown?: PlanCalc[]
 }
 
 export interface MembershipSettings {
@@ -24,6 +27,7 @@ export interface MembershipSettings {
   manekineko: { isMember: boolean }
   jankara: { isMember: boolean }
   utahiroba: { isMember: boolean }
+  pasela: { isMember: boolean }
 }
 
 export const mockStores: Store[] = [

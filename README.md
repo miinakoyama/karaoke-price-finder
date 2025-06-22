@@ -5,10 +5,6 @@
 [![Deploy – Vercel](https://img.shields.io/badge/Vercel-Live-black?logo=vercel)](https://k-price.vercel.app)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-## ✨ Demo
-
-<https://vercel.com/miinakoyamas-projects/v0-ui>
-
 ## 🛠️ Tech Stack
 
 - **Next.js 14 (App Router) / React 18**
@@ -28,19 +24,19 @@ Node.js 18 以上での動作を想定しています。開発用サーバーは
 ## 🗂️ Directory Structure
 
 - `frontend/app` - アプリケーションのページやルーティング
-- `frontend/components` - 再利用可能なUIコンポーネント
+- `frontend/components` - 再利用可能な UI コンポーネント
 - `frontend/public` - 画像などの静的アセット
 
 ## 🔗 Reference Links
 
 この UI は [v0.dev](https://v0.dev/chat/projects/iSVK7TA8LcM) のチャットから生成したものをベースにしています。
 
-## 🗝️ Google Maps APIキーの設定
+## 🗝️ Google Maps API キーの設定
 
-Googleマップ機能を利用するには、`frontend`ディレクトリ直下に`.env.local`ファイルを作成し、以下のようにAPIキーを記載してください。
+Google マップ機能を利用するには、`frontend`ディレクトリ直下に`.env.local`ファイルを作成し、以下のように API キーを記載してください。
 
 ```
 NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=<取得したAPIキー>
 ```
 
-APIキーは[Google Cloud Platform](https://console.cloud.google.com/)で取得できます。
+API キーは[Google Cloud Platform](https://console.cloud.google.com/)で取得できます。

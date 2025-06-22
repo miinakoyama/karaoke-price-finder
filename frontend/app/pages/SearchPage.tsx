@@ -288,6 +288,18 @@ export function SearchPage({
                         {membershipSettings.utahiroba.isMember ? "会員" : "非会員"}
                       </Button>
                     </div>
+
+                    {/* カラオケパセラ */}
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">カラオケパセラ</span>
+                      <Button
+                        variant={membershipSettings.pasela.isMember ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => updateMembership("pasela", !membershipSettings.pasela.isMember)}
+                      >
+                        {membershipSettings.pasela.isMember ? "会員" : "非会員"}
+                      </Button>
+                    </div>
                   </div>
                 </AccordionContent>
               </AccordionItem>

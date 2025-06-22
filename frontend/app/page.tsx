@@ -36,6 +36,7 @@ export default function KaraokeSearchApp() {
     manekineko: { isMember: false },
     jankara: { isMember: false },
     utahiroba: { isMember: false },
+    pasela: { isMember: false },
   })
 
   const updateMembership = (chainKey: string, isMember: boolean) => {
@@ -44,7 +45,7 @@ export default function KaraokeSearchApp() {
       [chainKey]: { isMember },
     }))
   }
-  
+
   function getChainKey(chainName: string): string {
     switch (chainName) {
       case "カラオケ館":
@@ -65,22 +66,25 @@ export default function KaraokeSearchApp() {
       case "歌広場":
       case "utahiroba":
         return "utahiroba";
+      case "カラオケパセラ":
+      case "pasela":
+        return "pasela";
       default:
         return "karaokeCan";
     }
   }
 
   function mapApiShopToStore(apiShop: any): Store {
-    const chainKey = getChainKey(apiShop.icon_url || apiShop.chain_name || "");
+    const chainKey = getChainKey(apiShop.chain_name || "");
     return {
-      shop_id: apiShop.shop_id,
-      name: apiShop.name,
+      shop_id: apiShop.store_id,  // store_id → shop_id
+      name: apiShop.store_name,   // store_name → name
       icon_url: apiShop.icon_url || "",
-      price_per_person: apiShop.price_per_person,
+      price_per_person: apiShop.lowest_price_per_person || 0,  // lowest_price_per_person → price_per_person
       memberPrice: undefined,
       drinkInfo: "ドリンクバー付",
       badges: [],
-      distance: "0.5km",
+      distance: `${(apiShop.distance / 1000).toFixed(1)}km`,  // distanceを適切にフォーマット
       rating: 4.0,
       address: "住所未設定",
       phone: apiShop.phone || "",
@@ -89,6 +93,7 @@ export default function KaraokeSearchApp() {
       chainKey,
       latitude: apiShop.latitude || 0,
       longitude: apiShop.longitude || 0,
+      price_breakdown: apiShop.price_breakdown || [],
     }
   }
 
@@ -102,7 +107,7 @@ export default function KaraokeSearchApp() {
     const formattedTime = `${String(adjustedHours).padStart(2, "0")}:${String(adjustedMinutes).padStart(2, "0")}`
     setStartTime(formattedTime)
   }, [])
-  
+
   const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
 
   const handleUseCurrentLocation = () => {
@@ -143,7 +148,7 @@ export default function KaraokeSearchApp() {
   useEffect(() => {
     const fetchLatLng = async () => {
       if (!debouncedAddress) return
-  
+
       try {
         const response = await fetch(
           `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(debouncedAddress)}&key=${GOOGLE_MAPS_API_KEY}`
@@ -176,25 +181,36 @@ export default function KaraokeSearchApp() {
         console.error("Geocodingエラー:", error)
       }
     }
-  
+
     fetchLatLng()
   }, [debouncedAddress])
 
-  const handleSearch = async () => {  
+  const handleSearch = async () => {
     console.log(searchLocation, longitude, latitude )
     if (!searchLocation) {
       toast.error("住所が未入力です。「現在地を使う」を押すか、住所を手入力してください。")
     } else if (!validAddress) {
       toast.error("無効な住所です。「現在地を使う」を押すか、住所を再度手入力してください。")
     } else {
+      // チェーンキーを日本語名に変換するマップ
+      const chainKeyToJapaneseMap: Record<string, string> = {
+        karaokeCan: 'カラオケ館',
+        bigEcho: 'ビッグエコー',
+        tetsuJin: 'カラオケの鉄人',
+        manekineko: 'まねきねこ',
+        jankara: 'ジャンカラ',
+        utahiroba: '歌広場',
+        pasela: 'カラオケパセラ',
+      }
+
       const member_shop_ids = Object.entries(membershipSettings)
         .filter(([, value]) => value.isMember)
-        .map(([key]) => key)
+        .map(([key]) => chainKeyToJapaneseMap[key] || key)
       const payload = {
         latitude: latitude ?? 35.6646782, // fallback to 日本、〒106-0032 東京都港区六本木３丁目２−１ 住友不動産六本木グランドタワー,
         longitude: longitude ?? 139.7378198,
         place_name: searchLocation,
-        stay_minutes: duration[0] * 60, 
+        stay_minutes: duration[0] * 60,
         start_time: startTime,
         group_size: people,
         is_student: studentDiscount,
@@ -211,12 +227,21 @@ export default function KaraokeSearchApp() {
           },
           body: JSON.stringify(payload),
         })
-    
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
         const data = await response.json()
         setStores((data.results || []).map(mapApiShopToStore))
         setCurrentView("results")
       } catch (error) {
         console.error("検索APIエラー:", error)
+        if (error instanceof TypeError && error.message.includes('Failed to fetch')) {
+          toast.error("バックエンドサーバーに接続できません。サーバーが起動しているか確認してください。")
+        } else {
+          toast.error("検索に失敗しました。しばらく時間をおいて再度お試しください。")
+        }
       }
     }
   }
@@ -225,18 +250,36 @@ export default function KaraokeSearchApp() {
     if (!selectedStore) return;
     setLoadingDetail(true);
     setDetailData(null);
-    fetch("http://localhost:8000/get_detail", {
-      method: "POST",
+
+    // チェーンキーを日本語名に変換するマップ
+    const chainKeyToJapaneseMap: Record<string, string> = {
+      karaokeCan: 'カラオケ館',
+      bigEcho: 'ビッグエコー',
+      tetsuJin: 'カラオケの鉄人',
+      manekineko: 'まねきねこ',
+      jankara: 'ジャンカラ',
+      utahiroba: '歌広場',
+      pasela: 'カラオケパセラ',
+    }
+
+    const member_shop_ids = Object.entries(membershipSettings)
+      .filter(([, v]) => v.isMember)
+      .map(([k]) => chainKeyToJapaneseMap[k] || k)
+
+    // URLパラメータを構築
+    const params = new URLSearchParams({
+      start_time: startTime,
+      stay_minutes: Math.round(duration[0] * 60).toString(),
+      is_student: studentDiscount.toString(),
+      ...member_shop_ids.reduce((acc, id, index) => {
+        acc[`member_shop_ids`] = id;
+        return acc;
+      }, {} as Record<string, string>)
+    });
+
+    fetch(`http://localhost:8000/stores/${selectedStore.shop_id}?${params}`, {
+      method: "GET",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        shop_id: selectedStore.shop_id,
-        start_time: startTime,
-        stay_minutes: Math.round(duration[0] * 60),
-        is_student: studentDiscount,
-        member_shop_ids: Object.entries(membershipSettings)
-          .filter(([, v]) => v.isMember)
-          .map(([k]) => k),
-      }),
     })
       .then((res) => {
         if (!res.ok) throw new Error("詳細APIエラー");

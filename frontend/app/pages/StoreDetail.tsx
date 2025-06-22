@@ -63,6 +63,7 @@ export function StoreDetail({ store, detailData, loading, onClose, membershipSet
     manekineko: '/manekiNeko.jpg',
     jankara: '/jyanKara.jpg',
     utahiroba: '/utahiroba.jpeg',
+    pasela: '/pasela.png',
   }
 
   function customerTypeToJa(type: string): string {
@@ -106,6 +107,57 @@ export function StoreDetail({ store, detailData, loading, onClose, membershipSet
             )}
           </div>
 
+          {/* 最安値計算セクション */}
+          {store.price_breakdown && store.price_breakdown.length > 0 && (
+            <div className="space-y-3">
+              <h3 className="font-semibold text-gray-900">最安値計算</h3>
+              <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                {store.price_breakdown.length === 1 ? (
+                  // 単一の時間帯の場合
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <div className="text-sm text-gray-600">{store.price_breakdown[0].time_range}</div>
+                      <div className="font-medium">{store.price_breakdown[0].plan_name}</div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-xl font-bold text-orange-600">
+                        ¥{store.price_breakdown[0].total_price.toLocaleString()}
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  // 複数の時間帯にまたがる場合
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <div className="flex-1">
+                        {store.price_breakdown.map((calc, idx) => (
+                          <div key={idx} className="flex justify-between items-center mb-1">
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm text-gray-600">{calc.time_range}</span>
+                              <span className="font-medium">{calc.plan_name}</span>
+                            </div>
+                            <div className="text-right">
+                              <span className="font-medium">¥{calc.total_price.toLocaleString()}</span>
+                              {idx < store.price_breakdown!.length - 1 && (
+                                <span className="text-gray-400 ml-2">+</span>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="border-t border-orange-200 pt-2 flex justify-between items-center">
+                      <span className="font-semibold">合計</span>
+                      <span className="text-xl font-bold text-orange-600">
+                        ¥{store.price_breakdown.reduce((sum, calc) => sum + calc.total_price, 0).toLocaleString()}
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Price Table */}
           <div className="space-y-3">
             <h3 className="font-semibold text-gray-900">料金プラン</h3>
@@ -113,46 +165,77 @@ export function StoreDetail({ store, detailData, loading, onClose, membershipSet
               <div className="text-center py-8">読み込み中...</div>
             ) : detailData ? (
               <div className="space-y-2">
-                {detailData.plans.map((plan: PlanDetail, idx: number) => {
-                  const isCheapest = plan.price === store.price_per_person;
-                  return (
-                    <div 
-                      key={idx} 
-                      className={`flex items-center p-3 rounded-lg border gap-2 ${
-                        isCheapest 
-                          ? 'bg-orange-50 border-orange-200 shadow-sm' 
-                          : 'bg-gray-50 border-gray-200'
-                      }`}
-                    >
-                      {/* プラン名 */}
-                      <div className="flex-1 flex items-center gap-2 min-w-0">
-                        <span>{plan.plan_name}（{plan.start}〜{plan.end}）</span>
+                {(() => {
+                  // プラン名でグループ化
+                  const planGroups = detailData.plans.reduce((groups, plan) => {
+                    if (!groups[plan.plan_name]) {
+                      groups[plan.plan_name] = [];
+                    }
+                    groups[plan.plan_name].push(plan);
+                    return groups;
+                  }, {} as Record<string, PlanDetail[]>);
+
+                  return Object.entries(planGroups).map(([planName, plans]) => {
+                    // 各プランから有効な価格を取得
+                    const prices = {
+                      general: plans.find(p => p.general_price !== null)?.general_price,
+                      student: plans.find(p => p.student_price !== null)?.student_price,
+                      member: plans.find(p => p.member_price !== null)?.member_price,
+                    };
+
+                    // 時間帯を取得（最初のプランから）
+                    const timeRange = plans[0]?.time_range;
+
+                    // 最安値を計算
+                    const validPrices = Object.values(prices).filter(p => p !== null && p !== undefined) as number[];
+                    const minPrice = validPrices.length > 0 ? Math.min(...validPrices) : 0;
+                    const isCheapest = minPrice === store.price_per_person;
+
+                    return (
+                      <div
+                        key={planName}
+                        className={`flex justify-between items-center p-3 rounded-lg border ${
+                          isCheapest
+                            ? 'bg-orange-50 border-orange-200 shadow-sm'
+                            : 'bg-gray-50 border-gray-200'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <span>
+                            {planName}
+                            {timeRange && ` (${timeRange})`}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-4">
+                          {prices.general !== null && prices.general !== undefined && (
+                            <div className="text-right">
+                              <div className="text-xs text-gray-500">一般</div>
+                              <div className="font-bold text-gray-900">
+                                ¥{prices.general.toLocaleString()}
+                              </div>
+                            </div>
+                          )}
+                          {prices.student !== null && prices.student !== undefined && (
+                            <div className="text-right">
+                              <div className="text-xs text-gray-500">学生</div>
+                              <div className="font-bold text-gray-900">
+                                ¥{prices.student.toLocaleString()}
+                              </div>
+                            </div>
+                          )}
+                          {prices.member !== null && prices.member !== undefined && (
+                            <div className="text-right">
+                              <div className="text-xs text-gray-500">会員</div>
+                              <div className="font-bold text-gray-900">
+                                ¥{prices.member.toLocaleString()}
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                      {/* 最安値チップ（中央カラム） */}
-                      <div className="w-14 flex justify-center items-center">
-                        {isCheapest ? (
-                          <Badge variant="default" className="bg-orange-500 text-white text-xs whitespace-nowrap h-6 flex items-center justify-center">
-                            最安値
-                          </Badge>
-                        ) : (
-                          <div className="h-6" />
-                        )}
-                      </div>
-                      {/* 値段・顧客タイプ */}
-                      <div className="text-right min-w-[80px]">
-                        <span className={`font-bold ${
-                          isCheapest ? 'text-orange-600' : 'text-indigo-600'
-                        }`}>
-                          ¥{plan.price.toLocaleString()}
-                        </span>
-                        {plan.price_per_30_min && (
-                          <div className="text-xs text-gray-400">30分単価: ¥{plan.price_per_30_min}</div>
-                        )}
-                        <div className="text-xs text-gray-500">{(plan.customer_type ?? []).map(customerTypeToJa).join(', ')}</div>
-                      </div>
-                    </div>
-                  );
-                })}
+                    );
+                  });
+                })()}
               </div>
             ) : (
               <div className="space-y-2">
@@ -232,19 +315,20 @@ export function StoreDetail({ store, detailData, loading, onClose, membershipSet
               className="w-full"
               onClick={() => {
                 // 電話番号に電話をかける
-                if (store.phone) {
-                  window.location.href = `tel:${store.phone}`
+                const phoneNumber = detailData?.phone_number || store.phone;
+                if (phoneNumber) {
+                  window.location.href = `tel:${phoneNumber}`
                 } else {
                   alert('電話番号が登録されていません')
                 }
               }}
             >
               <Phone className="w-4 h-4 mr-2" />
-              電話する {store.phone && `(${store.phone})`}
+              電話する {detailData?.phone_number && `(${detailData.phone_number})`}
             </Button>
           </div>
         </div>
       </SheetContent>
     </Sheet>
   )
-} 
+}

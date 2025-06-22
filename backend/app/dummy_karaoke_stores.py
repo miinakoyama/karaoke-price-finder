@@ -1,4 +1,4 @@
-from app.models import BusinessHour, KaraokeStore, PlanOption, PricingPlan
+from .models_for_dummy import BusinessHour, KaraokeStore, PlanOption, PricingPlan
 
 dummy_stores = [
     KaraokeStore(
@@ -8,7 +8,7 @@ dummy_stores = [
         longitude=139.7005,
         phone_number="03-1234-5678",
         business_hours=[
-            BusinessHour(day_type=day, start_time="00:00", end_time="00:00")
+            BusinessHour(day_type=day, start_time="00:00", end_time="24:00")
             for day in ["mon", "tue", "wed", "thu", "fri", "sat", "sun"]
         ],
         tax_type="tax_included",
@@ -56,7 +56,7 @@ dummy_stores = [
                     ),
                     PlanOption(
                         days=["sat", "sun"],
-                        customer_type="member",
+                        customer_type="general",
                         amount=273,
                         unit_type="per_30min",
                         drink_option="ワンドリンク制"
@@ -153,7 +153,7 @@ dummy_stores = [
             # holiday_eve→fri
         ],
         tax_type="tax_included",
-        chain_name="パセラ",
+        chain_name="カラオケパセラ",
         pricing_plans=[
             PricingPlan(
                 plan_name="オールナイトフリータイム",
@@ -1098,7 +1098,7 @@ dummy_stores = [
         longitude=139.736134,
         phone_number="03-6441-3200",
         business_hours=[
-            BusinessHour(day_type=day, start_time="00:00", end_time="00:00")
+            BusinessHour(day_type=day, start_time="00:00", end_time="24:00")
             for day in ["mon", "tue", "wed", "thu", "fri", "sat", "sun", "holiday", "holiday_eve"]
         ],
         tax_type="tax_included",
@@ -1112,7 +1112,7 @@ dummy_stores = [
                 options=[
                     PlanOption(
                         days=["mon","tue","wed","thu","fri","sat","sun","holiday","holiday_eve"],
-                        customer_type="member",
+                        customer_type="general",
                         amount=50,
                         unit_type="special",
                         notes="最終受付10:59／税込55円",
@@ -1128,7 +1128,7 @@ dummy_stores = [
                 options=[
                     PlanOption(
                         days=["mon","tue","wed","thu","fri"],
-                        customer_type="member",
+                        customer_type="general",
                         amount=150,
                         unit_type="per_30min",
                         notes="税込165円",
@@ -1136,7 +1136,7 @@ dummy_stores = [
                     ),
                     PlanOption(
                         days=["sat","sun","holiday"],
-                        customer_type="member",
+                        customer_type="general",
                         amount=200,
                         unit_type="per_30min",
                         notes="税込220円",
@@ -1152,7 +1152,7 @@ dummy_stores = [
                 options=[
                     PlanOption(
                         days=["mon","tue","wed","thu","fri"],
-                        customer_type="member",
+                        customer_type="general",
                         amount=900,
                         unit_type="free_time",
                         notes="最終受付17:00／税込990円",
@@ -1160,7 +1160,7 @@ dummy_stores = [
                     ),
                     PlanOption(
                         days=["sat","sun","holiday"],
-                        customer_type="member",
+                        customer_type="general",
                         amount=1_400,
                         unit_type="free_time",
                         notes="最終受付18:00／税込1 540円",
@@ -1176,7 +1176,7 @@ dummy_stores = [
                 options=[
                     PlanOption(
                         days=["mon","tue","wed","thu","fri"],
-                        customer_type="member",
+                        customer_type="general",
                         amount=700,
                         unit_type="special",
                         notes="最終受付16:00／短大・大学生・専門学生対象／税込770円",
@@ -1184,7 +1184,7 @@ dummy_stores = [
                     ),
                     PlanOption(
                         days=["sat","sun","holiday"],
-                        customer_type="member",
+                        customer_type="general",
                         amount=1_500,
                         unit_type="special",
                         notes="最終受付16:00／短大・大学生・専門学生対象／税込1 650円",
@@ -1200,7 +1200,7 @@ dummy_stores = [
                 options=[
                     PlanOption(
                         days=["mon","tue","wed","thu","fri"],
-                        customer_type="member",
+                        customer_type="general",
                         amount=500,
                         unit_type="per_30min",
                         notes="税込550円",
@@ -1208,7 +1208,7 @@ dummy_stores = [
                     ),
                     PlanOption(
                         days=["sat","sun","holiday"],
-                        customer_type="member",
+                        customer_type="general",
                         amount=600,
                         unit_type="per_30min",
                         notes="税込660円",
@@ -1224,7 +1224,7 @@ dummy_stores = [
                 options=[
                     PlanOption(
                         days=["mon","tue","wed","thu","fri"],
-                        customer_type="member",
+                        customer_type="general",
                         amount=2_700,
                         unit_type="free_time",
                         notes="最終受付翌2:00／税込2 970円",
@@ -1232,7 +1232,7 @@ dummy_stores = [
                     ),
                     PlanOption(
                         days=["sat","sun","holiday"],
-                        customer_type="member",
+                        customer_type="general",
                         amount=3_000,
                         unit_type="free_time",
                         notes="最終受付翌2:00／税込3 300円",
@@ -1248,7 +1248,7 @@ dummy_stores = [
                 options=[
                     PlanOption(
                         days=["mon","tue","wed","thu","fri"],
-                        customer_type="member",
+                        customer_type="general",
                         amount=700,
                         unit_type="special",
                         notes="短大・大学生・専門学生対象／税込770円",
@@ -1256,7 +1256,7 @@ dummy_stores = [
                     ),
                     PlanOption(
                         days=["sat","sun","holiday"],
-                        customer_type="member",
+                        customer_type="general",
                         amount=1_500,
                         unit_type="special",
                         notes="短大・大学生・専門学生対象／税込1 650円",
@@ -1914,7 +1914,7 @@ dummy_stores = [
             for day in ["sun", "holiday"]
         ],
         tax_type="tax_included",
-        chain_name="パセラ",
+        chain_name="カラオケパセラ",
         pricing_plans=[
             # 基本30分料金（OPEN〜17:00）
             PricingPlan(
