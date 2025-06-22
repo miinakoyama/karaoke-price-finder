@@ -20,6 +20,9 @@ class SearchResultItem(BaseModel):
     lowest_price_per_person: int = Field(..., description="最安値(円/人)", examples=[800])
     drink_option: str = Field(..., description="ドリンク条件", examples=["ドリンク付"])
     distance: float = Field(..., description="直線距離(m)", examples=[200.5])
+    latitude: Optional[float] = Field(..., description="緯度", examples=[35.66287926979908])
+    longitude: Optional[float] = Field(..., description="経度", examples=[139.73315145767197])
+    phone_number: Optional[str] = Field(..., description="電話番号", examples=["03-1234-5678"])
 
 
 class SearchResponse(BaseModel):

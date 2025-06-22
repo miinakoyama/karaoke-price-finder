@@ -242,14 +242,19 @@ async def search_shops(request: SearchRequest, session: SessionDep):
         result = find_cheapest_plan_for_store(store, start_dt, request.stay_minutes, is_member, request.is_student)
         if not result:
             continue
+        # ドリンクオプション取得
+        drink_option = getattr(result["option"], "drink_option", "") if result.get("option") else ""
         results.append(
             SearchResultItem(
                 store_id=store.id,
                 chain_name=store.chain_name,
                 store_name=store.store_name,
                 lowest_price_per_person=int(result["total_price"]),
-                drink_option=result.get("drink_option", ""),
-                distance=distance,
+                drink_option=getattr(result["option"], "drink_option", "") if result.get("option") else "",
+                distance=float(distance),
+                latitude=store.latitude,
+                longitude=store.longitude,
+                phone_number=getattr(store, "phone_number", None),
             )
         )
     # 最安値順にソート
