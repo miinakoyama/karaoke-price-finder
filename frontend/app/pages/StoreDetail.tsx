@@ -107,6 +107,57 @@ export function StoreDetail({ store, detailData, loading, onClose, membershipSet
             )}
           </div>
 
+          {/* 最安値セクション */}
+          {store.price_breakdown && store.price_breakdown.length > 0 && (
+            <div className="space-y-3">
+              <h3 className="font-semibold text-gray-900">最安値</h3>
+              <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                {store.price_breakdown.length === 1 ? (
+                  // 単一の時間帯の場合
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <div className="text-sm text-gray-600">{store.price_breakdown[0].time_range}</div>
+                      <div className="font-medium">{store.price_breakdown[0].plan_name}</div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-xl font-bold text-orange-600">
+                        ¥{store.price_breakdown[0].total_price.toLocaleString()}
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  // 複数の時間帯にまたがる場合
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <div className="flex-1">
+                        {store.price_breakdown.map((calc, idx) => (
+                          <div key={idx} className="flex justify-between items-center mb-1">
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm text-gray-600">{calc.time_range}</span>
+                              <span className="font-medium">{calc.plan_name}</span>
+                            </div>
+                            <div className="text-right">
+                              <span className="font-medium">¥{calc.total_price.toLocaleString()}</span>
+                              {idx < store.price_breakdown!.length - 1 && (
+                                <span className="text-gray-400 ml-2">+</span>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="border-t border-orange-200 pt-2 flex justify-between items-center">
+                      <span className="font-semibold">合計</span>
+                      <span className="text-xl font-bold text-orange-600">
+                        ¥{store.price_breakdown.reduce((sum, calc) => sum + calc.total_price, 0).toLocaleString()}
+                      </span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Price Table */}
           <div className="space-y-3">
             <h3 className="font-semibold text-gray-900">料金プラン</h3>
@@ -154,19 +205,12 @@ export function StoreDetail({ store, detailData, loading, onClose, membershipSet
                             {planName}
                             {timeRange && ` (${timeRange})`}
                           </span>
-                          {isCheapest && (
-                            <Badge variant="default" className="bg-orange-500 text-white text-xs whitespace-nowrap">
-                              最安値
-                            </Badge>
-                          )}
                         </div>
                         <div className="flex items-center gap-4">
                           {prices.general !== null && prices.general !== undefined && (
                             <div className="text-right">
                               <div className="text-xs text-gray-500">一般</div>
-                              <div className={`font-bold ${
-                                prices.general === minPrice ? 'text-orange-600' : 'text-gray-900'
-                              }`}>
+                              <div className="font-bold text-gray-900">
                                 ¥{prices.general.toLocaleString()}
                               </div>
                             </div>
@@ -174,9 +218,7 @@ export function StoreDetail({ store, detailData, loading, onClose, membershipSet
                           {prices.student !== null && prices.student !== undefined && (
                             <div className="text-right">
                               <div className="text-xs text-gray-500">学生</div>
-                              <div className={`font-bold ${
-                                prices.student === minPrice ? 'text-orange-600' : 'text-gray-900'
-                              }`}>
+                              <div className="font-bold text-gray-900">
                                 ¥{prices.student.toLocaleString()}
                               </div>
                             </div>
@@ -184,9 +226,7 @@ export function StoreDetail({ store, detailData, loading, onClose, membershipSet
                           {prices.member !== null && prices.member !== undefined && (
                             <div className="text-right">
                               <div className="text-xs text-gray-500">会員</div>
-                              <div className={`font-bold ${
-                                prices.member === minPrice ? 'text-orange-600' : 'text-gray-900'
-                              }`}>
+                              <div className="font-bold text-gray-900">
                                 ¥{prices.member.toLocaleString()}
                               </div>
                             </div>
@@ -234,57 +274,6 @@ export function StoreDetail({ store, detailData, loading, onClose, membershipSet
               </div>
             )}
           </div>
-
-          {/* 最安値計算セクション */}
-          {store.price_breakdown && store.price_breakdown.length > 0 && (
-            <div className="space-y-3">
-              <h3 className="font-semibold text-gray-900">最安値計算</h3>
-              <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
-                {store.price_breakdown.length === 1 ? (
-                  // 単一の時間帯の場合
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <div className="text-sm text-gray-600">{store.price_breakdown[0].time_range}</div>
-                      <div className="font-medium">{store.price_breakdown[0].plan_name}</div>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-xl font-bold text-orange-600">
-                        ¥{store.price_breakdown[0].total_price.toLocaleString()}
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  // 複数の時間帯にまたがる場合
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-center">
-                      <div className="flex-1">
-                        {store.price_breakdown.map((calc, idx) => (
-                          <div key={idx} className="flex justify-between items-center mb-1">
-                            <div className="flex items-center gap-2">
-                              <span className="text-sm text-gray-600">{calc.time_range}</span>
-                              <span className="font-medium">{calc.plan_name}</span>
-                            </div>
-                            <div className="text-right">
-                              <span className="font-medium">¥{calc.total_price.toLocaleString()}</span>
-                              {idx < store.price_breakdown!.length - 1 && (
-                                <span className="text-gray-400 ml-2">+</span>
-                              )}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                    <div className="border-t border-orange-200 pt-2 flex justify-between items-center">
-                      <span className="font-semibold">合計</span>
-                      <span className="text-xl font-bold text-orange-600">
-                        ¥{store.price_breakdown.reduce((sum, calc) => sum + calc.total_price, 0).toLocaleString()}
-                      </span>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
 
           {/* Features */}
           <div className="space-y-3">
