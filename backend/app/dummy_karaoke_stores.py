@@ -1,4 +1,4 @@
-from app.models import BusinessHour, KaraokeStore, PlanOption, PricingPlan
+from .models_for_dummy import BusinessHour, KaraokeStore, PlanOption, PricingPlan
 
 dummy_stores = [
     KaraokeStore(

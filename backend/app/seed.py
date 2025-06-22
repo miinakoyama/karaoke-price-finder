@@ -1,6 +1,7 @@
 from .models import CustomerType,DayType,TaxType,UnitType,PlanOptionDB,PricingPlanDB,BusinessHourDB,KaraokeStoreDB
 from sqlmodel import Field, Session, SQLModel, create_engine, select, Column, Relationship
 from .db import engine
+from .seed_from_dummy import seed_from_dummy
 
 def seed_plan_option_data():
     with Session(engine) as session:
@@ -91,3 +92,10 @@ def seed_plan_option_data():
             session.add(bh)
 
         session.commit()
+
+def seed_all():
+    # seed_plan_option_data()
+    seed_from_dummy()
+
+if __name__ == "__main__":
+    seed_all()

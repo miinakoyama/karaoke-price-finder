@@ -14,14 +14,14 @@ from app.utils import (
 
 from .db import (
     SessionDep,  # または適切なimportパス
-    create_db_and_tables,
+    reset_db_and_tables,
 )
 from .models import (
     KaraokeStoreDB,
     PlanOptionDB,
 )
 from .schemas import GetDetailRequest, GetDetailResponse, PlanDetail, SearchRequest, SearchResponse, SearchResultItem
-from .seed import seed_plan_option_data
+from .seed import seed_all
 
 app = FastAPI()
 
@@ -37,8 +37,8 @@ app.add_middleware(
 
 @app.on_event("startup")
 def on_startup():
-    create_db_and_tables()
-    seed_plan_option_data()
+    reset_db_and_tables()
+    seed_all()
 
 
 
@@ -252,6 +252,8 @@ async def search_shops(request: SearchRequest, session: SessionDep):
                 distance=distance,
             )
         )
+    # 最安値順にソート
+    results.sort(key=lambda x: x.lowest_price_per_person)
     return SearchResponse(results=results)
 
 
