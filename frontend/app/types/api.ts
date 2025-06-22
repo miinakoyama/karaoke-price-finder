@@ -1,15 +1,13 @@
 export interface PlanDetail {
     plan_name: string
-    unit: string
-    price: number
-    price_per_30_min?: number
-    start: string
-    end: string
-    customer_type: string[]
+    general_price: number | null
+    student_price: number | null
+    member_price: number | null
 }
 
 export interface GetDetailResponse {
-    shop_id: string
-    name: string
+    store_id: number
+    store_name: string
+    phone_number?: string
     plans: PlanDetail[]
 }

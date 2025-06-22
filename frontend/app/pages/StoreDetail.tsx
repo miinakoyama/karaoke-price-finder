@@ -114,19 +114,38 @@ export function StoreDetail({ store, detailData, loading, onClose, membershipSet
             ) : detailData ? (
               <div className="space-y-2">
                 {detailData.plans.map((plan: PlanDetail, idx: number) => {
-                  const isCheapest = plan.price === store.price_per_person;
+                  // 会員・学生・一般の順で価格を決定
+                  const isMember = membershipSettings[store.chainKey as keyof typeof membershipSettings]?.isMember;
+                  const isStudent = false; // 学生情報は別途管理が必要
+
+                  let displayPrice = 0;
+                  let priceType = "";
+
+                  if (isMember && plan.member_price !== null) {
+                    displayPrice = plan.member_price;
+                    priceType = "会員";
+                  } else if (isStudent && plan.student_price !== null) {
+                    displayPrice = plan.student_price;
+                    priceType = "学生";
+                  } else if (plan.general_price !== null) {
+                    displayPrice = plan.general_price;
+                    priceType = "一般";
+                  }
+
+                  const isCheapest = displayPrice === store.price_per_person;
+
                   return (
-                    <div 
-                      key={idx} 
-                      className={`flex items-center p-3 rounded-lg border gap-2 ${
-                        isCheapest 
-                          ? 'bg-orange-50 border-orange-200 shadow-sm' 
+                    <div
+                      key={idx}
+                      className={`flex justify-between items-center p-3 rounded-lg border ${
+                        isCheapest
+                          ? 'bg-orange-50 border-orange-200 shadow-sm'
                           : 'bg-gray-50 border-gray-200'
                       }`}
                     >
                       {/* プラン名 */}
                       <div className="flex-1 flex items-center gap-2 min-w-0">
-                        <span>{plan.plan_name}（{plan.start}〜{plan.end}）</span>
+                        <span>{plan.plan_name}</span>
                       </div>
                       {/* 最安値チップ（中央カラム） */}
                       <div className="w-14 flex justify-center items-center">
@@ -143,12 +162,9 @@ export function StoreDetail({ store, detailData, loading, onClose, membershipSet
                         <span className={`font-bold ${
                           isCheapest ? 'text-orange-600' : 'text-indigo-600'
                         }`}>
-                          ¥{plan.price.toLocaleString()}
+                          ¥{displayPrice.toLocaleString()}
                         </span>
-                        {plan.price_per_30_min && (
-                          <div className="text-xs text-gray-400">30分単価: ¥{plan.price_per_30_min}</div>
-                        )}
-                        <div className="text-xs text-gray-500">{(plan.customer_type ?? []).map(customerTypeToJa).join(', ')}</div>
+                        <div className="text-xs text-gray-500">{priceType}</div>
                       </div>
                     </div>
                   );
