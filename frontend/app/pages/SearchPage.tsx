@@ -87,9 +87,9 @@ export function SearchPage({
       {/* Header */}
       <header className="sticky top-0 z-50 bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-sm">K</span>
-          </div>
+        <div className="w-8 h-8 rounded-lg overflow-hidden">
+          <img src="/logo.png" alt="App Logo" className="w-full h-full object-cover" />
+        </div>
           <span className="font-semibold text-gray-900">カラオケ最安検索</span>
         </div>
       </header>
