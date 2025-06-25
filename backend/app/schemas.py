@@ -3,7 +3,6 @@ from typing import List, Optional
 from pydantic import BaseModel, Field
 
 
-# --- Request/Response Schemas ---
 class SearchRequest(BaseModel):
     latitude: float = Field(..., description="緯度", examples=[35.66287926979908])
     longitude: float = Field(..., description="経度", examples=[139.73315145767197])

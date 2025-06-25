@@ -2,7 +2,7 @@ import math
 from datetime import datetime, time, timedelta
 from math import asin, cos, radians, sin, sqrt
 
-from app.models import (
+from .tables import (
     CustomerType,
     KaraokeStoreDB,
     UnitType,

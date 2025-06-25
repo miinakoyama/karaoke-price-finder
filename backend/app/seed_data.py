@@ -1,6 +1,6 @@
-from .models_for_dummy import BusinessHour, KaraokeStore, PlanOption, PricingPlan
+from .models import BusinessHour, KaraokeStore, PlanOption, PricingPlan
 
-dummy_stores = [
+karaoke_stores = [
     KaraokeStore(
         id=1,
         store_name="カラオケまねきねこ 六本木店",

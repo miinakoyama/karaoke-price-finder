@@ -15,18 +15,18 @@ from .db import (
     SessionDep,
     reset_db_and_tables,
 )
-from .models import (
+from .tables import (
     KaraokeStoreDB,
     PlanOptionDB,
 )
 from .schemas import PlanDetail, SearchRequest, SearchResponse, SearchResultItem, StoreDetailResponse
-from .seed import seed_all
+from .seed import seed_karaoke_stores
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     reset_db_and_tables()
-    seed_all()
+    seed_karaoke_stores()
     yield
 
 
