@@ -13,7 +13,7 @@ from .tables import (
     UnitType,
 )
 
-# str→Enum変換用
+# Enumのstr値→Enumインスタンス変換用マップ
 DAY_MAP = {d.value: d for d in DayType}
 CUST_MAP = {c.value: c for c in CustomerType}
 TAX_MAP = {t.value: t for t in TaxType}
@@ -21,8 +21,12 @@ UNIT_MAP = {u.value: u for u in UnitType}
 
 
 def seed_karaoke_stores():
+    """
+    カラオケ店舗データをDBにシードする関数。
+    """
     with Session(engine) as session:
         for store in karaoke_stores:
+            # 店舗情報をDBに追加
             store_db = KaraokeStoreDB(
                 id=store.id,
                 store_name=store.store_name,
@@ -35,7 +39,7 @@ def seed_karaoke_stores():
             session.add(store_db)
             session.flush()
 
-            # BusinessHour
+            # 営業時間情報をDBに追加
             for bh in store.business_hours:
                 bh_db = BusinessHourDB(
                     day_type=DAY_MAP.get(bh.day_type, DayType.mon),
@@ -45,7 +49,7 @@ def seed_karaoke_stores():
                 )
                 session.add(bh_db)
 
-            # PricingPlan
+            # 料金プラン情報をDBに追加
             for plan in store.pricing_plans:
                 plan_db = PricingPlanDB(
                     plan_name=plan.plan_name,
@@ -56,7 +60,7 @@ def seed_karaoke_stores():
                 session.add(plan_db)
                 session.flush()
 
-                # PlanOption
+                # プランオプション情報をDBに追加
                 for opt in plan.options:
                     days_enum = [DAY_MAP.get(d, DayType.mon) for d in opt.days]
                     days_list = [d.value for d in days_enum]
@@ -74,4 +78,5 @@ def seed_karaoke_stores():
 
 
 if __name__ == "__main__":
+    # スクリプト実行時にDBへシード
     seed_karaoke_stores()
