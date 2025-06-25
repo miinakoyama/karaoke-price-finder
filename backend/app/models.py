@@ -5,7 +5,6 @@ CustomerType = Literal["student", "member", "general"]
 DayType = Literal["mon", "tue", "wed", "thu", "fri", "sat", "sun", "holiday", "holiday_eve"]
 TaxType = Literal["tax_included", "tax_excluded"]
 UnitType = Literal["per_30min", "free_time", "special"]
-chain_name = Literal["カラオケ館", "まねきねこ", "ビッグエコー"]
 
 
 @dataclass

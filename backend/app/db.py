@@ -21,6 +21,7 @@ def get_session():
     with Session(engine) as session:
         yield session
 
+
 # FastAPI依存性注入用の型エイリアス
 SessionDep = Annotated[Session, Depends(get_session)]
 
@@ -31,6 +32,7 @@ def create_db_and_tables():
     DBに全テーブルを新規作成する（既存テーブルはそのまま）。
     """
     SQLModel.metadata.create_all(engine)
+
 
 # テーブルリセット関数
 def reset_db_and_tables():
