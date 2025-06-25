@@ -1,32 +1,13 @@
 import math
 from datetime import datetime, time, timedelta
 from math import asin, cos, radians, sin, sqrt
-from app.models import CustomerType,DayType,TaxType,UnitType,PlanOptionDB,PricingPlanDB,BusinessHourDB,KaraokeStoreDB
 
-
-
-def is_store_open(store: KaraokeStoreDB, dt: datetime) -> bool:
-    """
-    営業中かどうかを判定する関数
-    """
-    current_day = get_weekday_str(dt)
-    prev_day = get_weekday_str(dt - timedelta(days=1))
-    time_str = dt.strftime("%H:%M")
-    for bh in store.business_hours:
-        # 1. 
-        if bh.day_type.value == current_day and bh.start_time <= bh.end_time:
-            if bh.start_time <= time_str < bh.end_time:
-                return True
-        # 2. 深夜営業（終了が翌日）
-        elif bh.day_type.value == current_day and bh.start_time > bh.end_time:
-            if time_str >= bh.start_time or time_str < bh.end_time:
-                return True
-        # 3. 翌日早朝のカバー（前日の深夜営業）
-        elif bh.day_type.value == prev_day and bh.start_time > bh.end_time:
-            if time_str < bh.end_time:
-                return True
-
-    return False
+from .schemas import PriceBreakdown
+from .tables import (
+    CustomerType,
+    KaraokeStoreDB,
+    UnitType,
+)
 
 
 def get_weekday_str(dt: datetime) -> str:
@@ -35,6 +16,7 @@ def get_weekday_str(dt: datetime) -> str:
 
     Args:
         dt (datetime): 日時
+
     Returns:
         str: 曜日（'mon'〜'sun'）
     """
@@ -47,6 +29,7 @@ def parse_time_str(s: str) -> time:
 
     Args:
         s (str): 'HH:MM'形式の文字列
+
     Returns:
         time: 対応するtimeオブジェクト
     """
@@ -61,6 +44,7 @@ def is_within_time_range(start_str: str, end_str: str, dt: datetime) -> bool:
         start_str (str): 開始時刻（'HH:MM'）
         end_str (str): 終了時刻（'HH:MM'）
         dt (datetime): 判定対象の日時
+
     Returns:
         bool: 範囲内ならTrue
     """
@@ -69,7 +53,7 @@ def is_within_time_range(start_str: str, end_str: str, dt: datetime) -> bool:
     target_time = dt.time()
 
     # 24時間営業（00:00〜24:00 or 00:00〜00:00）は常にTrue
-    if (start_str == "00:00" and (end_str == "24:00" or end_str == "00:00")):
+    if start_str == "00:00" and (end_str == "24:00" or end_str == "00:00"):
         return True
     # 24:00は翌日0:00とみなす
     if end_str == "24:00":
@@ -81,6 +65,37 @@ def is_within_time_range(start_str: str, end_str: str, dt: datetime) -> bool:
     else:
         # 日付またぎ
         return target_time >= start or target_time < end
+
+
+def is_store_open(store: KaraokeStoreDB, dt: datetime) -> bool:
+    """
+    指定日時に店舗が営業中かどうかを判定する。
+    深夜営業や日付またぎにも対応。
+
+    Args:
+        store (KaraokeStoreDB): 対象店舗
+        dt (datetime): 判定する日時
+
+    Returns:
+        bool: 営業中ならTrue
+    """
+    current_day = get_weekday_str(dt)
+    prev_day = get_weekday_str(dt - timedelta(days=1))
+    time_str = dt.strftime("%H:%M")
+    for bh in store.business_hours:
+        # 通常営業
+        if bh.day_type.value == current_day and bh.start_time <= bh.end_time:
+            if bh.start_time <= time_str < bh.end_time:
+                return True
+        # 深夜営業（終了が翌日）
+        elif bh.day_type.value == current_day and bh.start_time > bh.end_time:
+            if time_str >= bh.start_time or time_str < bh.end_time:
+                return True
+        # 前日深夜営業の翌日早朝
+        elif bh.day_type.value == prev_day and bh.start_time > bh.end_time:
+            if time_str < bh.end_time:
+                return True
+    return False
 
 
 def find_cheapest_plan_for_store(
@@ -115,6 +130,7 @@ def find_cheapest_plan_for_store(
         stay_minutes (int): 利用時間（分）
         is_member (bool): 会員かどうか
         is_student (bool): 学生かどうか
+
     Returns:
         dict or None: {'plan_name', 'option', 'total_price', 'breakdown'} または None（該当プランなし）
     """
@@ -130,29 +146,30 @@ def find_cheapest_plan_for_store(
     if not types_to_check:
         types_to_check.append(CustomerType.general)
 
-    # 2. フリータイム・パック・スペシャルで全体カバーできるか判定
-    from app.schemas import PriceBreakdown
-
-    dt_end = dt + timedelta(minutes=stay_minutes-1)
+    dt_end = dt + timedelta(minutes=stay_minutes - 1)
+    # 全体をカバーできるフリータイム等があれば一括適用
     for plan in store.pricing_plans:
         for option in plan.options:
             if option.customer_type not in types_to_check:
                 continue
             if day not in option.days:
                 continue
-            # フリータイム・パック・スペシャルは全体が時間帯に含まれる場合のみ一括適用
             if option.unit_type in (UnitType.free_time, UnitType.pack, UnitType.special):
-                if is_within_time_range(plan.start_time, plan.end_time, dt) and is_within_time_range(plan.start_time, plan.end_time, dt_end):
-                    breakdown = [PriceBreakdown(
-                        plan_name=plan.plan_name,
-                        time_range=f"{plan.start_time}~{plan.end_time}",
-                        total_price=option.amount
-                    )]
+                if is_within_time_range(plan.start_time, plan.end_time, dt) and is_within_time_range(
+                    plan.start_time, plan.end_time, dt_end
+                ):
+                    breakdown = [
+                        PriceBreakdown(
+                            plan_name=plan.plan_name,
+                            time_range=f"{plan.start_time}~{plan.end_time}",
+                            total_price=option.amount,
+                        )
+                    ]
                     return {
                         "plan_name": plan.plan_name,
                         "option": option,
                         "total_price": option.amount,
-                        "breakdown": breakdown
+                        "breakdown": breakdown,
                     }
     # 3. 30分単位で区間ごとに最安プランを選択（フリータイムも区間ごとに候補に含める）
     intervals = []
@@ -195,11 +212,11 @@ def find_cheapest_plan_for_store(
             # best_plan.start_time, best_plan.end_timeを直接str変換して結合
             start_str = str(best_plan.start_time)
             end_str = str(best_plan.end_time)
-            breakdown.append(PriceBreakdown(
-                plan_name=best_plan.plan_name,
-                time_range=start_str + "~" + end_str,
-                total_price=int(best_price)
-            ))
+            breakdown.append(
+                PriceBreakdown(
+                    plan_name=best_plan.plan_name, time_range=start_str + "~" + end_str, total_price=int(best_price)
+                )
+            )
             total_price += best_price
         else:
             # 該当プランがない区間があれば除外（Noneを返す）
@@ -208,7 +225,7 @@ def find_cheapest_plan_for_store(
         "plan_name": breakdown[0].plan_name if breakdown else None,
         "option": None,
         "total_price": total_price,
-        "breakdown": breakdown
+        "breakdown": breakdown,
     }
 
 
@@ -221,8 +238,10 @@ def haversine(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
         lon1 (float): 1点目の経度
         lat2 (float): 2点目の緯度
         lon2 (float): 2点目の経度
+
     Returns:
         float: 2点間の距離（メートル）
+
     Raises:
         ValueError: 緯度経度がfloatでない場合
     """
@@ -235,3 +254,41 @@ def haversine(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
     a = sin(dlat / 2) ** 2 + cos(lat1) * cos(lat2) * sin(dlon / 2) ** 2
     c = 2 * asin(sqrt(a))
     return R * c
+
+
+def calculate_price_per_30min(option, total_price: int, stay_minutes: int) -> int:
+    """
+    30分あたりの料金を計算する補助関数
+
+    Args:
+        option: プランオプション
+        total_price (int): 合計金額
+        stay_minutes (int): 滞在時間（分）
+
+    Returns:
+        int: 30分あたりの料金
+    """
+    if option.unit_type.value == "per_30min":
+        return option.amount
+    elif option.unit_type.value == "per_hour":
+        return option.amount // 2
+    else:
+        # free_time, pack, specialの場合は実際の滞在時間で割る
+        return int(total_price * 30 / stay_minutes) if stay_minutes > 0 else 0
+
+
+def is_member_store(store, member_chains: list[str] | None) -> bool:
+    """
+    指定した店舗が会員店舗かどうか判定する。
+    chain_nameがmember_chainsに含まれていればTrue。
+
+    Args:
+        store: 対象店舗
+        member_chains (list[str] | None): 会員店舗チェーン名リスト
+
+    Returns:
+        bool: 会員店舗ならTrue
+    """
+    if not member_chains:
+        return False
+    return store.chain_name in member_chains

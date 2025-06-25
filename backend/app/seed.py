@@ -1,101 +1,82 @@
-from .models import CustomerType,DayType,TaxType,UnitType,PlanOptionDB,PricingPlanDB,BusinessHourDB,KaraokeStoreDB
-from sqlmodel import Field, Session, SQLModel, create_engine, select, Column, Relationship
+from sqlmodel import Session
+
 from .db import engine
-from .seed_from_dummy import seed_from_dummy
+from .seed_data import karaoke_stores
+from .tables import (
+    BusinessHourDB,
+    CustomerType,
+    DayType,
+    KaraokeStoreDB,
+    PlanOptionDB,
+    PricingPlanDB,
+    TaxType,
+    UnitType,
+)
 
-def seed_plan_option_data():
+# Enumのstr値→Enumインスタンス変換用マップ
+DAY_MAP = {d.value: d for d in DayType}
+CUST_MAP = {c.value: c for c in CustomerType}
+TAX_MAP = {t.value: t for t in TaxType}
+UNIT_MAP = {u.value: u for u in UnitType}
+
+
+def seed_karaoke_stores():
+    """
+    カラオケ店舗データをDBにシードする関数。
+    """
     with Session(engine) as session:
-        # 1. KaraokeStoreDB
-        store = session.get(KaraokeStoreDB, 1)
-        if not store:
-            store = KaraokeStoreDB(
-                id=1,
-                store_name="カラオケ太郎 六本木店",
-                latitude=35.6595,
-                longitude=139.7005,
-                phone_number="03-1234-5678",
-                tax_type=TaxType.tax_excluded,
-                chain_name="カラオケ太郎"
+        for store in karaoke_stores:
+            # 店舗情報をDBに追加
+            store_db = KaraokeStoreDB(
+                id=store.id,
+                store_name=store.store_name,
+                latitude=store.latitude,
+                longitude=store.longitude,
+                phone_number=store.phone_number,
+                tax_type=TAX_MAP[store.tax_type],
+                chain_name=store.chain_name,
             )
-            session.add(store)
+            session.add(store_db)
+            session.flush()
 
-        # 2. PricingPlanDB
-        plan = session.get(PricingPlanDB, 1)
-        if not plan:
-            plan = PricingPlanDB(
-                id=1,
-                plan_name="昼のフリータイム",
-                start_time="11:00",
-                end_time="18:00",
-                karaoke_store_id=store.id
-            )
-            session.add(plan)
+            # 営業時間情報をDBに追加
+            for bh in store.business_hours:
+                bh_db = BusinessHourDB(
+                    day_type=DAY_MAP.get(bh.day_type, DayType.mon),
+                    start_time=bh.start_time,
+                    end_time=bh.end_time,
+                    karaoke_store_id=store_db.id,
+                )
+                session.add(bh_db)
 
-        # 3. PlanOptionDB
-        option = session.get(PlanOptionDB, 1)
-        if not option:
-            option = PlanOptionDB(
-                id=1,
-                customer_type=CustomerType.member,
-                amount=1200,
-                unit_type=UnitType.per_hour,
-                notes="会員限定プラン",
-                days=DayType.sat,
-                pricing_plan_id=plan.id
-            )
-            session.add(option) 
-        option = session.get(PlanOptionDB, 2)
-        if not option:
-            option = PlanOptionDB(
-                id=2,
-                customer_type=CustomerType.member,
-                amount=1200,
-                unit_type=UnitType.per_hour,
-                notes="会員限定プラン",
-                days=DayType.sun,
-                pricing_plan_id=plan.id
-            )
-            session.add(option)
-        option = session.get(PlanOptionDB, 3)
-        if not option:
-            option = PlanOptionDB(
-                id=3,
-                customer_type=CustomerType.general,
-                amount=1200,
-                unit_type=UnitType.per_hour,
-                notes="つうじょうプラン",
-                days=DayType.sat,
-                pricing_plan_id=plan.id
-            )
-            session.add(option)
+            # 料金プラン情報をDBに追加
+            for plan in store.pricing_plans:
+                plan_db = PricingPlanDB(
+                    plan_name=plan.plan_name,
+                    start_time=plan.start_time,
+                    end_time=plan.end_time,
+                    karaoke_store_id=store_db.id,
+                )
+                session.add(plan_db)
+                session.flush()
 
-        # 4. BusinessHourDB
-        bh = session.get(BusinessHourDB, 1)
-        if not bh:
-            bh = BusinessHourDB(
-                id=1,
-                day_type=DayType.sun,
-                start_time="10:00",
-                end_time="23:00",
-                karaoke_store_id=store.id
-            )
-            session.add(bh)
-        bh = session.get(BusinessHourDB, 2)
-        if not bh:
-            bh = BusinessHourDB(
-                id=2,
-                day_type=DayType.sat,
-                start_time="10:00",
-                end_time="23:00",
-                karaoke_store_id=store.id
-            )
-            session.add(bh)
-
+                # プランオプション情報をDBに追加
+                for opt in plan.options:
+                    days_enum = [DAY_MAP.get(d, DayType.mon) for d in opt.days]
+                    days_list = [d.value for d in days_enum]
+                    opt_db = PlanOptionDB(
+                        days=days_list,
+                        customer_type=CUST_MAP.get(opt.customer_type, CustomerType.general),
+                        amount=opt.amount,
+                        unit_type=UNIT_MAP.get(opt.unit_type, UnitType.per_30min),
+                        drink_option=getattr(opt, "drink_option", None),
+                        notes=getattr(opt, "notes", ""),
+                        pricing_plan_id=plan_db.id,
+                    )
+                    session.add(opt_db)
         session.commit()
 
-def seed_all():
-    # seed_plan_option_data()
-    seed_from_dummy()
 
 if __name__ == "__main__":
-    seed_all()
+    # スクリプト実行時にDBへシード
+    seed_karaoke_stores()

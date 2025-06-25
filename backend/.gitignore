@@ -9,9 +9,5 @@ wheels/
 # Virtual environments
 .venv
 
-# personal
-data/
-docs/
-
 # database files
 *.db
